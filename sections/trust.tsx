@@ -1,4 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
+import { Cpu, LucideIcon, Shield, Users } from 'lucide-react';
+import { motion } from 'framer-motion';
+
 interface TrustCardProps {
     icon: LucideIcon;
     title: string;
@@ -12,43 +15,96 @@ const TrustCard = ({
     description,
     index,
 }: TrustCardProps) => (
+    <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: index * 0.1 }}
+    >
+        <Card className="group relative overflow-hidden hover:shadow-xl transition-all duration-500">
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+            {/* Animated border effect */}
+            <div
+                className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                style={{ padding: '1px' }}
+            >
+                <div className="absolute inset-0 bg-white" />
+            </div>
+
+            <CardContent className="relative p-8">
+                <div className="flex flex-col items-center text-center space-y-4">
+                    {/* Icon container with gradient background */}
+                    <div className="relative p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent group-hover:scale-110 transition-transform duration-500">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl animate-pulse" />
+                        <Icon className="w-8 h-8 text-primary relative z-10" />
+                    </div>
+
+                    <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
+                        {title}
+                    </h3>
+
+                    <p className="text-gray-600 leading-relaxed">
+                        {description}
+                    </p>
+                </div>
+            </CardContent>
+        </Card>
+    </motion.div>
+);
 
 const Trust = () => {
+    const trustItems = [
+        {
+            icon: Cpu,
+            title: 'AO Blockchain',
+            description:
+                'Built on secure and proven infrastructure, leveraging cutting-edge blockchain technology',
+        },
+        {
+            icon: Shield,
+            title: 'Mithril Technology',
+            description:
+                'Advanced staking and reward mechanics ensuring reliable and sustainable returns',
+        },
+        {
+            icon: Users,
+            title: 'NAB Ecosystem',
+            description:
+                'Seamlessly integrated with established protocols and growing community',
+        },
+    ];
+
     return (
-        <section id="trust" className="bg-gray-50/50 py-24">
-            <div className="container mx-auto px-4 text-center">
-                <h2 className="text-4xl font-bold mb-12">Built on Trust</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-                    <Card className="hover:shadow-lg transition-all duration-300">
-                        <CardContent className="p-6">
-                            <h3 className="font-bold text-lg mb-2">
-                                AO Blockchain
-                            </h3>
-                            <p className="text-gray-600">
-                                Powered by secure and proven infrastructure
-                            </p>
-                        </CardContent>
-                    </Card>
-                    <Card className="hover:shadow-lg transition-all duration-duration-300">
-                        <CardContent className="p-6">
-                            <h3 className="font-bold text-lg mb-2">
-                                Mithril Technology
-                            </h3>
-                            <p className="text-gray-600">
-                                Advanced staking and reward mechanics
-                            </p>
-                        </CardContent>
-                    </Card>
-                    <Card className="hover:shadow-lg transition-all duration-300">
-                        <CardContent className="p-6">
-                            <h3 className="font-bold text-lg mb-2">
-                                NAB Ecosystem
-                            </h3>
-                            <p className="text-gray-600">
-                                Integrated with established protocols
-                            </p>
-                        </CardContent>
-                    </Card>
+        <section id="trust" className="relative py-24 overflow-hidden">
+            {/* Background decorative elements */}
+            <div className="absolute inset-0 bg-gradient-to-b from-gray-50/80 to-white" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+
+            <div className="container mx-auto px-4 relative">
+                <motion.div
+                    className="max-w-3xl mx-auto text-center mb-16"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <h2 className="text-4xl font-bold mb-4">
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-primary-700">
+                            Built on Trust
+                        </span>
+                    </h2>
+                    <p className="text-lg text-gray-600 leading-relaxed">
+                        Backed by proven technology and supported by a robust
+                        ecosystem
+                    </p>
+                </motion.div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                    {trustItems.map((item, index) => (
+                        <TrustCard key={index} {...item} index={index} />
+                    ))}
                 </div>
             </div>
         </section>
