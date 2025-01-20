@@ -8,6 +8,7 @@ import CTA from '@/sections/cta';
 import Footer from '@/sections/footer';
 import Navbar from '@/sections/navbar';
 import { scrollToSection } from '@/lib/helpers';
+import MintSupplyGraph from '@/sections/graph';
 
 // Progress tracking hook
 const useScrollProgress = () => {
@@ -69,6 +70,9 @@ const Home = () => {
 
             {/* How It Works Section */}
             <HowItWorks />
+
+            {/* Visual section */}
+            <MintSupplyGraph />
 
             {/* Trust Section */}
             <Trust />
