@@ -12,6 +12,22 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 
+const FloatingDecoration = ({ className }: { className?: string }) => (
+    <motion.div
+        className={`absolute w-16 h-16 rounded-2xl border-2 border-primary/10 ${className}`}
+        animate={{
+            y: [0, -20, 0],
+            rotate: [0, 45, 0],
+            scale: [1, 1.1, 1],
+        }}
+        transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: 'easeInOut',
+        }}
+    />
+);
+
 const MintSupplyGraph = () => {
     // Calculate supply evolution data
     const generateSupplyData = () => {
@@ -55,6 +71,41 @@ const MintSupplyGraph = () => {
             <div className="absolute inset-0 bg-gradient-to-b from-gray-50/50 to-white" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl opacity-30" />
 
+            {/* Add floating decorations */}
+            <FloatingDecoration className="top-20 left-[5%] opacity-60" />
+            <FloatingDecoration className="top-40 right-[10%] w-20 h-20 opacity-40" />
+            <FloatingDecoration className="bottom-32 left-[15%] w-24 h-24 opacity-50" />
+            <FloatingDecoration className="bottom-48 right-[8%] w-12 h-12 opacity-70" />
+            <FloatingDecoration className="top-1/2 left-[8%] w-16 h-16 opacity-60" />
+
+            {/* Add accent squares */}
+            <motion.div
+                className="absolute top-1/4 right-[22%] w-8 h-8 rounded-lg border-2 border-accent/20"
+                animate={{
+                    y: [0, -15, 0],
+                    rotate: [0, -45, 0],
+                    scale: [1, 1.2, 1],
+                }}
+                transition={{
+                    duration: 6,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                }}
+            />
+            <motion.div
+                className="absolute bottom-1/3 left-[18%] w-10 h-10 rounded-lg border-2 border-accent/20"
+                animate={{
+                    y: [0, 15, 0],
+                    rotate: [0, 45, 0],
+                    scale: [1, 1.1, 1],
+                }}
+                transition={{
+                    duration: 7,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                }}
+            />
+
             <div className="container mx-auto px-4 relative">
                 <div className="max-w-6xl mx-auto">
                     <motion.div
@@ -71,6 +122,10 @@ const MintSupplyGraph = () => {
                         <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                             MINT&apos;s supply decreases over time through our
                             mathematically guaranteed burn mechanism
+                        </p>
+                        <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                            Permanetly staked tokens are protected from the
+                            burn.
                         </p>
                     </motion.div>
 

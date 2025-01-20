@@ -13,6 +13,22 @@ interface MetricProps {
     featured?: boolean;
 }
 
+const FloatingDecoration = ({ className }: { className?: string }) => (
+    <motion.div
+        className={`absolute w-16 h-16 rounded-2xl border-2 border-primary/10 ${className}`}
+        animate={{
+            y: [0, -20, 0],
+            rotate: [0, 45, 0],
+            scale: [1, 1.1, 1],
+        }}
+        transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: 'easeInOut',
+        }}
+    />
+);
+
 const MetricCard = ({
     title,
     value,
@@ -68,6 +84,38 @@ const Hero = () => {
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[80px] opacity-20" />
             </div>
 
+            {/* Add floating decorations */}
+            <FloatingDecoration className="top-32 left-[8%] opacity-60" />
+            <FloatingDecoration className="top-48 right-[12%] w-20 h-20 opacity-40" />
+            <FloatingDecoration className="bottom-40 left-[15%] w-24 h-24 opacity-50" />
+            <FloatingDecoration className="top-1/3 right-[18%] w-12 h-12 opacity-70" />
+            {/* Add accent squares */}
+            <motion.div
+                className="absolute top-1/4 right-[25%] w-8 h-8 rounded-lg border-2 border-accent/20"
+                animate={{
+                    y: [0, -15, 0],
+                    rotate: [0, -45, 0],
+                    scale: [1, 1.2, 1],
+                }}
+                transition={{
+                    duration: 6,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                }}
+            />
+            <motion.div
+                className="absolute bottom-1/3 left-[20%] w-10 h-10 rounded-lg border-2 border-accent/20"
+                animate={{
+                    y: [0, 15, 0],
+                    rotate: [0, 45, 0],
+                    scale: [1, 1.1, 1],
+                }}
+                transition={{
+                    duration: 7,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                }}
+            />
             <div className="container mx-auto px-4 pt-32 pb-24 relative">
                 <div className="max-w-4xl mx-auto">
                     <motion.div

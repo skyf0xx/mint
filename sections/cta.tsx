@@ -4,6 +4,22 @@ import { ChevronRight, ExternalLink } from 'lucide-react';
 import { useRef } from 'react';
 import { InfinityLogo } from './logo';
 
+const FloatingDecoration = ({ className }: { className?: string }) => (
+    <motion.div
+        className={`absolute w-16 h-16 rounded-2xl border-2 border-primary/10 ${className}`}
+        animate={{
+            y: [0, -20, 0],
+            rotate: [0, 45, 0],
+            scale: [1, 1.1, 1],
+        }}
+        transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: 'easeInOut',
+        }}
+    />
+);
+
 const CTA = () => {
     const containerRef = useRef<HTMLElement>(null);
     const { scrollYProgress } = useScroll({
@@ -38,6 +54,43 @@ const CTA = () => {
             <motion.div
                 className="absolute inset-0 bg-gradient-to-b from-gray-50/50 to-transparent"
                 style={{ y: backgroundY }}
+            />
+
+            {/* Decorative background elements */}
+            <div className="absolute inset-0 bg-gradient-to-b from-gray-50/50 to-transparent" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl opacity-50" />
+
+            {/* Add floating decorations */}
+            <FloatingDecoration className="top-20 left-[10%] opacity-50" />
+            <FloatingDecoration className="bottom-16 right-[12%] w-20 h-20 opacity-40" />
+            <FloatingDecoration className="top-1/2 left-[15%] w-12 h-12 opacity-60" />
+
+            {/* Add accent squares */}
+            <motion.div
+                className="absolute top-1/3 right-[20%] w-8 h-8 rounded-lg border-2 border-accent/20"
+                animate={{
+                    y: [0, -15, 0],
+                    rotate: [0, -45, 0],
+                    scale: [1, 1.2, 1],
+                }}
+                transition={{
+                    duration: 6,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                }}
+            />
+            <motion.div
+                className="absolute bottom-1/4 left-[25%] w-10 h-10 rounded-lg border-2 border-accent/20"
+                animate={{
+                    y: [0, 15, 0],
+                    rotate: [0, 45, 0],
+                    scale: [1, 1.1, 1],
+                }}
+                transition={{
+                    duration: 7,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                }}
             />
 
             {/* Animated gradient orbs */}
