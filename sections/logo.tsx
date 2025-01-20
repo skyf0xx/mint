@@ -8,7 +8,7 @@ export const InfinityLogo = () => (
         {/* Logo container */}
         <div className="relative w-full h-full">
             <Image
-                src="/images/infinity.png"
+                src="./images/infinity.png"
                 alt="MINT Token Logo"
                 fill
                 className="object-contain"
