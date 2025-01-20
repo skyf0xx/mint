@@ -70,35 +70,42 @@ const Hero = () => {
 
             <div className="container mx-auto px-4 pt-32 pb-24 relative">
                 <div className="max-w-4xl mx-auto">
-                    {/* Primary Content */}
                     <motion.div
-                        className="text-center space-y-6 mb-12"
+                        className="text-center space-y-8"
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
                     >
-                        {/* Token Name */}
-                        <motion.h2
-                            className="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600"
+                        {/* Enhanced MINT branding */}
+                        <div className="relative">
+                            <motion.div
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ delay: 0.2, duration: 0.5 }}
+                            >
+                                <InfinityLogo />
+                            </motion.div>
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4 }}
+                                className="mt-6"
+                            >
+                                <h1 className="text-7xl md:text-8xl lg:text-9xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-accent mb-4">
+                                    MINT
+                                </h1>
+                                <div className="h-1 w-32 mx-auto bg-gradient-to-r from-primary to-accent rounded-full" />
+                            </motion.div>
+                        </div>
+
+                        {/* Value proposition */}
+                        <motion.div
+                            className="space-y-6"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 }}
+                            transition={{ delay: 0.6 }}
                         >
-                            MINT
-                        </motion.h2>
-
-                        {/* Logo */}
-                        <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ delay: 0.4, duration: 0.5 }}
-                        >
-                            <InfinityLogo />
-                        </motion.div>
-
-                        {/* Main Value Proposition */}
-                        <div className="space-y-4">
-                            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
+                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
                                 Stake Once,{' '}
                                 <span className="relative inline-block">
                                     <span className="relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-accent">
@@ -106,17 +113,17 @@ const Hero = () => {
                                     </span>
                                     <span className="absolute inset-x-0 bottom-2 h-3 bg-accent/10 -rotate-1" />
                                 </span>
-                            </h1>
+                            </h2>
                             <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
                                 Transform your crypto strategy with MINT — the
                                 deflationary token that rewards you with NAB
                                 tokens for life.
                             </p>
-                        </div>
+                        </motion.div>
 
-                        {/* Primary CTAs */}
+                        {/* Call to Action */}
                         <motion.div
-                            className="flex flex-col sm:flex-row justify-center gap-4 pt-6"
+                            className="flex flex-col sm:flex-row justify-center gap-4 pt-8"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.8 }}
@@ -144,26 +151,26 @@ const Hero = () => {
                         </motion.div>
                     </motion.div>
 
-                    {/* Enhanced Metrics Display */}
+                    {/* Metrics Display */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
                         <MetricCard
                             title="Current Supply"
                             value="37.5M"
                             subtitle="MINT Tokens"
-                            delay={0.5}
+                            delay={1.0}
                         />
                         <MetricCard
                             title="Target Floor"
                             value="21M"
                             subtitle="MINT Tokens"
-                            delay={0.6}
+                            delay={1.1}
                             featured={true}
                         />
                         <MetricCard
                             title="Weekly Burn Rate"
                             value="0.25%"
                             subtitle="of unstaked supply"
-                            delay={0.7}
+                            delay={1.2}
                         />
                     </div>
                 </div>
