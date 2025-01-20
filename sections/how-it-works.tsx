@@ -14,17 +14,26 @@ const HowItWorks = () => {
             </div>
 
             <Tabs defaultValue="direct" className="max-w-4xl mx-auto">
-                <TabsList className="grid grid-cols-2 w-full mb-8">
-                    <TabsTrigger value="direct" className="py-4">
-                        <Lock className="w-5 h-5 mr-2" />
-                        Direct Staking
-                    </TabsTrigger>
-                    <TabsTrigger value="lp" className="py-4">
-                        <BarChart3 className="w-5 h-5 mr-2" />
-                        LP Staking
-                    </TabsTrigger>
-                </TabsList>
+                <div className="w-full mb-8">
+                    <TabsList className="w-full grid grid-cols-2 h-14">
+                        <TabsTrigger
+                            value="direct"
+                            className="w-full flex items-center justify-center gap-2 px-8 py-4 data-[state=active]:bg-primary data-[state=active]:text-white"
+                        >
+                            <Lock className="w-5 h-5" />
+                            Direct Staking
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="lp"
+                            className="w-full flex items-center justify-center gap-2 px-8 py-4 data-[state=active]:bg-primary data-[state=active]:text-white"
+                        >
+                            <BarChart3 className="w-5 h-5" />
+                            LP Staking
+                        </TabsTrigger>
+                    </TabsList>
+                </div>
 
+                {/* Rest of the component remains the same */}
                 <TabsContent value="direct">
                     <Card className="border-2">
                         <CardContent className="p-8">
