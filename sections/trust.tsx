@@ -1,4 +1,17 @@
 import { Card, CardContent } from '@/components/ui/card';
+interface TrustCardProps {
+    icon: LucideIcon;
+    title: string;
+    description: string;
+    index: number;
+}
+
+const TrustCard = ({
+    icon: Icon,
+    title,
+    description,
+    index,
+}: TrustCardProps) => (
 
 const Trust = () => {
     return (
