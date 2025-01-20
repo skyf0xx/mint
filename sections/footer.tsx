@@ -1,16 +1,15 @@
 import { ReactNode } from 'react';
 import { motion } from 'framer-motion';
+import { ExternalLink } from 'lucide-react';
 import {
-    MessageCircle, // replacement for Discord
-    Send, // replacement for Telegram
-    Bird, // replacement for Twitter
-    ExternalLink,
-    LucideIcon,
-} from 'lucide-react';
+    DiscordIcon,
+    TelegramIcon,
+    TwitterIcon,
+} from '@/components/icons/social-icons';
 
 interface SocialLinkProps {
     href: string;
-    icon: LucideIcon;
+    icon: React.ComponentType<{ className?: string }>;
 }
 
 interface FooterLinkProps {
@@ -69,9 +68,9 @@ const Footer = () => {
                             tokens for life.
                         </p>
                         <div className="flex space-x-4">
-                            <SocialLink href="#" icon={Bird} />
-                            <SocialLink href="#" icon={MessageCircle} />
-                            <SocialLink href="#" icon={Send} />
+                            <SocialLink href="#" icon={TwitterIcon} />
+                            <SocialLink href="#" icon={DiscordIcon} />
+                            <SocialLink href="#" icon={TelegramIcon} />
                         </div>
                     </motion.div>
 
