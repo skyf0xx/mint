@@ -1,146 +1,175 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, ChevronRight, Lock } from 'lucide-react';
+import { BarChart3, Lock, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const HowItWorks = () => {
-    return (
-        <section id="how-it-works" className="py-24 container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center mb-16">
-                <h2 className="text-4xl font-bold mb-4">How It Works</h2>
-                <p className="text-gray-600">
-                    Choose your preferred staking strategy and start earning NAB
-                    rewards.
-                </p>
-            </div>
+    const containerVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.6,
+                staggerChildren: 0.1,
+            },
+        },
+    };
 
-            <Tabs defaultValue="direct" className="max-w-4xl mx-auto">
-                <div className="w-full mb-8">
-                    <TabsList className="w-full grid grid-cols-2 h-14">
+    const itemVariants = {
+        hidden: { opacity: 0, x: -20 },
+        visible: { opacity: 1, x: 0 },
+    };
+
+    return (
+        <section id="how-it-works" className="relative py-24">
+            {/* Decorative background elements */}
+            <div className="absolute inset-0 bg-gradient-to-b from-gray-50/50 to-transparent" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+
+            <div className="container mx-auto px-4 relative">
+                <motion.div
+                    className="max-w-3xl mx-auto text-center mb-16"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <h2 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-primary-700">
+                        How It Works
+                    </h2>
+                    <p className="text-lg text-gray-600">
+                        Choose your preferred staking strategy and start earning
+                        NAB rewards
+                    </p>
+                </motion.div>
+
+                <Tabs defaultValue="direct" className="max-w-4xl mx-auto">
+                    <TabsList className="w-full grid grid-cols-2 h-16 p-1 mb-8 bg-gray-100/50 backdrop-blur-sm rounded-2xl">
                         <TabsTrigger
                             value="direct"
-                            className="w-full flex items-center justify-center gap-2 px-8 py-4 data-[state=active]:bg-primary data-[state=active]:text-white"
+                            className="h-full rounded-xl flex items-center justify-center gap-3 text-base font-medium transition-all duration-300
+                                     data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-600 
+                                     data-[state=active]:text-white data-[state=active]:shadow-lg"
                         >
                             <Lock className="w-5 h-5" />
                             Direct Staking
                         </TabsTrigger>
                         <TabsTrigger
                             value="lp"
-                            className="w-full flex items-center justify-center gap-2 px-8 py-4 data-[state=active]:bg-primary data-[state=active]:text-white"
+                            className="h-full rounded-xl flex items-center justify-center gap-3 text-base font-medium transition-all duration-300
+                                     data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-600 
+                                     data-[state=active]:text-white data-[state=active]:shadow-lg"
                         >
                             <BarChart3 className="w-5 h-5" />
                             LP Staking
                         </TabsTrigger>
                     </TabsList>
-                </div>
 
-                {/* Rest of the component remains the same */}
-                <TabsContent value="direct">
-                    <Card className="border-2">
-                        <CardContent className="p-8">
-                            <div className="space-y-6">
-                                <div className="flex items-start space-x-4">
-                                    <div className="p-3 rounded-full bg-primary/10">
-                                        <Lock className="w-6 h-6 text-primary" />
+                    <TabsContent value="direct">
+                        <motion.div
+                            variants={containerVariants}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                        >
+                            <Card className="border-2 border-primary/10 overflow-hidden">
+                                <CardContent className="p-8">
+                                    <div className="space-y-8">
+                                        <div className="flex items-start space-x-4">
+                                            <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5">
+                                                <Lock className="w-8 h-8 text-primary" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-2xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
+                                                    Direct MINT Staking
+                                                </h3>
+                                                <p className="text-gray-600">
+                                                    Maximum rewards through
+                                                    permanent token lock-up
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <ul className="space-y-4">
+                                            {[
+                                                'Permanent lock-up for maximum rewards',
+                                                'Highest NAB generation rate',
+                                                'Complete protection from weekly burns',
+                                                'Full governance rights',
+                                            ].map((item, index) => (
+                                                <motion.li
+                                                    key={index}
+                                                    variants={itemVariants}
+                                                    className="flex items-center gap-4 group"
+                                                >
+                                                    <div className="p-2 rounded-xl bg-primary/5 group-hover:bg-primary/10 transition-colors duration-300">
+                                                        <ArrowRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform duration-300" />
+                                                    </div>
+                                                    <span className="text-gray-700 group-hover:text-gray-900 transition-colors duration-300">
+                                                        {item}
+                                                    </span>
+                                                </motion.li>
+                                            ))}
+                                        </ul>
                                     </div>
-                                    <div>
-                                        <h3 className="text-xl font-bold mb-2">
-                                            Direct MINT Staking
-                                        </h3>
-                                        <p className="text-gray-600 mb-4">
-                                            Maximum rewards through permanent
-                                            token lock-up.
-                                        </p>
-                                    </div>
-                                </div>
-                                <ul className="space-y-4">
-                                    <li className="flex items-center gap-3">
-                                        <div className="p-2 rounded-full bg-primary/5">
-                                            <ChevronRight className="w-4 h-4 text-primary" />
-                                        </div>
-                                        <span>
-                                            Permanent lock-up for maximum
-                                            rewards
-                                        </span>
-                                    </li>
-                                    <li className="flex items-center gap-3">
-                                        <div className="p-2 rounded-full bg-primary/5">
-                                            <ChevronRight className="w-4 h-4 text-primary" />
-                                        </div>
-                                        <span>Highest NAB generation rate</span>
-                                    </li>
-                                    <li className="flex items-center gap-3">
-                                        <div className="p-2 rounded-full bg-primary/5">
-                                            <ChevronRight className="w-4 h-4 text-primary" />
-                                        </div>
-                                        <span>
-                                            Complete protection from weekly
-                                            burns
-                                        </span>
-                                    </li>
-                                    <li className="flex items-center gap-3">
-                                        <div className="p-2 rounded-full bg-primary/5">
-                                            <ChevronRight className="w-4 h-4 text-primary" />
-                                        </div>
-                                        <span>Full governance rights</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    </TabsContent>
 
-                <TabsContent value="lp">
-                    <Card className="border-2">
-                        <CardContent className="p-8">
-                            <div className="space-y-6">
-                                <div className="flex items-start space-x-4">
-                                    <div className="p-3 rounded-full bg-primary/10">
-                                        <BarChart3 className="w-6 h-6 text-primary" />
+                    <TabsContent value="lp">
+                        <motion.div
+                            variants={containerVariants}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                        >
+                            <Card className="border-2 border-primary/10 overflow-hidden">
+                                <CardContent className="p-8">
+                                    <div className="space-y-8">
+                                        <div className="flex items-start space-x-4">
+                                            <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5">
+                                                <BarChart3 className="w-8 h-8 text-primary" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-2xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
+                                                    LP Staking (MINT/NAB)
+                                                </h3>
+                                                <p className="text-gray-600">
+                                                    Flexible staking with
+                                                    additional liquidity
+                                                    benefits
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <ul className="space-y-4">
+                                            {[
+                                                'Flexible staking with withdrawal options',
+                                                'Competitive reward rates',
+                                                'Market liquidity benefits',
+                                                'Partial burn protection',
+                                            ].map((item, index) => (
+                                                <motion.li
+                                                    key={index}
+                                                    variants={itemVariants}
+                                                    className="flex items-center gap-4 group"
+                                                >
+                                                    <div className="p-2 rounded-xl bg-primary/5 group-hover:bg-primary/10 transition-colors duration-300">
+                                                        <ArrowRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform duration-300" />
+                                                    </div>
+                                                    <span className="text-gray-700 group-hover:text-gray-900 transition-colors duration-300">
+                                                        {item}
+                                                    </span>
+                                                </motion.li>
+                                            ))}
+                                        </ul>
                                     </div>
-                                    <div>
-                                        <h3 className="text-xl font-bold mb-2">
-                                            LP Staking (MINT/NAB)
-                                        </h3>
-                                        <p className="text-gray-600 mb-4">
-                                            Flexible staking with additional
-                                            liquidity benefits.
-                                        </p>
-                                    </div>
-                                </div>
-                                <ul className="space-y-4">
-                                    <li className="flex items-center gap-3">
-                                        <div className="p-2 rounded-full bg-primary/5">
-                                            <ChevronRight className="w-4 h-4 text-primary" />
-                                        </div>
-                                        <span>
-                                            Flexible staking with withdrawal
-                                            options
-                                        </span>
-                                    </li>
-                                    <li className="flex items-center gap-3">
-                                        <div className="p-2 rounded-full bg-primary/5">
-                                            <ChevronRight className="w-4 h-4 text-primary" />
-                                        </div>
-                                        <span>Competitive reward rates</span>
-                                    </li>
-                                    <li className="flex items-center gap-3">
-                                        <div className="p-2 rounded-full bg-primary/5">
-                                            <ChevronRight className="w-4 h-4 text-primary" />
-                                        </div>
-                                        <span>Market liquidity benefits</span>
-                                    </li>
-                                    <li className="flex items-center gap-3">
-                                        <div className="p-2 rounded-full bg-primary/5">
-                                            <ChevronRight className="w-4 h-4 text-primary" />
-                                        </div>
-                                        <span>Partial burn protection</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    </TabsContent>
+                </Tabs>
+            </div>
         </section>
     );
 };
