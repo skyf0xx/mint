@@ -6,6 +6,7 @@ import {
     TelegramIcon,
     TwitterIcon,
 } from '@/components/icons/social-icons';
+import { InfinityLogo } from './logo';
 
 interface SocialLinkProps {
     href: string;
@@ -56,10 +57,12 @@ const Footer = () => {
                     {/* About MINT */}
                     <motion.div variants={itemVariants} className="space-y-6">
                         <div className="flex items-center space-x-2">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-accent animate-pulse" />
+                            <div className="w-8 h-8 relative flex items-center">
+                                <div className="transform scale-[0.4] origin-center absolute -left-4">
+                                    <InfinityLogo />
+                                </div>
                             </div>
-                            <span className="font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+                            <span className="font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent pl-2">
                                 MINT
                             </span>
                         </div>

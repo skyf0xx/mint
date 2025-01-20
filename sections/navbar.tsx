@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Wallet } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { InfinityLogo } from './logo';
 
 interface NavbarProps {
     progress: {
@@ -35,12 +36,15 @@ const Navbar = ({ progress, scrollToSection }: NavbarProps) => {
         >
             <div className="container mx-auto px-4">
                 <div className="h-16 flex justify-between items-center">
-                    {/* Logo/Brand - Add your logo component here */}
+                    {/* Logo/Brand */}
                     <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-accent animate-pulse" />
+                        {/* Adjusted positioning for vertical alignment */}
+                        <div className="w-8 h-8 relative flex items-center">
+                            <div className="transform scale-[0.4] origin-center absolute -left-4">
+                                <InfinityLogo />
+                            </div>
                         </div>
-                        <span className="font-bold text-lg bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+                        <span className="font-bold text-lg bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent pl-2">
                             MINT
                         </span>
                     </div>

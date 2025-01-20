@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { ChevronRight, Sparkles } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
+import { InfinityLogo } from './logo';
 
 const CTA = () => {
     return (
@@ -17,7 +18,7 @@ const CTA = () => {
                 transition={{ duration: 0.6 }}
             >
                 <div className="max-w-2xl mx-auto text-center">
-                    {/* Floating sparkle icon */}
+                    {/* Floating MINT logo */}
                     <motion.div
                         className="inline-block mb-6"
                         animate={{ y: [0, -10, 0] }}
@@ -27,8 +28,10 @@ const CTA = () => {
                             ease: 'easeInOut',
                         }}
                     >
-                        <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10">
-                            <Sparkles className="w-6 h-6 text-primary" />
+                        <div className="w-16 h-16 relative flex items-center justify-center">
+                            <div className="transform scale-[0.8] origin-center">
+                                <InfinityLogo />
+                            </div>
                         </div>
                     </motion.div>
 
