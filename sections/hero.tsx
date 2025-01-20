@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { scrollToSection } from '@/lib/helpers';
 import { ChevronRight, ArrowDown } from 'lucide-react';
+import { InfinityLogo } from './logo';
 
 interface MetricCardProps {
     title: string;
@@ -39,6 +40,7 @@ const Hero = () => {
                 <p className="text-primary font-medium">
                     Introducing MINT Token
                 </p>
+                <InfinityLogo />
                 <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
                     Stake Once,{' '}
                     <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">
