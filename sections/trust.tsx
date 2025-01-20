@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Cpu, LucideIcon, Shield, Users } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 
 interface TrustCardProps {
     icon: LucideIcon;
@@ -9,50 +9,95 @@ interface TrustCardProps {
     index: number;
 }
 
-const TrustCard = ({
-    icon: Icon,
-    title,
-    description,
-    index,
-}: TrustCardProps) => (
+const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.2,
+            delayChildren: 0.3,
+        },
+    },
+};
+
+const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+};
+
+const FloatingDecoration = ({ className }: { className?: string }) => (
     <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: index * 0.1 }}
-    >
-        <Card className="group relative overflow-hidden hover:shadow-xl transition-all duration-500">
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-            {/* Animated border effect */}
-            <div
-                className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                style={{ padding: '1px' }}
-            >
-                <div className="absolute inset-0 bg-white" />
-            </div>
-
-            <CardContent className="relative p-8">
-                <div className="flex flex-col items-center text-center space-y-4">
-                    {/* Icon container with gradient background */}
-                    <div className="relative p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent group-hover:scale-110 transition-transform duration-500">
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl animate-pulse" />
-                        <Icon className="w-8 h-8 text-primary relative z-10" />
-                    </div>
-
-                    <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
-                        {title}
-                    </h3>
-
-                    <p className="text-gray-600 leading-relaxed">
-                        {description}
-                    </p>
-                </div>
-            </CardContent>
-        </Card>
-    </motion.div>
+        className={`absolute w-16 h-16 rounded-2xl border-2 border-primary/10 ${className}`}
+        animate={{
+            y: [0, -20, 0],
+            rotate: [0, 45, 0],
+            scale: [1, 1.1, 1],
+        }}
+        transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: 'easeInOut',
+        }}
+    />
 );
+
+const TrustCard = ({ icon: Icon, title, description }: TrustCardProps) => {
+    return (
+        <motion.div
+            variants={itemVariants}
+            whileHover={{ y: -8, transition: { duration: 0.3 } }}
+            viewport={{ once: true }}
+            className="relative"
+        >
+            <Card className="group relative overflow-hidden hover:shadow-xl transition-all duration-500">
+                <div
+                    className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 opacity-0 group-hover:opacity-100 transition-all duration-500"
+                    style={{ padding: '1px' }}
+                >
+                    <div className="absolute inset-0 bg-white" />
+                </div>
+
+                <div className="absolute inset-0">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                    <div className="absolute bottom-0 right-0 w-48 h-48 bg-accent/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                </div>
+
+                <CardContent className="relative p-8">
+                    <div className="flex flex-col items-center text-center space-y-4">
+                        <motion.div
+                            className="relative p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent"
+                            whileHover={{ scale: 1.1 }}
+                            initial={{ rotateY: 0 }}
+                            whileInView={{
+                                rotateY: 360,
+                                transition: {
+                                    duration: 1.5,
+                                    ease: 'easeOut',
+                                },
+                            }}
+                            viewport={{ once: true }}
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent rounded-2xl animate-pulse" />
+
+                            <div className="relative">
+                                <div className="absolute inset-0 blur-sm bg-primary/20 rounded-full" />
+                                <Icon className="w-10 h-10 text-primary relative z-10 transform transition-transform group-hover:scale-110" />
+                            </div>
+                        </motion.div>
+
+                        <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600 transition-colors duration-300">
+                            {title}
+                        </h3>
+
+                        <p className="text-gray-600 leading-relaxed text-lg">
+                            {description}
+                        </p>
+                    </div>
+                </CardContent>
+            </Card>
+        </motion.div>
+    );
+};
 
 const Trust = () => {
     const trustItems = [
@@ -77,10 +122,16 @@ const Trust = () => {
     ];
 
     return (
-        <section id="trust" className="relative py-24 overflow-hidden">
-            {/* Background decorative elements */}
-            <div className="absolute inset-0 bg-gradient-to-b from-gray-50/80 to-white" />
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <section id="trust" className="relative py-32 overflow-hidden">
+            <div className="absolute inset-0">
+                <div className="absolute inset-0 bg-gradient-to-b from-gray-50/80 to-white" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] bg-primary/5 rounded-full blur-[120px] opacity-30" />
+                <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-accent/5 rounded-full blur-[100px] opacity-20" />
+            </div>
+
+            <FloatingDecoration className="top-20 left-[10%]" />
+            <FloatingDecoration className="bottom-40 right-[15%]" />
+            <FloatingDecoration className="top-60 right-[20%]" />
 
             <div className="container mx-auto px-4 relative">
                 <motion.div
@@ -90,22 +141,37 @@ const Trust = () => {
                     viewport={{ once: true }}
                     transition={{ duration: 0.5 }}
                 >
-                    <h2 className="text-4xl font-bold mb-4">
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-primary-700">
-                            Built on Trust
+                    <h2 className="text-5xl font-bold mb-6">
+                        <span className="relative">
+                            <span className="relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-primary-700">
+                                Built on Trust
+                            </span>
+                            <motion.span
+                                className="absolute inset-x-0 bottom-0 h-3 bg-accent/10 -rotate-1"
+                                initial={{ scaleX: 0 }}
+                                whileInView={{ scaleX: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.5, duration: 0.8 }}
+                            />
                         </span>
                     </h2>
-                    <p className="text-lg text-gray-600 leading-relaxed">
+                    <p className="text-xl text-gray-600 leading-relaxed">
                         Backed by proven technology and supported by a robust
                         ecosystem
                     </p>
                 </motion.div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <motion.div
+                    className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto"
+                    variants={containerVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                >
                     {trustItems.map((item, index) => (
                         <TrustCard key={index} {...item} index={index} />
                     ))}
-                </div>
+                </motion.div>
             </div>
         </section>
     );

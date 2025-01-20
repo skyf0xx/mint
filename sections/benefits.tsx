@@ -46,7 +46,6 @@ const BenefitCard = ({
                     <motion.div
                         className="p-4 rounded-xl bg-primary/5 group-hover:bg-primary/10 transition-all duration-500"
                         whileHover={{ scale: 1.1 }}
-                        animate={{ rotate: [0, 5, 0] }}
                         transition={{ duration: 6, repeat: Infinity }}
                     >
                         <Icon className="w-12 h-12 text-primary transition-all duration-500 group-hover:text-primary-600" />
