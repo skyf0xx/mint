@@ -93,6 +93,20 @@ const Benefits = () => {
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl opacity-30" />
             <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-accent/5 rounded-full blur-2xl opacity-20" />
 
+            <motion.div
+                className="absolute top-1/3 right-[22%] w-8 h-8 rounded-lg border-2 border-accent/20"
+                animate={{
+                    y: [0, -15, 0],
+                    rotate: [0, -45, 0],
+                    scale: [1, 1.2, 1],
+                }}
+                transition={{
+                    duration: 6,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                }}
+            />
+
             {/* Floating geometric shapes */}
             <div className="absolute inset-0 overflow-hidden">
                 <motion.div
