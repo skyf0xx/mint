@@ -151,6 +151,7 @@ const HowItWorks = () => {
                                                 'Highest NAB generation rate',
                                                 'Complete protection from weekly burns',
                                                 'Full governance rights',
+                                                'Earn fees from NAB transactions (soon)',
                                             ].map((item, index) => (
                                                 <motion.li
                                                     key={index}
@@ -219,6 +220,7 @@ const HowItWorks = () => {
                                                 'Competitive reward rates',
                                                 'Market liquidity benefits',
                                                 'Earn from LP while earning NAB',
+                                                'Earn fees from NAB transactions (soon)',
                                             ].map((item, index) => (
                                                 <motion.li
                                                     key={index}
