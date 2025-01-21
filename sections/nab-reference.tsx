@@ -64,16 +64,12 @@ const NABReference = () => {
                                         ensure the price floor can only increase
                                         over time.
                                     </p>
-                                    <div className="pt-2">
-                                        <span className="inline-block px-3 py-1 bg-primary/5 rounded-full text-primary text-sm">
-                                            Floor can only go up 📈
-                                        </span>
-                                    </div>
                                 </div>
 
                                 <div className="pt-2">
                                     <a
-                                        href="#"
+                                        target="_blank"
+                                        href="https://number-always-bigger.ar.io/"
                                         className="text-sm text-primary hover:text-primary-600 font-medium inline-flex items-center group"
                                     >
                                         Learn more about NAB
