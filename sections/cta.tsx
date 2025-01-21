@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ChevronRight, ExternalLink } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { useRef } from 'react';
 import { InfinityLogo } from './logo';
 
@@ -237,23 +237,6 @@ const CTA = () => {
                                     <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                                 </span>
                                 <span className="absolute inset-0 bg-gradient-to-r from-accent to-accent-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                            </Button>
-                        </motion.div>
-
-                        <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <Button
-                                variant="outline"
-                                size="lg"
-                                className="text-lg px-8 py-6 group relative overflow-hidden border-2 hover:border-primary/50 transition-all duration-500"
-                            >
-                                <span className="relative z-10 flex items-center">
-                                    View Documentation
-                                    <ExternalLink className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                </span>
-                                <span className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                             </Button>
                         </motion.div>
                     </motion.div>
