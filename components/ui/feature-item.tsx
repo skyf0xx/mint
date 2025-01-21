@@ -30,9 +30,18 @@ const FeatureItem = ({ text, tooltip, variants }: FeatureItemProps) => (
                 </TooltipTrigger>
                 <TooltipContent
                     side="right"
-                    className="max-w-xs p-4 text-sm bg-white border-2 border-primary/10"
+                    className="max-w-[280px] p-4 bg-primary-600 text-white border-0 shadow-lg rounded-xl"
+                    sideOffset={10}
                 >
-                    {tooltip}
+                    <div className="relative">
+                        {/* Add a subtle gradient background */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary-500 to-primary-700 opacity-50 rounded-lg" />
+
+                        {/* Tooltip content with improved text styling */}
+                        <p className="relative z-10 text-base leading-relaxed">
+                            {tooltip}
+                        </p>
+                    </div>
                 </TooltipContent>
             </Tooltip>
         </TooltipProvider>
