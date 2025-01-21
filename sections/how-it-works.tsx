@@ -1,8 +1,9 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, Lock, CheckCircle2 } from 'lucide-react';
+import { BarChart3, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import NABReference from './nab-reference';
+import FeatureItem from '@/components/ui/feature-item';
 
 // Animation variants for staggered animations
 const containerVariants = {
@@ -39,6 +40,62 @@ const FloatingDecoration = ({ className }: { className?: string }) => (
 );
 
 const HowItWorks = () => {
+    const directStakingFeatures = [
+        {
+            text: 'Permanent lock-up for maximum rewards',
+            tooltip:
+                'Once MINT tokens are staked, they cannot be unstaked. This permanent commitment ensures maximum NAB generation rates and complete protection from supply reduction burns.',
+        },
+        {
+            text: 'Highest NAB generation rate',
+            tooltip:
+                'Direct staking provides the highest possible NAB token reward rate, significantly higher than LP staking rewards. Your rewards continue indefinitely without degradation.',
+        },
+        {
+            text: 'Complete protection from weekly burns',
+            tooltip:
+                'Staked MINT tokens are fully exempt from the weekly 0.25% burn mechanism, preserving your position while unstaked tokens decrease in supply.',
+        },
+        {
+            text: 'Full governance rights',
+            tooltip:
+                'Staked tokens grant proportional voting power in the NAB ecosystem. As supply decreases through burns, your governance influence naturally increases over time.',
+        },
+        {
+            text: 'Earn fees from NAB transactions (soon)',
+            tooltip:
+                'In an upcoming update, staked MINT holders will receive a portion of fees generated from NAB token transactions, creating an additional revenue stream.',
+        },
+    ];
+
+    const lpStakingFeatures = [
+        {
+            text: 'Flexible staking with withdrawal options',
+            tooltip:
+                'Unlike direct staking, LP staking allows you to withdraw your tokens at any time. This flexibility comes with a lower NAB generation rate compared to direct staking.',
+        },
+        {
+            text: 'Competitive reward rates',
+            tooltip:
+                'While lower than direct staking, LP staking still provides substantial NAB rewards plus additional earnings from trading fees in the MINT/NAB liquidity pool.',
+        },
+        {
+            text: 'Market liquidity benefits',
+            tooltip:
+                'By providing liquidity to the MINT/NAB trading pair, you help maintain market stability and earn a share of trading fees generated from all transactions.',
+        },
+        {
+            text: 'Earn from LP while earning NAB',
+            tooltip:
+                'Dual earning mechanism: receive NAB rewards from staking while simultaneously earning trading fees from your liquidity provision.',
+        },
+        {
+            text: 'Earn fees from NAB transactions (soon)',
+            tooltip:
+                'Future update will allow LP stakers to earn a portion of NAB transaction fees, adding a third revenue stream to LP staking rewards.',
+        },
+    ];
+
     return (
         <section id="how-it-works" className="relative py-32 overflow-hidden">
             {/* Enhanced background elements */}
@@ -146,32 +203,18 @@ const HowItWorks = () => {
 
                                         {/* Enhanced feature list with animations */}
                                         <ul className="space-y-6">
-                                            {[
-                                                'Permanent lock-up for maximum rewards',
-                                                'Highest NAB generation rate',
-                                                'Complete protection from weekly burns',
-                                                'Full governance rights',
-                                                'Earn fees from NAB transactions (soon)',
-                                            ].map((item, index) => (
-                                                <motion.li
-                                                    key={index}
-                                                    variants={itemVariants}
-                                                    className="flex items-center gap-4 group"
-                                                >
-                                                    <motion.div
-                                                        className="p-2 rounded-xl bg-primary/5 group-hover:bg-primary/10 transition-colors duration-300"
-                                                        whileHover={{
-                                                            scale: 1.1,
-                                                            rotate: 10,
-                                                        }}
-                                                    >
-                                                        <CheckCircle2 className="w-6 h-6 text-primary" />
-                                                    </motion.div>
-                                                    <span className="text-lg text-gray-700 group-hover:text-gray-900 transition-colors duration-300">
-                                                        {item}
-                                                    </span>
-                                                </motion.li>
-                                            ))}
+                                            {directStakingFeatures.map(
+                                                (feature, index) => (
+                                                    <FeatureItem
+                                                        key={index}
+                                                        text={feature.text}
+                                                        tooltip={
+                                                            feature.tooltip
+                                                        }
+                                                        variants={itemVariants}
+                                                    />
+                                                )
+                                            )}
                                         </ul>
                                     </div>
                                 </CardContent>
@@ -215,32 +258,18 @@ const HowItWorks = () => {
 
                                         {/* Enhanced feature list with animations */}
                                         <ul className="space-y-6">
-                                            {[
-                                                'Flexible staking with withdrawal options',
-                                                'Competitive reward rates',
-                                                'Market liquidity benefits',
-                                                'Earn from LP while earning NAB',
-                                                'Earn fees from NAB transactions (soon)',
-                                            ].map((item, index) => (
-                                                <motion.li
-                                                    key={index}
-                                                    variants={itemVariants}
-                                                    className="flex items-center gap-4 group"
-                                                >
-                                                    <motion.div
-                                                        className="p-2 rounded-xl bg-primary/5 group-hover:bg-primary/10 transition-colors duration-300"
-                                                        whileHover={{
-                                                            scale: 1.1,
-                                                            rotate: 10,
-                                                        }}
-                                                    >
-                                                        <CheckCircle2 className="w-6 h-6 text-primary" />
-                                                    </motion.div>
-                                                    <span className="text-lg text-gray-700 group-hover:text-gray-900 transition-colors duration-300">
-                                                        {item}
-                                                    </span>
-                                                </motion.li>
-                                            ))}
+                                            {lpStakingFeatures.map(
+                                                (feature, index) => (
+                                                    <FeatureItem
+                                                        key={index}
+                                                        text={feature.text}
+                                                        tooltip={
+                                                            feature.tooltip
+                                                        }
+                                                        variants={itemVariants}
+                                                    />
+                                                )
+                                            )}
                                         </ul>
                                     </div>
                                 </CardContent>
