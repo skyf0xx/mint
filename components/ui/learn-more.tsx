@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -9,6 +9,7 @@ interface LearnMoreProps {
     content: string[];
     isOpen: boolean;
     onClose: () => void;
+    trigger?: React.RefObject<HTMLElement>; // Reference to the trigger element
 }
 
 const LearnMoreDialog = ({
@@ -16,15 +17,55 @@ const LearnMoreDialog = ({
     content,
     isOpen,
     onClose,
+    trigger,
 }: LearnMoreProps) => {
-    // Only render the dialog if we're in the browser
+    const [position, setPosition] = useState({
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+    });
+
+    // Calculate optimal position when dialog opens
+    useEffect(() => {
+        if (isOpen && trigger?.current) {
+            const triggerRect = trigger.current.getBoundingClientRect();
+            const viewportHeight = window.innerHeight;
+            const viewportWidth = window.innerWidth;
+
+            // Determine if we should position above or below the trigger
+            const spaceBelow = viewportHeight - triggerRect.bottom;
+            const spaceAbove = triggerRect.top;
+            const preferredHeight = Math.min(viewportHeight * 0.8, 600); // Max height of dialog
+
+            let top, transform;
+
+            // Vertical positioning
+            if (spaceBelow >= preferredHeight || spaceBelow > spaceAbove) {
+                // Position below the trigger
+                top = `${triggerRect.bottom + 16}px`;
+                transform = 'translateX(-50%)';
+            } else {
+                // Position above the trigger
+                top = `${triggerRect.top - 16}px`;
+                transform = 'translate(-50%, -100%)';
+            }
+
+            // Horizontal positioning
+            const left = `${Math.min(
+                Math.max(triggerRect.left + triggerRect.width / 2, 400),
+                viewportWidth - 400
+            )}px`;
+
+            setPosition({ top, left, transform });
+        }
+    }, [isOpen, trigger]);
+
     if (typeof window === 'undefined') return null;
 
-    // Render the dialog in a portal to ensure it's outside any stacking contexts
     return createPortal(
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 isolate" style={{ zIndex: 9999 }}>
+                <div className="fixed inset-0 isolate z-50">
                     {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -39,7 +80,8 @@ const LearnMoreDialog = ({
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl max-h-[80vh] overflow-auto"
+                        className="fixed w-full max-w-2xl max-h-[80vh] overflow-auto"
+                        style={position}
                     >
                         <Card className="relative bg-white shadow-xl border border-gray-200/50 overflow-hidden">
                             {/* Background decorations */}
