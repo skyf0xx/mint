@@ -41,31 +41,34 @@ const MetricCard = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay }}
+        className="h-full" // Ensure the motion div takes full height
     >
         <Card
-            className={`group transition-all duration-500 hover:shadow-lg ${
+            className={`h-full group transition-all duration-500 hover:shadow-lg ${
                 featured ? 'border-2 border-primary/20 bg-primary/5' : ''
             }`}
         >
-            <CardContent className="p-4 sm:p-6">
-                <dl className="space-y-2">
-                    <dt
-                        className={`text-sm font-medium ${
-                            featured ? 'text-primary-600' : 'text-gray-600'
-                        }`}
-                    >
-                        {title}
-                    </dt>
-                    <dd
-                        className={`text-2xl sm:text-3xl font-bold tracking-tight ${
-                            featured
-                                ? 'bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600'
-                                : 'text-gray-900'
-                        }`}
-                    >
-                        {value}
-                    </dd>
-                    <dd className="text-sm text-gray-500">{subtitle}</dd>
+            <CardContent className="h-full p-4 sm:p-6 flex flex-col justify-between">
+                <dl className="flex flex-col h-full justify-between">
+                    <div className="space-y-2">
+                        <dt
+                            className={`text-sm font-medium ${
+                                featured ? 'text-primary-600' : 'text-gray-600'
+                            }`}
+                        >
+                            {title}
+                        </dt>
+                        <dd
+                            className={`text-2xl sm:text-3xl font-bold tracking-tight ${
+                                featured
+                                    ? 'bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600'
+                                    : 'text-gray-900'
+                            }`}
+                        >
+                            {value}
+                        </dd>
+                    </div>
+                    <dd className="text-sm text-gray-500 mt-2">{subtitle}</dd>
                 </dl>
             </CardContent>
         </Card>

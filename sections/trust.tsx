@@ -47,9 +47,10 @@ const TrustCard = ({ icon: Icon, title, description }: TrustCardProps) => {
             variants={itemVariants}
             whileHover={{ y: -8, transition: { duration: 0.3 } }}
             viewport={{ once: true }}
-            className="relative"
+            className="relative h-full" // Add h-full to ensure full height
         >
-            <Card className="group relative overflow-hidden hover:shadow-xl transition-all duration-500">
+            <Card className="group relative h-full overflow-hidden hover:shadow-xl transition-all duration-500">
+                {/* Gradient border effect */}
                 <div
                     className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 opacity-0 group-hover:opacity-100 transition-all duration-500"
                     style={{ padding: '1px' }}
@@ -57,13 +58,15 @@ const TrustCard = ({ icon: Icon, title, description }: TrustCardProps) => {
                     <div className="absolute inset-0 bg-white" />
                 </div>
 
+                {/* Background effects */}
                 <div className="absolute inset-0">
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
                     <div className="absolute bottom-0 right-0 w-48 h-48 bg-accent/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-all duration-500" />
                 </div>
 
-                <CardContent className="relative p-8">
-                    <div className="flex flex-col items-center text-center space-y-4">
+                <CardContent className="relative p-8 h-full flex flex-col">
+                    <div className="flex flex-col items-center text-center space-y-4 h-full">
+                        {/* Icon container */}
                         <motion.div
                             className="relative p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent"
                             whileHover={{ scale: 1.1 }}
@@ -85,13 +88,16 @@ const TrustCard = ({ icon: Icon, title, description }: TrustCardProps) => {
                             </div>
                         </motion.div>
 
-                        <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600 transition-colors duration-300">
-                            {title}
-                        </h3>
+                        {/* Title and description container */}
+                        <div className="flex flex-col flex-1 justify-between">
+                            <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600 transition-colors duration-300">
+                                {title}
+                            </h3>
 
-                        <p className="text-gray-600 leading-relaxed text-lg">
-                            {description}
-                        </p>
+                            <p className="text-gray-600 leading-relaxed text-lg mt-4">
+                                {description}
+                            </p>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
@@ -123,17 +129,20 @@ const Trust = () => {
 
     return (
         <section id="trust" className="relative py-32 overflow-hidden">
+            {/* Background elements */}
             <div className="absolute inset-0">
                 <div className="absolute inset-0 bg-gradient-to-b from-gray-50/80 to-white" />
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] bg-primary/5 rounded-full blur-[120px] opacity-30" />
                 <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-accent/5 rounded-full blur-[100px] opacity-20" />
             </div>
 
+            {/* Floating decorations */}
             <FloatingDecoration className="top-20 left-[10%]" />
             <FloatingDecoration className="bottom-40 right-[15%]" />
             <FloatingDecoration className="top-60 right-[20%]" />
 
             <div className="container mx-auto px-4 relative">
+                {/* Section header */}
                 <motion.div
                     className="max-w-3xl mx-auto text-center mb-16"
                     initial={{ opacity: 0, y: 20 }}
@@ -161,6 +170,7 @@ const Trust = () => {
                     </p>
                 </motion.div>
 
+                {/* Cards grid */}
                 <motion.div
                     className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto"
                     variants={containerVariants}
