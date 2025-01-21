@@ -1,5 +1,3 @@
-import { Button } from '@/components/ui/button';
-import { Wallet } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { InfinityLogo } from './logo';
 
@@ -35,51 +33,47 @@ const Navbar = ({ progress, scrollToSection }: NavbarProps) => {
             }`}
         >
             <div className="container mx-auto px-4">
-                <div className="h-16 flex justify-between items-center">
-                    {/* Logo/Brand */}
-                    <div className="flex items-center space-x-2">
-                        {/* Adjusted positioning for vertical alignment */}
-                        <div className="w-8 h-8 relative flex items-center">
-                            <div className="transform scale-[0.4] origin-center absolute -left-4">
-                                <InfinityLogo />
+                <div className="h-16 flex items-center justify-between">
+                    {/* Left section - Logo */}
+                    <div className="w-1/4">
+                        <div className="flex items-center space-x-2">
+                            <div className="w-8 h-8 relative flex items-center">
+                                <div className="transform scale-[0.4] origin-center absolute -left-4">
+                                    <InfinityLogo />
+                                </div>
                             </div>
+                            <span className="font-bold text-lg bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent pl-2">
+                                MINT
+                            </span>
                         </div>
-                        <span className="font-bold text-lg bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent pl-2">
-                            MINT
-                        </span>
                     </div>
 
-                    {/* Navigation Links */}
-                    <div className="hidden md:flex space-x-1">
-                        <NavButton
-                            active={progress.hero}
-                            onClick={() => scrollToSection('hero')}
-                        >
-                            Overview
-                        </NavButton>
-                        <NavButton
-                            active={progress.benefits}
-                            onClick={() => scrollToSection('benefits')}
-                        >
-                            Benefits
-                        </NavButton>
-                        <NavButton
-                            active={progress.howItWorks}
-                            onClick={() => scrollToSection('how-it-works')}
-                        >
-                            How It Works
-                        </NavButton>
+                    {/* Center section - Navigation Links */}
+                    <div className="flex-1 flex justify-center">
+                        <div className="hidden md:flex items-center space-x-1">
+                            <NavButton
+                                active={progress.hero}
+                                onClick={() => scrollToSection('hero')}
+                            >
+                                Overview
+                            </NavButton>
+                            <NavButton
+                                active={progress.benefits}
+                                onClick={() => scrollToSection('benefits')}
+                            >
+                                Benefits
+                            </NavButton>
+                            <NavButton
+                                active={progress.howItWorks}
+                                onClick={() => scrollToSection('how-it-works')}
+                            >
+                                How It Works
+                            </NavButton>
+                        </div>
                     </div>
 
-                    {/* Connect Wallet Button */}
-                    <Button
-                        size="sm"
-                        className="relative group overflow-hidden"
-                    >
-                        <span className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 group-hover:opacity-100 opacity-0 transition-opacity duration-300" />
-                        <Wallet className="w-4 h-4 mr-2" />
-                        Connect Wallet
-                    </Button>
+                    {/* Right section - Empty space to balance the layout */}
+                    <div className="w-1/4" />
                 </div>
             </div>
         </nav>
