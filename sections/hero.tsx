@@ -4,6 +4,7 @@ import { scrollToSection } from '@/lib/helpers';
 import { ChevronRight, ArrowDown } from 'lucide-react';
 import { InfinityLogo } from './logo';
 import { motion } from 'framer-motion';
+import NABReference from './nab-reference';
 
 interface MetricProps {
     title: string;
@@ -167,9 +168,10 @@ const Hero = () => {
                                 </h2>
                                 <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
                                     Transform your crypto strategy with MINT —
-                                    the deflationary token that rewards you with
-                                    NAB tokens for life.
-                                </p>
+                                    the deflationary token that rewards you with{' '}
+                                    <NABReference /> tokens for life.
+                                </p>{' '}
+                                tokens for life.
                             </motion.div>
 
                             {/* Call to Action with mobile-optimized buttons */}
