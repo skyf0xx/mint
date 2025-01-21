@@ -218,7 +218,7 @@ const HowItWorks = () => {
                                                 'Flexible staking with withdrawal options',
                                                 'Competitive reward rates',
                                                 'Market liquidity benefits',
-                                                'Partial burn protection',
+                                                'Earn from LP while earning NAB',
                                             ].map((item, index) => (
                                                 <motion.li
                                                     key={index}
