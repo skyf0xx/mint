@@ -186,7 +186,7 @@ const MintSupplyGraph = () => {
                                             stroke="#6366F1"
                                             strokeDasharray="3 3"
                                             label={{
-                                                value: 'Supply Floor: 21M',
+                                                value: '21M',
                                                 fill: '#6366F1',
                                                 position: 'right',
                                             }}
