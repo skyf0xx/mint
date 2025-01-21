@@ -213,7 +213,7 @@ const Hero = () => {
                                 delay={1.0}
                             />
                             <MetricCard
-                                title="Target Floor"
+                                title="Target Supply"
                                 value="21M"
                                 subtitle="MINT Tokens"
                                 delay={1.1}
