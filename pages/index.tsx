@@ -9,6 +9,7 @@ import Footer from '@/sections/footer';
 import Navbar from '@/sections/navbar';
 import { scrollToSection } from '@/lib/helpers';
 import MintSupplyGraph from '@/sections/graph';
+import BackToTop from '@/components/back-to-top';
 
 // Progress tracking hook
 const useScrollProgress = () => {
@@ -82,6 +83,9 @@ const Home = () => {
 
             {/* Footer */}
             <Footer />
+
+            {/* Back to Top Button */}
+            <BackToTop />
         </div>
     );
 };
