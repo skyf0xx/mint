@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart3, Lock, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import NABReference from './nab-reference';
 
 // Animation variants for staggered animations
 const containerVariants = {
@@ -65,8 +66,8 @@ const HowItWorks = () => {
                         </span>
                     </h2>
                     <p className="text-xl text-gray-600 leading-relaxed">
-                        Choose your preferred staking strategy and start earning
-                        NAB rewards
+                        Choose your preferred staking strategy and start earning{' '}
+                        <NABReference /> rewards
                     </p>
                 </motion.div>
 
