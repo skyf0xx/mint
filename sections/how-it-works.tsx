@@ -44,7 +44,7 @@ const HowItWorks = () => {
         {
             text: 'Permanent lock-up for maximum rewards',
             tooltip:
-                'Once MINT tokens are staked, they cannot be unstaked. This permanent commitment ensures maximum NAB generation rates and complete protection from supply reduction burns.',
+                'Once MINT tokens are staked, they cannot be unstaked. This permanent commitment ensures maximum NAB generation rates and complete protection from supply reduction burns. It also acts as a multiplier to your other staked tokens.',
         },
         {
             text: 'Highest NAB generation rate',
