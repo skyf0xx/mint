@@ -233,7 +233,7 @@ const CTA = () => {
                                 className="text-lg px-8 py-6 group relative overflow-hidden bg-gradient-to-r from-primary to-primary-600 hover:to-primary transition-all duration-500"
                             >
                                 <span className="relative z-10 flex items-center">
-                                    Start Staking Now
+                                    Get MINT Now
                                     <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                                 </span>
                                 <span className="absolute inset-0 bg-gradient-to-r from-accent to-accent-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
