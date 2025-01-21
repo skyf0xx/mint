@@ -174,7 +174,6 @@ const Hero = () => {
                                     the deflationary token that rewards you with{' '}
                                     <NABReference /> tokens for life.
                                 </p>{' '}
-                                tokens for life.
                             </motion.div>
 
                             {/* Call to Action with mobile-optimized buttons */}

@@ -19,7 +19,7 @@ const faqItems = [
     },
     {
         question: 'What are the benefits of LP staking vs direct staking?',
-        answer: 'Direct staking offers higher NAB rewards and complete burn protection but requires permanent lock-up. LP staking provides more flexibility with withdrawal options and additional earnings from trading fees. Choose based on your preferred balance of rewards versus flexibility.',
+        answer: 'Direct staking offers NAB rewards and complete burn protection but requires permanent lock-up. LP staking provides more flexibility with withdrawal options but is subject to burns. Choose based on your preferred balance of rewards versus flexibility.',
     },
     {
         question: 'How do governance rights work?',
