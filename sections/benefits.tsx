@@ -113,15 +113,13 @@ const Benefits = () => {
     const benefitsData = [
         {
             icon: InfinityIcon,
-            title: 'Perpetual NAB Generation',
+            title: 'Endless NAB Rewards',
             description:
-                'Lock your MINT tokens once and receive NAB rewards forever. No complicated farming strategies needed.',
+                'Stake your MINT tokens once and enjoy lifetime NAB rewards with zero hassle.',
             content: [
-                'MINT tokens can be permanently staked to generate NAB tokens continuously, creating a lifetime stream of rewards.',
-                'Once staked, MINT tokens are permanently locked and protected from the weekly burn mechanism, ensuring sustainable yield generation.',
-                'Direct staking provides the highest NAB reward rate compared to LP staking, maximizing your earning potential.',
-                'The staking process is simple and straightforward - stake once and earn forever without need for constant management or complex strategies.',
-                'As the total MINT supply decreases through burns, your staked position gains proportionally more influence in the ecosystem.',
+                'Your staked MINT tokens are permanently locked, shielding them from the weekly burn mechanism, ensuring consistent rewards.',
+                'Direct staking offers the highest NAB reward rate, optimizing your earnings compared to LP staking.',
+                'The staking process is simple - stake once and earn perpetually, with no need for constant adjustments or complex strategies.',
             ],
             index: 0,
         },
@@ -131,29 +129,27 @@ const Benefits = () => {
             description:
                 "Watch your stake grow stronger as MINT's supply decreases through our guaranteed weekly burn rate.",
             content: [
-                'MINT implements an innovative burn mechanism with a fixed weekly decay rate of 0.25% of unstaked tokens.',
-                'Starting from an initial supply of 37.5M MINT, the token supply will gradually decrease towards a mathematical floor of 21M MINT.',
-                'This controlled supply reduction creates natural value appreciation for staked tokens over time.',
-                'Early stakers benefit from higher initial burn rates affecting larger token volumes in early periods.',
-                'The deflationary mechanism is fully automated and mathematically guaranteed, requiring no manual intervention.',
+                'MINT features an automatic burn mechanism, reducing unstaked supply by 0.25% every week.',
+                'Starting with a 37.5M MINT supply, it will progressively decrease to a floor of 21M MINT.',
+                'This deflationary model is fully automated and mathematically secured, eliminating the need for manual intervention.',
             ],
             index: 1,
         },
         {
             icon: Users,
-            title: 'Governance Rights',
+            title: 'Empowered Governance',
             description:
-                'Shape the future of the NAB ecosystem with growing influence as supply decreases.',
+                'Gain influence in the NAB ecosystem and help steer its future as MINT’s supply diminishes.',
             content: [
-                'Staked MINT tokens provide proportional voting power in the NAB ecosystem governance.',
-                'As the total supply decreases through burns, each staked position naturally gains increased governance influence.',
-                'Governance rights allow participation in critical ecosystem decisions and future development directions.',
-                'Early stakers can secure stronger governance positions as their relative share grows with supply reduction.',
-                'Staking creates alignment between token holders and long-term ecosystem success through active participation.',
+                'Staked MINT tokens grant proportional voting power, enabling active participation in NAB governance.',
+                'As supply decreases, your staked position becomes more influential, amplifying your governance role.',
+                'Governance rights allow you to shape key ecosystem decisions and future initiatives.',
+                'Early stakers benefit from enhanced governance power as their relative share increases with supply contraction.',
             ],
             index: 2,
         },
     ];
+
     return (
         <section id="benefits" className="relative py-24 overflow-hidden">
             {/* Enhanced background elements */}
