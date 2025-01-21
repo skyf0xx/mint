@@ -32,8 +32,9 @@ const BenefitCard = ({
             transition={{ duration: 0.5, delay: index * 0.1 }}
             viewport={{ once: true }}
             whileHover={{ y: -5 }}
+            className="h-full" // Ensure the motion div takes full height
         >
-            <Card className="group relative hover:shadow-xl transition-all duration-500 overflow-hidden">
+            <Card className="group relative hover:shadow-xl transition-all duration-500 overflow-hidden h-full flex flex-col">
                 {/* Animated gradient border */}
                 <div
                     className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 opacity-0 group-hover:opacity-100 transition-all duration-500"
@@ -42,7 +43,7 @@ const BenefitCard = ({
                     <div className="absolute inset-0 bg-white" />
                 </div>
 
-                <CardHeader className="relative overflow-hidden pb-4">
+                <CardHeader className="relative overflow-hidden pb-4 flex-shrink-0">
                     {/* Enhanced background effects */}
                     <div className="absolute inset-0">
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
@@ -66,7 +67,7 @@ const BenefitCard = ({
                     </div>
                 </CardHeader>
 
-                <CardContent className="relative">
+                <CardContent className="relative flex-grow flex flex-col justify-between">
                     {/* Description with improved typography */}
                     <p className="text-gray-600 leading-relaxed mb-6 text-lg">
                         {description}
@@ -78,27 +79,30 @@ const BenefitCard = ({
                         title={title}
                         content={content}
                     />
+
                     {/* Enhanced button with animations */}
-                    <Button
-                        ref={buttonRef}
-                        onClick={() => setDialogOpen(true)}
-                        variant="ghost"
-                        className="group/button relative overflow-hidden hover:text-primary transition-all duration-300"
-                    >
-                        <span className="relative z-10 flex items-center">
-                            Learn more
-                            <motion.div
-                                animate={{ x: [0, 5, 0] }}
-                                transition={{
-                                    duration: 1.5,
-                                    repeat: Infinity,
-                                }}
-                            >
-                                <ChevronRight className="ml-2" />
-                            </motion.div>
-                        </span>
-                        <span className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 group-hover/button:opacity-100 transition-all duration-300" />
-                    </Button>
+                    <div className="mt-auto pt-4">
+                        <Button
+                            ref={buttonRef}
+                            onClick={() => setDialogOpen(true)}
+                            variant="ghost"
+                            className="group/button relative overflow-hidden hover:text-primary transition-all duration-300"
+                        >
+                            <span className="relative z-10 flex items-center">
+                                Learn more
+                                <motion.div
+                                    animate={{ x: [0, 5, 0] }}
+                                    transition={{
+                                        duration: 1.5,
+                                        repeat: Infinity,
+                                    }}
+                                >
+                                    <ChevronRight className="ml-2" />
+                                </motion.div>
+                            </span>
+                            <span className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 group-hover/button:opacity-100 transition-all duration-300" />
+                        </Button>
+                    </div>
                 </CardContent>
             </Card>
         </motion.div>
