@@ -22,11 +22,13 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
     });
     const [referralCode, setReferralCode] = useState(initialReferralCode || '');
 
-    const connectWallet = async () => {
+    const [walletAddress, setWalletAddress] = useState<string | null>(null);
+
+    const connectWallet = async (address: string) => {
         setLoading(true);
         setError('');
         try {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            setWalletAddress(address);
             setCompletedSteps({ ...completedSteps, wallet: true });
             setStep(2);
         } catch (err) {
