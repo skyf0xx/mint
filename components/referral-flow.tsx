@@ -25,11 +25,30 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
 
     const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
+    const generateReferralCode = (address: string): string => {
+        // Take first 6 chars of address and add 3 deterministic chars based on full address
+        const prefix = address.slice(0, 6);
+
+        // Create deterministic suffix by hashing the full address
+        let hash = 0;
+        for (let i = 0; i < address.length; i++) {
+            hash = (hash << 5) - hash + address.charCodeAt(i);
+            hash = hash & hash;
+        }
+
+        // Convert hash to 3 alphanumeric characters
+        const suffix = Math.abs(hash).toString(36).slice(0, 3).toUpperCase();
+
+        return `${prefix}${suffix}`;
+    };
+
     const connectWallet = async (address: string) => {
         setLoading(true);
         setError('');
         try {
+            const code = generateReferralCode(address);
             setWalletAddress(address);
+            setReferralCode(code);
             setCompletedSteps({ ...completedSteps, wallet: true });
             setStep(2);
         } catch (err) {
