@@ -47,6 +47,11 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
         setStep(3);
     };
 
+    const skipFollow = () => {
+        setCompletedSteps({ ...completedSteps, twitter: true });
+        setStep(3);
+    };
+
     const shareReferral = () => {
         navigator.clipboard.writeText(
             `https://mint.example.com/ref/${referralCode}`
@@ -109,7 +114,7 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
                                 {step === 2 && (
                                     <TwitterStep
                                         onFollow={followTwitter}
-                                        onSkip={() => setStep(3)}
+                                        onSkip={skipFollow}
                                     />
                                 )}
                                 {step === 3 && (
