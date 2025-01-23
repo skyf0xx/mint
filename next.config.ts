@@ -7,6 +7,12 @@ const nextConfig = {
         unoptimized: true,
     },
     reactStrictMode: true,
+    async exportPathMap(defaultPathMap: Record<string, { page: string }>) {
+        return {
+            ...defaultPathMap,
+            '/get-started': { page: '/get-started' },
+        };
+    },
 };
 
 module.exports = nextConfig;
