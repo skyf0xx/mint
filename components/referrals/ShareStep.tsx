@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Share2, Check, Copy, Twitter, Send } from 'lucide-react';
+import { Check, Copy, Twitter, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 
@@ -23,26 +23,6 @@ export const ShareStep = ({ referralCode, onShare }: ShareStepProps) => {
         } catch (err) {
             console.error('Failed to copy:', err);
         }
-    };
-
-    const handleShare = async () => {
-        // Try Web Share API first
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: 'Join MINT Token',
-                    text: shareText,
-                    url: referralUrl,
-                });
-                onShare();
-                return;
-            } catch (err) {
-                console.log('Share failed, falling back to copy', err);
-            }
-        }
-
-        // Fallback to copy
-        handleCopy();
     };
 
     const socialShare = (platform: 'twitter' | 'telegram') => {
@@ -122,17 +102,6 @@ export const ShareStep = ({ referralCode, onShare }: ShareStepProps) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
             >
-                <Button
-                    className="w-full py-6 group relative overflow-hidden bg-gradient-to-r from-primary to-primary-600 hover:to-primary-700 transition-all duration-300"
-                    onClick={handleShare}
-                >
-                    <span className="relative z-10 flex items-center justify-center">
-                        <Share2 className="w-5 h-5 mr-2" />
-                        Share Link
-                    </span>
-                    <span className="absolute inset-0 bg-gradient-to-r from-accent to-accent-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                </Button>
-
                 <div className="grid grid-cols-2 gap-3">
                     <Button
                         variant="outline"
