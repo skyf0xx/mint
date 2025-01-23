@@ -7,6 +7,7 @@ import { StepProgress } from './referrals/StepIndicator';
 import { TwitterStep } from './referrals/TwitterStep';
 import { WalletStep } from './referrals/WalletStep';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
+import ConnectedWallet from './referrals/ConnectedWallet';
 
 interface ReferralFlowProps {
     initialReferralCode?: string | null;
@@ -65,6 +66,15 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
                         <CardTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
                             Get Your MINT Tokens
                         </CardTitle>
+                        {walletAddress && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="mt-4"
+                            >
+                                <ConnectedWallet address={walletAddress} />
+                            </motion.div>
+                        )}
                     </CardHeader>
 
                     <CardContent className="space-y-6">
