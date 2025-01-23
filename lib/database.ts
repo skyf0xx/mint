@@ -1,6 +1,6 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-interface User {
+export interface User {
     wallet_address: string;
     referral_code: string;
     total_referrals: number;
@@ -9,7 +9,7 @@ interface User {
     updated_at: string;
 }
 
-interface Referral {
+export interface Referral {
     id: string;
     referrer_address: string;
     referred_address: string;
@@ -17,7 +17,7 @@ interface Referral {
     created_at: string;
 }
 
-interface ReferralStats {
+export interface ReferralStats {
     totalReferrals: number;
     completedReferrals: number;
     pendingReferrals: number;
