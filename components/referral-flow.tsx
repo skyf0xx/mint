@@ -78,6 +78,7 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
         setError('');
         try {
             const user = await db.upsertUser(address);
+            await db.processPendingReferral(address); // Add this line
             setWalletAddress(address);
             setReferralCode(user.referral_code);
 
