@@ -1,4 +1,3 @@
-// components/referral/ReferralFlow.tsx
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
@@ -12,6 +11,7 @@ import {
     useArweaveWalletInit,
     useArweaveWalletStore,
 } from '@/hooks/use-wallet';
+import { db, ReferralStats } from '@/lib/database';
 
 interface ReferralFlowProps {
     initialReferralCode?: string | null;
@@ -26,62 +26,95 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
         twitter: false,
     });
     const [referralCode, setReferralCode] = useState(initialReferralCode || '');
-
     const [walletAddress, setWalletAddress] = useState<string | null>(null);
+    const [referralStats, setReferralStats] = useState<ReferralStats | null>(
+        null
+    );
 
     useArweaveWalletInit();
     const { address: connectedAddress } = useArweaveWalletStore();
 
     useEffect(() => {
-        console.log({ connectedAddress });
-        if (connectedAddress) {
-            const code = generateReferralCode(connectedAddress);
-            setWalletAddress(connectedAddress);
-            setReferralCode(code);
-            setCompletedSteps({ ...completedSteps, wallet: true });
-            setStep(2);
-        }
-    }, [connectedAddress]);
+        const initializeConnectedWallet = async () => {
+            if (connectedAddress) {
+                try {
+                    const user = await db.upsertUser(connectedAddress);
+                    setWalletAddress(connectedAddress);
+                    setReferralCode(user.referral_code);
+                    setCompletedSteps({ ...completedSteps, wallet: true });
+                    setStep(2);
 
-    const generateReferralCode = (address: string): string => {
-        // Take first 6 chars of address and add 3 deterministic chars based on full address
-        const prefix = address.slice(0, 6);
+                    const stats = await db.getUserReferralStats(
+                        connectedAddress
+                    );
+                    setReferralStats(stats);
 
-        // Create deterministic suffix by hashing the full address
-        let hash = 0;
-        for (let i = 0; i < address.length; i++) {
-            hash = (hash << 5) - hash + address.charCodeAt(i);
-            hash = hash & hash;
-        }
+                    // Process initial referral if exists
+                    if (initialReferralCode) {
+                        const referrer = await db.getUserByReferralCode(
+                            initialReferralCode
+                        );
+                        if (
+                            referrer &&
+                            referrer.wallet_address !== connectedAddress
+                        ) {
+                            await db.createReferral(
+                                referrer.wallet_address,
+                                connectedAddress
+                            );
+                        }
+                    }
+                } catch (err) {
+                    setError((err as Error).message);
+                }
+            }
+        };
 
-        // Convert hash to 3 alphanumeric characters
-        const suffix = Math.abs(hash).toString(36).slice(0, 3).toUpperCase();
-
-        return `${prefix}${suffix}`;
-    };
+        initializeConnectedWallet();
+    }, [connectedAddress, initialReferralCode]);
 
     const connectWallet = async (address: string) => {
         setLoading(true);
         setError('');
         try {
-            const code = generateReferralCode(address);
+            const user = await db.upsertUser(address);
             setWalletAddress(address);
-            setReferralCode(code);
+            setReferralCode(user.referral_code);
+
+            if (initialReferralCode) {
+                const referrer = await db.getUserByReferralCode(
+                    initialReferralCode
+                );
+                if (referrer && referrer.wallet_address !== address) {
+                    await db.createReferral(referrer.wallet_address, address);
+                }
+            }
+
+            const stats = await db.getUserReferralStats(address);
+            setReferralStats(stats);
+
             setCompletedSteps({ ...completedSteps, wallet: true });
             setStep(2);
         } catch (err) {
-            setError(err as string);
+            setError((err as Error).message);
         }
         setLoading(false);
     };
 
-    const followTwitter = () => {
-        window.open(
-            'https://twitter.com/intent/follow?screen_name=mithril_labs',
-            '_blank'
-        );
-        setCompletedSteps({ ...completedSteps, twitter: true });
-        setStep(3);
+    const followTwitter = async () => {
+        if (!walletAddress) return;
+
+        try {
+            window.open(
+                'https://twitter.com/intent/follow?screen_name=mithril_labs',
+                '_blank'
+            );
+            await db.updateTwitterStatus(walletAddress, true);
+            setCompletedSteps({ ...completedSteps, twitter: true });
+            setStep(3);
+        } catch (err) {
+            setError((err as Error).message);
+        }
     };
 
     const skipFollow = () => {
@@ -89,10 +122,25 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
         setStep(3);
     };
 
-    const shareReferral = () => {
-        navigator.clipboard.writeText(
-            `https://mint.example.com/ref/${referralCode}`
-        );
+    const shareReferral = async () => {
+        if (!walletAddress) return;
+
+        try {
+            const withinLimits = await db.checkRateLimits(walletAddress);
+            if (!withinLimits) {
+                throw new Error('Daily sharing limit reached');
+            }
+
+            await navigator.clipboard.writeText(
+                `https://mint.example.com/ref/${referralCode}`
+            );
+
+            // Refresh stats after sharing
+            const stats = await db.getUserReferralStats(walletAddress);
+            setReferralStats(stats);
+        } catch (err) {
+            setError((err as Error).message);
+        }
     };
 
     return (
@@ -157,7 +205,9 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
                                 {step === 3 && (
                                     <ShareStep
                                         referralCode={referralCode}
+                                        walletAddress={walletAddress || ''} // Add this line
                                         onShare={shareReferral}
+                                        stats={referralStats}
                                     />
                                 )}
                             </motion.div>
