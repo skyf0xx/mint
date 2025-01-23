@@ -98,6 +98,24 @@ export class DatabaseService {
     }
 
     // Referral Functions
+    async processPendingReferral(walletAddress: string): Promise<void> {
+        const pendingCode = localStorage.getItem('pendingReferralCode');
+        if (!pendingCode) return;
+
+        try {
+            const referrer = await this.getUserByReferralCode(pendingCode);
+            if (referrer && referrer.wallet_address !== walletAddress) {
+                await this.createReferral(
+                    referrer.wallet_address,
+                    walletAddress
+                );
+            }
+            localStorage.removeItem('pendingReferralCode');
+        } catch (error) {
+            console.error('Failed to process pending referral:', error);
+        }
+    }
+
     async createReferral(
         referrerAddress: string,
         referredAddress: string
