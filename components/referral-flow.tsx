@@ -1,5 +1,5 @@
 // components/referral/ReferralFlow.tsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
 import { ShareStep } from './referrals/ShareStep';
@@ -8,6 +8,10 @@ import { TwitterStep } from './referrals/TwitterStep';
 import { WalletStep } from './referrals/WalletStep';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import ConnectedWallet from './referrals/ConnectedWallet';
+import {
+    useArweaveWalletInit,
+    useArweaveWalletStore,
+} from '@/hooks/use-wallet';
 
 interface ReferralFlowProps {
     initialReferralCode?: string | null;
@@ -24,6 +28,20 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
     const [referralCode, setReferralCode] = useState(initialReferralCode || '');
 
     const [walletAddress, setWalletAddress] = useState<string | null>(null);
+
+    useArweaveWalletInit();
+    const { address: connectedAddress } = useArweaveWalletStore();
+
+    useEffect(() => {
+        console.log({ connectedAddress });
+        if (connectedAddress) {
+            const code = generateReferralCode(connectedAddress);
+            setWalletAddress(connectedAddress);
+            setReferralCode(code);
+            setCompletedSteps({ ...completedSteps, wallet: true });
+            setStep(2);
+        }
+    }, [connectedAddress]);
 
     const generateReferralCode = (address: string): string => {
         // Take first 6 chars of address and add 3 deterministic chars based on full address
