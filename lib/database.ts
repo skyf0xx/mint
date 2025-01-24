@@ -1,6 +1,7 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 export interface User {
+    id: string;
     wallet_address: string;
     referral_code: string;
     total_referrals: number;
@@ -11,8 +12,8 @@ export interface User {
 
 export interface Referral {
     id: string;
-    referrer_address: string;
-    referred_address: string;
+    referrer_id: string;
+    referred_id: string;
     status: 'pending' | 'completed';
     created_at: string;
 }
@@ -33,13 +34,61 @@ export class DatabaseService {
         );
     }
 
-    // User Functions
+    private sanitizeWalletForEmail(walletAddress: string): string {
+        const sanitized = walletAddress.replace(/[^a-zA-Z0-9]/g, '');
+        return `${sanitized}@arweave.org`;
+    }
+
+    async signUpWithWallet(walletAddress: string) {
+        const email = this.sanitizeWalletForEmail(walletAddress);
+        const { data, error } = await this.supabase.auth.signUp({
+            email,
+            password: walletAddress,
+        });
+
+        if (error) throw new Error(`Failed to sign up: ${error.message}`);
+        return data;
+    }
+
+    async signInWithWallet(walletAddress: string) {
+        try {
+            const email = this.sanitizeWalletForEmail(walletAddress);
+            const { data: signInData, error: signInError } =
+                await this.supabase.auth.signInWithPassword({
+                    email,
+                    password: walletAddress,
+                });
+
+            if (!signInError) return signInData;
+
+            if (signInError.status === 400) {
+                const { data: signUpData, error: signUpError } =
+                    await this.supabase.auth.signUp({
+                        email,
+                        password: walletAddress,
+                    });
+
+                if (signUpError)
+                    throw new Error(`Signup failed: ${signUpError.message}`);
+                return signUpData;
+            }
+
+            throw new Error(`Signin failed: ${signInError.message}`);
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async upsertUser(walletAddress: string): Promise<User> {
+        const authData = await this.signInWithWallet(walletAddress);
+        if (!authData.user?.id) throw new Error('Authentication failed');
+
         const referralCode = this.generateReferralCode(walletAddress);
 
         const { data, error } = await this.supabase
             .from('users')
             .upsert({
+                id: authData.user.id,
                 wallet_address: walletAddress,
                 referral_code: referralCode,
                 updated_at: new Date().toISOString(),
@@ -55,13 +104,16 @@ export class DatabaseService {
         walletAddress: string,
         followed: boolean
     ): Promise<void> {
+        const authData = await this.signInWithWallet(walletAddress);
+        if (!authData.user?.id) throw new Error('Authentication failed');
+
         const { error } = await this.supabase
             .from('users')
             .update({
                 twitter_followed: followed,
                 updated_at: new Date().toISOString(),
             })
-            .eq('wallet_address', walletAddress);
+            .eq('id', authData.user.id);
 
         if (error)
             throw new Error(
@@ -97,18 +149,17 @@ export class DatabaseService {
         return data;
     }
 
-    // Referral Functions
     async processPendingReferral(walletAddress: string): Promise<void> {
+        const authData = await this.signInWithWallet(walletAddress);
+        if (!authData.user?.id) throw new Error('Authentication failed');
+
         const pendingCode = localStorage.getItem('pendingReferralCode');
         if (!pendingCode) return;
 
         try {
             const referrer = await this.getUserByReferralCode(pendingCode);
-            if (referrer && referrer.wallet_address !== walletAddress) {
-                await this.createReferral(
-                    referrer.wallet_address,
-                    walletAddress
-                );
+            if (referrer) {
+                await this.createReferral(referrer.id, authData.user.id);
             }
             localStorage.removeItem('pendingReferralCode');
         } catch (error) {
@@ -117,16 +168,14 @@ export class DatabaseService {
     }
 
     async createReferral(
-        referrerAddress: string,
-        referredAddress: string
+        referrerId: string,
+        referredId: string
     ): Promise<Referral> {
-        await this.validateReferral(referrerAddress, referredAddress);
-
         const { data, error } = await this.supabase
             .from('referrals')
             .insert({
-                referrer_address: referrerAddress,
-                referred_address: referredAddress,
+                referrer_id: referrerId,
+                referred_id: referredId,
             })
             .select()
             .single();
@@ -134,9 +183,8 @@ export class DatabaseService {
         if (error)
             throw new Error(`Failed to create referral: ${error.message}`);
 
-        // Increment referral count
         await this.supabase.rpc('increment_referral_count', {
-            address: referrerAddress,
+            user_id: referrerId,
         });
 
         return data;
@@ -144,12 +192,14 @@ export class DatabaseService {
 
     async updateReferralStatus(
         referralId: string,
+        userId: string,
         status: 'pending' | 'completed'
     ): Promise<void> {
         const { error } = await this.supabase
             .from('referrals')
             .update({ status })
-            .eq('id', referralId);
+            .eq('id', referralId)
+            .eq('referrer_id', userId);
 
         if (error)
             throw new Error(
@@ -158,16 +208,15 @@ export class DatabaseService {
     }
 
     async getReferralsByUser(
-        walletAddress: string,
+        userId: string,
         type: 'referrer' | 'referred'
     ): Promise<Referral[]> {
-        const column =
-            type === 'referrer' ? 'referrer_address' : 'referred_address';
+        const column = type === 'referrer' ? 'referrer_id' : 'referred_id';
 
         const { data, error } = await this.supabase
             .from('referrals')
             .select()
-            .eq(column, walletAddress)
+            .eq(column, userId)
             .order('created_at', { ascending: false });
 
         if (error) throw new Error(`Failed to get referrals: ${error.message}`);
@@ -175,10 +224,13 @@ export class DatabaseService {
     }
 
     async getUserReferralStats(walletAddress: string): Promise<ReferralStats> {
+        const user = await this.getUserByWallet(walletAddress);
+        if (!user) throw new Error('User not found');
+
         const { data: referrals, error } = await this.supabase
             .from('referrals')
             .select()
-            .eq('referrer_address', walletAddress);
+            .eq('referrer_id', user.id);
 
         if (error)
             throw new Error(`Failed to get referral stats: ${error.message}`);
@@ -195,51 +247,6 @@ export class DatabaseService {
         };
     }
 
-    // Validation Functions
-    private async validateReferral(
-        referrerAddress: string,
-        referredAddress: string
-    ): Promise<boolean> {
-        if (referrerAddress === referredAddress) {
-            throw new Error('Self-referrals are not allowed');
-        }
-
-        const { data: existingReferral, error } = await this.supabase
-            .from('referrals')
-            .select()
-            .eq('referrer_address', referrerAddress)
-            .eq('referred_address', referredAddress)
-            .single();
-
-        if (existingReferral) {
-            throw new Error('Duplicate referral');
-        }
-
-        if (error && error.code !== 'PGRST116') {
-            throw new Error(`Referral validation failed: ${error.message}`);
-        }
-
-        return true;
-    }
-
-    async checkRateLimits(walletAddress: string): Promise<boolean> {
-        const { count, error } = await this.supabase
-            .from('referrals')
-            .select('id', { count: 'exact', head: true })
-            .eq('referrer_address', walletAddress)
-            .gte(
-                'created_at',
-                new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-            );
-
-        if (error)
-            throw new Error(`Failed to check rate limits: ${error.message}`);
-
-        const DAILY_LIMIT = 10;
-        return (count || 0) < DAILY_LIMIT;
-    }
-
-    // Helper Functions
     private generateReferralCode(address: string): string {
         const prefix = address.slice(0, 6);
         let hash = 0;
