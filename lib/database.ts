@@ -54,7 +54,11 @@ export class DatabaseService {
             provider: 'twitter',
             options: {
                 redirectTo: redirectTo.toString(),
-                scopes: 'tweet.read users.read',
+                scopes: 'users.read',
+                skipBrowserRedirect: false,
+                queryParams: {
+                    force_verify: 'true',
+                },
             },
         });
     }
@@ -77,6 +81,7 @@ export class DatabaseService {
     async createOrUpdateUserWithTwitter(
         twitterData: TwitterAuthResponse
     ): Promise<User> {
+        //TODO: Why is this failing?
         const userData: Partial<User> = {
             twitter_id: twitterData.user.id,
             twitter_username: twitterData.user.username,
@@ -90,10 +95,10 @@ export class DatabaseService {
             .select()
             .single();
 
-        if (error)
-            throw new Error(
-                `Failed to create/update user with Twitter: ${error.message}`
-            );
+        if (error) console.error(error);
+        throw new Error(
+            `Failed to create/update user with Twitter: ${error?.message}`
+        );
         return data;
     }
 
