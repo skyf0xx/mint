@@ -45,11 +45,15 @@ export class DatabaseService {
         );
     }
 
-    async signInWithTwitter() {
+    async signInWithTwitter(referralCode?: string) {
+        const redirectTo = new URL(`${window.location.origin}/callback`);
+        if (referralCode) {
+            redirectTo.searchParams.set('ref', referralCode);
+        }
         return await this.supabase.auth.signInWithOAuth({
             provider: 'twitter',
             options: {
-                redirectTo: `${window.location.origin}/auth/callback`,
+                redirectTo: redirectTo.toString(),
                 scopes: 'tweet.read users.read',
             },
         });
