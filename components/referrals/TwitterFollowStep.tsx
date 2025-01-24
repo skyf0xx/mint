@@ -1,13 +1,16 @@
-// components/referral/steps/TwitterStep.tsx
+// components/referral/steps/TwitterFollowStep.tsx
 import { Button } from '@/components/ui/button';
 import { Twitter } from 'lucide-react';
 
-interface TwitterStepProps {
+interface TwitterFollowStepProps {
     onFollow: () => void;
     onSkip: () => void;
 }
 
-export const TwitterStep = ({ onFollow, onSkip }: TwitterStepProps) => (
+export const TwitterFollowStep = ({
+    onFollow,
+    onSkip,
+}: TwitterFollowStepProps) => (
     <div className="space-y-4">
         <h3 className="text-lg font-medium text-center">Follow on Twitter</h3>
         <p className="text-gray-600 text-center">
