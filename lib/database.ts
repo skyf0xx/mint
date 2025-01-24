@@ -3,6 +3,9 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 export interface User {
     id: string;
     wallet_address: string;
+    twitter_id: string;
+    twitter_username: string;
+    twitter_name: string;
     referral_code: string;
     total_referrals: number;
     twitter_followed: boolean;
@@ -24,8 +27,16 @@ export interface ReferralStats {
     pendingReferrals: number;
 }
 
+export interface TwitterAuthResponse {
+    user: {
+        id: string;
+        username: string;
+        name: string;
+    };
+}
+
 export class DatabaseService {
-    private supabase: SupabaseClient;
+    public supabase: SupabaseClient;
 
     constructor() {
         this.supabase = createClient(
@@ -34,86 +45,89 @@ export class DatabaseService {
         );
     }
 
-    private sanitizeWalletForEmail(walletAddress: string): string {
-        const sanitized = walletAddress.replace(/[^a-zA-Z0-9]/g, '');
-        return `${sanitized}@arweave.org`;
+    async signInWithTwitter() {
+        return await this.supabase.auth.signInWithOAuth({
+            provider: 'twitter',
+            options: {
+                redirectTo: `${window.location.origin}/auth/callback`,
+                scopes: 'tweet.read users.read',
+            },
+        });
     }
 
-    async signUpWithWallet(walletAddress: string) {
-        const email = this.sanitizeWalletForEmail(walletAddress);
-        const { data, error } = await this.supabase.auth.signUp({
-            email,
-            password: walletAddress,
-        });
+    async getUserByTwitterId(twitterId: string): Promise<User | null> {
+        const { data, error } = await this.supabase
+            .from('users')
+            .select()
+            .eq('twitter_id', twitterId)
+            .single();
 
-        if (error) throw new Error(`Failed to sign up: ${error.message}`);
+        if (error && error.code !== 'PGRST116') {
+            throw new Error(
+                `Failed to get user by Twitter ID: ${error.message}`
+            );
+        }
         return data;
     }
 
-    async signInWithWallet(walletAddress: string) {
-        try {
-            const email = this.sanitizeWalletForEmail(walletAddress);
-            const { data: signInData, error: signInError } =
-                await this.supabase.auth.signInWithPassword({
-                    email,
-                    password: walletAddress,
-                });
+    async createOrUpdateUserWithTwitter(
+        twitterData: TwitterAuthResponse
+    ): Promise<User> {
+        const userData: Partial<User> = {
+            twitter_id: twitterData.user.id,
+            twitter_username: twitterData.user.username,
+            twitter_name: twitterData.user.name,
+            updated_at: new Date().toISOString(),
+        };
 
-            if (!signInError) return signInData;
+        const { data, error } = await this.supabase
+            .from('users')
+            .upsert(userData)
+            .select()
+            .single();
 
-            if (signInError.status === 400) {
-                const { data: signUpData, error: signUpError } =
-                    await this.supabase.auth.signUp({
-                        email,
-                        password: walletAddress,
-                    });
-
-                if (signUpError)
-                    throw new Error(`Signup failed: ${signUpError.message}`);
-                return signUpData;
-            }
-
-            throw new Error(`Signin failed: ${signInError.message}`);
-        } catch (error) {
-            throw error;
-        }
+        if (error)
+            throw new Error(
+                `Failed to create/update user with Twitter: ${error.message}`
+            );
+        return data;
     }
 
-    async upsertUser(walletAddress: string): Promise<User> {
-        const authData = await this.signInWithWallet(walletAddress);
-        if (!authData.user?.id) throw new Error('Authentication failed');
-
+    async linkWalletToTwitterUser(
+        twitterId: string,
+        walletAddress: string
+    ): Promise<User> {
         const referralCode = this.generateReferralCode(walletAddress);
 
         const { data, error } = await this.supabase
             .from('users')
-            .upsert({
-                id: authData.user.id,
+            .update({
                 wallet_address: walletAddress,
                 referral_code: referralCode,
                 updated_at: new Date().toISOString(),
             })
+            .eq('twitter_id', twitterId)
             .select()
             .single();
 
-        if (error) throw new Error(`Failed to upsert user: ${error.message}`);
+        if (error)
+            throw new Error(
+                `Failed to link wallet to Twitter user: ${error.message}`
+            );
         return data;
     }
 
     async updateTwitterStatus(
-        walletAddress: string,
+        userId: string,
         followed: boolean
     ): Promise<void> {
-        const authData = await this.signInWithWallet(walletAddress);
-        if (!authData.user?.id) throw new Error('Authentication failed');
-
         const { error } = await this.supabase
             .from('users')
             .update({
                 twitter_followed: followed,
                 updated_at: new Date().toISOString(),
             })
-            .eq('id', authData.user.id);
+            .eq('id', userId);
 
         if (error)
             throw new Error(
@@ -150,16 +164,16 @@ export class DatabaseService {
     }
 
     async processPendingReferral(walletAddress: string): Promise<void> {
-        const authData = await this.signInWithWallet(walletAddress);
-        if (!authData.user?.id) throw new Error('Authentication failed');
-
         const pendingCode = localStorage.getItem('pendingReferralCode');
         if (!pendingCode) return;
 
         try {
             const referrer = await this.getUserByReferralCode(pendingCode);
-            if (referrer) {
-                await this.createReferral(referrer.id, authData.user.id);
+            if (referrer && referrer.wallet_address !== walletAddress) {
+                await this.createReferral(
+                    referrer.wallet_address,
+                    walletAddress
+                );
             }
             localStorage.removeItem('pendingReferralCode');
         } catch (error) {
@@ -223,14 +237,11 @@ export class DatabaseService {
         return data || [];
     }
 
-    async getUserReferralStats(walletAddress: string): Promise<ReferralStats> {
-        const user = await this.getUserByWallet(walletAddress);
-        if (!user) throw new Error('User not found');
-
+    async getUserReferralStats(userId: string): Promise<ReferralStats> {
         const { data: referrals, error } = await this.supabase
             .from('referrals')
             .select()
-            .eq('referrer_id', user.id);
+            .eq('referrer_id', userId);
 
         if (error)
             throw new Error(`Failed to get referral stats: ${error.message}`);

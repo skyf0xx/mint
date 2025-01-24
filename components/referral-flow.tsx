@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
 import { ShareStep } from './referrals/ShareStep';
 import { StepProgress } from './referrals/StepIndicator';
-import { TwitterStep } from './referrals/TwitterStep';
 import { WalletStep } from './referrals/WalletStep';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import ConnectedWallet from './referrals/ConnectedWallet';
@@ -11,14 +10,35 @@ import {
     useArweaveWalletInit,
     useArweaveWalletStore,
 } from '@/hooks/use-wallet';
-import { db, ReferralStats } from '@/lib/database';
+import { db, ReferralStats, TwitterAuthResponse } from '@/lib/database';
+import { TwitterFollowStep } from './referrals/TwitterFollowStep';
+import { TwitterAuthStep } from './referrals/TwitterAuthStep';
 
 interface ReferralFlowProps {
     initialReferralCode?: string | null;
 }
 
+enum Step {
+    TWITTER_AUTH = 1,
+    WALLET_CONNECT = 2,
+    TWITTER_FOLLOW = 3,
+    SHARE = 4,
+}
+
+/*
+    TODO:
+    
+    1. Update wallet connection so that instead of calling: upsertUser, it calls linkWalletToTwitterUser
+    2. Update completedSteps logic
+    3. ETC
+*/
+
 export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
-    const [step, setStep] = useState(1);
+    const [step, setStep] = useState<Step>(Step.TWITTER_AUTH);
+    const [twitterData, setTwitterData] = useState<TwitterAuthResponse | null>(
+        null
+    );
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [completedSteps, setCompletedSteps] = useState({
@@ -36,13 +56,16 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
 
     useEffect(() => {
         const initializeConnectedWallet = async () => {
-            if (connectedAddress) {
+            if (connectedAddress && twitterData?.user.id) {
                 try {
-                    const user = await db.upsertUser(connectedAddress);
+                    const user = await db.linkWalletToTwitterUser(
+                        twitterData.user.id,
+                        connectedAddress
+                    );
                     setWalletAddress(connectedAddress);
                     setReferralCode(user.referral_code);
                     setCompletedSteps({ ...completedSteps, wallet: true });
-                    setStep(2);
+                    setStep(Step.TWITTER_FOLLOW);
 
                     const stats = await db.getUserReferralStats(
                         connectedAddress
@@ -51,18 +74,7 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
 
                     // Process initial referral if exists
                     if (initialReferralCode) {
-                        const referrer = await db.getUserByReferralCode(
-                            initialReferralCode
-                        );
-                        if (
-                            referrer &&
-                            referrer.wallet_address !== connectedAddress
-                        ) {
-                            await db.createReferral(
-                                referrer.wallet_address,
-                                connectedAddress
-                            );
-                        }
+                        await db.processPendingReferral(connectedAddress);
                     }
                 } catch (err) {
                     setError((err as Error).message);
@@ -73,29 +85,44 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
         initializeConnectedWallet();
     }, [connectedAddress, initialReferralCode]);
 
+    const handleTwitterAuth = async (data: TwitterAuthResponse) => {
+        setLoading(true);
+        setError('');
+        try {
+            const user = await db.createOrUpdateUserWithTwitter(data);
+            console.log({ user });
+            setTwitterData(data);
+            setStep(Step.WALLET_CONNECT);
+        } catch (err) {
+            setError((err as Error).message);
+        }
+        setLoading(false);
+    };
+
     const connectWallet = async (address: string) => {
         setLoading(true);
         setError('');
         try {
-            const user = await db.upsertUser(address);
-            await db.processPendingReferral(address); // Add this line
+            if (!twitterData?.user.id) {
+                throw new Error('Twitter authentication required');
+            }
+
+            const user = await db.linkWalletToTwitterUser(
+                twitterData.user.id,
+                address
+            );
             setWalletAddress(address);
             setReferralCode(user.referral_code);
 
             if (initialReferralCode) {
-                const referrer = await db.getUserByReferralCode(
-                    initialReferralCode
-                );
-                if (referrer && referrer.wallet_address !== address) {
-                    await db.createReferral(referrer.wallet_address, address);
-                }
+                await db.processPendingReferral(address);
             }
 
             const stats = await db.getUserReferralStats(address);
             setReferralStats(stats);
 
             setCompletedSteps({ ...completedSteps, wallet: true });
-            setStep(2);
+            setStep(Step.TWITTER_FOLLOW);
         } catch (err) {
             setError((err as Error).message);
         }
@@ -112,7 +139,7 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
             );
             await db.updateTwitterStatus(walletAddress, true);
             setCompletedSteps({ ...completedSteps, twitter: true });
-            setStep(3);
+            setStep(Step.SHARE);
         } catch (err) {
             setError((err as Error).message);
         }
@@ -120,18 +147,13 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
 
     const skipFollow = () => {
         setCompletedSteps({ ...completedSteps, twitter: true });
-        setStep(3);
+        setStep(Step.SHARE);
     };
 
     const shareReferral = async () => {
         if (!walletAddress) return;
 
         try {
-            const withinLimits = await db.checkRateLimits(walletAddress);
-            if (!withinLimits) {
-                throw new Error('Daily sharing limit reached');
-            }
-
             await navigator.clipboard.writeText(
                 `https://mint.example.com/ref/${referralCode}`
             );
@@ -157,14 +179,17 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
                         <CardTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
                             Get Your MINT Tokens
                         </CardTitle>
-                        {walletAddress && (
+                        {twitterData && (
                             <motion.div
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="mt-4"
+                                className="mt-2 text-sm text-gray-600"
                             >
-                                <ConnectedWallet address={walletAddress} />
+                                Connected as @{twitterData.user.username}
                             </motion.div>
+                        )}
+                        {walletAddress && (
+                            <ConnectedWallet address={walletAddress} />
                         )}
                     </CardHeader>
 
@@ -191,22 +216,27 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
                                 exit={{ opacity: 0, x: -20 }}
                                 className="space-y-6"
                             >
-                                {step === 1 && (
+                                {step === Step.TWITTER_AUTH && (
+                                    <TwitterAuthStep
+                                        onSuccess={handleTwitterAuth}
+                                    />
+                                )}
+                                {step === Step.WALLET_CONNECT && (
                                     <WalletStep
                                         onConnect={connectWallet}
                                         loading={loading}
                                     />
                                 )}
-                                {step === 2 && (
-                                    <TwitterStep
+                                {step === Step.TWITTER_FOLLOW && (
+                                    <TwitterFollowStep
                                         onFollow={followTwitter}
                                         onSkip={skipFollow}
                                     />
                                 )}
-                                {step === 3 && (
+                                {step === Step.SHARE && (
                                     <ShareStep
                                         referralCode={referralCode}
-                                        walletAddress={walletAddress || ''} // Add this line
+                                        walletAddress={walletAddress || ''}
                                         onShare={shareReferral}
                                         stats={referralStats}
                                     />
