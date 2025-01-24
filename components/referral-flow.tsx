@@ -55,6 +55,28 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
     const { address: connectedAddress } = useArweaveWalletStore();
 
     useEffect(() => {
+        const checkAuth = async () => {
+            const {
+                data: { session },
+            } = await db.supabase.auth.getSession();
+            if (session?.user) {
+                // Convert session data to TwitterAuthResponse format
+                const twitterData: TwitterAuthResponse = {
+                    user: {
+                        id: session.user.id,
+                        username: session.user.user_metadata.user_name,
+                        name: session.user.user_metadata.full_name,
+                    },
+                };
+                setTwitterData(twitterData);
+                setStep(Step.WALLET_CONNECT);
+            }
+        };
+
+        checkAuth();
+    }, []);
+
+    useEffect(() => {
         const initializeConnectedWallet = async () => {
             if (connectedAddress && twitterData?.user.id) {
                 try {
