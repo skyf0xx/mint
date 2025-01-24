@@ -44,11 +44,6 @@ export const ShareStep = ({
             await navigator.clipboard.writeText(referralUrl);
             setCopied(true);
 
-            const withinLimits = await db.checkRateLimits(walletAddress);
-            if (!withinLimits) {
-                throw new Error('Daily sharing limit reached');
-            }
-
             onShare();
 
             // Refresh stats after successful share
@@ -63,11 +58,6 @@ export const ShareStep = ({
 
     const socialShare = async (platform: 'twitter' | 'telegram') => {
         try {
-            const withinLimits = await db.checkRateLimits(walletAddress);
-            if (!withinLimits) {
-                throw new Error('Daily sharing limit reached');
-            }
-
             const text = encodeURIComponent(shareText);
             const url = encodeURIComponent(referralUrl);
 
