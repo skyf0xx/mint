@@ -83,7 +83,12 @@ export const ReferralFlow = ({ initialReferralCode }: ReferralFlowProps) => {
         };
 
         initializeConnectedWallet();
-    }, [connectedAddress, initialReferralCode]);
+    }, [
+        completedSteps,
+        connectedAddress,
+        initialReferralCode,
+        twitterData?.user.id,
+    ]);
 
     const handleTwitterAuth = async (data: TwitterAuthResponse) => {
         setLoading(true);
