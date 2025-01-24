@@ -7,7 +7,11 @@ import { WalletStep } from './referrals/WalletStep';
 import { TwitterFollowStep } from './referrals/TwitterFollowStep';
 import { TwitterAuthStep } from './referrals/TwitterAuthStep';
 import ConnectedWallet from './referrals/ConnectedWallet';
-import { Step, StepContentProps, useReferralFlow } from '@/lib/useReferralFlow';
+import {
+    Step,
+    StepContentProps,
+    useReferralFlow,
+} from '@/lib/userReferralFlow';
 
 const ErrorMessage = ({ error }: { error: string }) => (
     <motion.div
