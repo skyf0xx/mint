@@ -9,6 +9,7 @@ export enum Step {
 
 export interface TwitterUser {
     id: string;
+    twitter_id: string;
     username: string;
     name: string;
 }

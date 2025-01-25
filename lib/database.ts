@@ -30,6 +30,7 @@ export interface ReferralStats {
 export interface TwitterAuthResponse {
     user: {
         id: string;
+        twitter_id: string;
         username: string;
         name: string;
     };
@@ -81,9 +82,9 @@ export class DatabaseService {
     async createOrUpdateUserWithTwitter(
         twitterData: TwitterAuthResponse
     ): Promise<User> {
-        //TODO: Why is this failing?
         const userData: Partial<User> = {
-            twitter_id: twitterData.user.id,
+            id: twitterData.user.id,
+            twitter_id: twitterData.user.twitter_id,
             twitter_username: twitterData.user.username,
             twitter_name: twitterData.user.name,
             updated_at: new Date().toISOString(),
