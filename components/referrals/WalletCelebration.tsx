@@ -61,7 +61,7 @@ const WalletCelebration = ({ onComplete }: CelebrationProps) => {
             clearTimeout(timer);
             clearTimeout(completionTimer);
         };
-    }, [onComplete]);
+    }, []);
 
     return (
         <motion.div
