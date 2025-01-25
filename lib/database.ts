@@ -108,7 +108,7 @@ export class DatabaseService {
     }
 
     async linkWalletToTwitterUser(
-        twitterId: string,
+        userId: string,
         walletAddress: string
     ): Promise<User> {
         const referralCode = this.generateReferralCode(walletAddress);
@@ -120,7 +120,7 @@ export class DatabaseService {
                 referral_code: referralCode,
                 updated_at: new Date().toISOString(),
             })
-            .eq('twitter_id', twitterId)
+            .eq('id', userId)
             .select()
             .single();
 
