@@ -144,10 +144,11 @@ export class DatabaseService {
             })
             .eq('id', userId);
 
-        if (error)
+        if (error) {
             throw new Error(
                 `Failed to update Twitter status: ${error.message}`
             );
+        }
     }
 
     async getUserByWallet(walletAddress: string): Promise<User | null> {
@@ -209,8 +210,9 @@ export class DatabaseService {
             .select()
             .single();
 
-        if (error)
+        if (error) {
             throw new Error(`Failed to create referral: ${error.message}`);
+        }
 
         await this.supabase.rpc('increment_referral_count', {
             user_id: referrerId,
@@ -230,10 +232,11 @@ export class DatabaseService {
             .eq('id', referralId)
             .eq('referrer_id', userId);
 
-        if (error)
+        if (error) {
             throw new Error(
                 `Failed to update referral status: ${error.message}`
             );
+        }
     }
 
     async getReferralsByUser(
@@ -248,7 +251,9 @@ export class DatabaseService {
             .eq(column, userId)
             .order('created_at', { ascending: false });
 
-        if (error) throw new Error(`Failed to get referrals: ${error.message}`);
+        if (error) {
+            throw new Error(`Failed to get referrals: ${error.message}`);
+        }
         return data || [];
     }
 
@@ -258,8 +263,9 @@ export class DatabaseService {
             .select()
             .eq('referrer_id', userId);
 
-        if (error)
+        if (error) {
             throw new Error(`Failed to get referral stats: ${error.message}`);
+        }
 
         const totalReferrals = referrals?.length || 0;
         const completedReferrals =
