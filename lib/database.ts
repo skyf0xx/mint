@@ -119,10 +119,16 @@ export class DatabaseService {
             .select()
             .single();
 
-        if (error)
+        if (error) {
             throw new Error(
                 `Failed to link wallet to Twitter user: ${error.message}`
             );
+        }
+
+        if (!data) {
+            throw new Error('No user found with the provided Twitter ID');
+        }
+
         return data;
     }
 
