@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { db } from '@/lib/database';
 import { Button } from '../ui/button';
 import { Twitter, AlertCircle, Loader2 } from 'lucide-react';
@@ -12,49 +12,74 @@ interface TwitterAuthStepProps {
 export const TwitterAuthStep = ({ onSuccess }: TwitterAuthStepProps) => {
     const [error, setError] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+    // Check authentication status on mount
+    useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                const {
+                    data: { session },
+                } = await db.supabase.auth.getSession();
+
+                if (session?.user) {
+                    // Convert session data to TwitterAuthResponse format
+
+                    const twitterData: TwitterAuthResponse = {
+                        user: {
+                            id: session.user.id,
+                            twitter_id: session.user.identities?.[0]?.id || '',
+                            username: session.user.user_metadata.user_name,
+                            name: session.user.user_metadata.full_name,
+                        },
+                    };
+                    onSuccess(twitterData);
+                }
+            } catch (err) {
+                setError(
+                    err instanceof Error
+                        ? err.message
+                        : 'Failed to check authentication status'
+                );
+            } finally {
+                setIsCheckingAuth(false);
+            }
+        };
+
+        checkAuth();
+    }, [onSuccess]);
 
     const handleTwitterLogin = async () => {
         setIsLoading(true);
         setError('');
 
         try {
-            // First get OAuth data
+            // Clear any existing session
             await db.supabase.auth.signOut();
             const { error: authError } = await db.signInWithTwitter();
+
             if (authError) {
                 throw new Error(
                     'Twitter authentication failed. Please try again.'
                 );
             }
-
-            // Get user data from session
-            const session = await db.supabase.auth.getSession();
-            if (!session.data.session?.user) {
-                throw new Error(
-                    'Unable to retrieve user session. Please try again.'
-                );
-            }
-
-            // Convert to TwitterAuthResponse format
-            const twitterData: TwitterAuthResponse = {
-                user: {
-                    id: session.data.session.user.id,
-                    username: session.data.session.user.user_metadata.user_name,
-                    name: session.data.session.user.user_metadata.full_name,
-                },
-            };
-
-            onSuccess(twitterData);
         } catch (err) {
             setError(
                 err instanceof Error
                     ? err.message
                     : 'An unexpected error occurred'
             );
-        } finally {
             setIsLoading(false);
         }
     };
+
+    if (isCheckingAuth) {
+        return (
+            <div className="flex justify-center items-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-4">
