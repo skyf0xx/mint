@@ -95,10 +95,12 @@ export class DatabaseService {
             .select()
             .single();
 
-        if (error) console.error(error);
-        throw new Error(
-            `Failed to create/update user with Twitter: ${error?.message}`
-        );
+        if (error) {
+            console.error(error);
+            throw new Error(
+                `Failed to create/update user with Twitter: ${error?.message}`
+            );
+        }
         return data;
     }
 
