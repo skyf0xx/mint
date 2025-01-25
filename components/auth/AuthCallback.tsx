@@ -25,7 +25,7 @@ export function AuthCallback() {
         };
 
         handleCallback();
-    }, [router, searchParams]);
+    }, [searchParams]);
 
     return <div>Processing authentication...</div>;
 }

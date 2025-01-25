@@ -181,5 +181,5 @@ export const useArweaveWalletInit = () => {
             window.removeEventListener('arweaveWalletLoaded', checkConnection);
             window.removeEventListener('walletSwitch', checkConnection);
         };
-    }, [checkConnection]);
+    }, []);
 };

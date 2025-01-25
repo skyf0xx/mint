@@ -25,7 +25,7 @@ export const useInitialAuth = (
             }
         };
         checkAuth();
-    }, [updateState]);
+    }, []);
 };
 
 export const useWalletConnection = (
@@ -72,7 +72,5 @@ export const useWalletConnection = (
         state.twitterData?.user.id,
         initialReferralCode,
         state.completedSteps,
-        updateState,
-        setError,
     ]);
 };
