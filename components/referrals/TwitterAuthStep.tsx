@@ -23,8 +23,6 @@ export const TwitterAuthStep = ({ onSuccess }: TwitterAuthStepProps) => {
                 } = await db.supabase.auth.getSession();
 
                 if (session?.user) {
-                    // Convert session data to TwitterAuthResponse format
-
                     const twitterData: TwitterAuthResponse = {
                         user: {
                             id: session.user.id,
