@@ -17,6 +17,7 @@ export const useInitialAuth = (
                 const twitterData: TwitterAuthResponse = {
                     user: {
                         id: session.user.id,
+                        twitter_id: session.user.identities?.[0]?.id || '',
                         username: session.user.user_metadata.user_name,
                         name: session.user.user_metadata.full_name,
                     },
