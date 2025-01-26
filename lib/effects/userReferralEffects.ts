@@ -51,7 +51,9 @@ export const useWalletConnection = (
                     await db.processPendingReferral(connectedAddress);
                 }
 
-                const stats = await db.getUserReferralStats(connectedAddress);
+                const stats = await db.getUserReferralStats(
+                    state.twitterData.user.id
+                );
 
                 updateState({
                     walletAddress: connectedAddress,

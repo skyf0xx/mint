@@ -42,7 +42,9 @@ export const useReferralActions = (
                 await db.processPendingReferral(address);
             }
 
-            const stats = await db.getUserReferralStats(address);
+            const stats = await db.getUserReferralStats(
+                state.twitterData.user.id
+            );
 
             updateState({
                 walletAddress: address,
@@ -89,7 +91,9 @@ export const useReferralActions = (
             await navigator.clipboard.writeText(
                 `https://mint.example.com/ref/${state.referralCode}`
             );
-            const stats = await db.getUserReferralStats(state.walletAddress);
+            const stats = await db.getUserReferralStats(
+                state.twitterData?.user.id || ''
+            );
             updateState({ referralStats: stats });
         } catch (err) {
             setError((err as Error).message);
