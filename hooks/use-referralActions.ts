@@ -86,7 +86,7 @@ export const useReferralActions = (
         if (!state.walletAddress) return;
         try {
             await navigator.clipboard.writeText(
-                `${window.location.origin}/pages/[referralCode]/${state.referralCode}`
+                `${window.location.origin}/${state.referralCode}`
             );
         } catch (err) {
             setError((err as Error).message);
