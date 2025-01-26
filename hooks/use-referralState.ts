@@ -1,7 +1,7 @@
 // lib/state/useReferralState.ts
 
 import { useState } from 'react';
-import { ReferralState, Step } from '../referral';
+import { ReferralState, Step } from '../lib/referral';
 
 export const initialReferralState = (
     referralCode?: string | null

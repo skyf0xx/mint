@@ -1,10 +1,10 @@
-import { useReferralActions } from '@/lib/actions/userReferralActions';
+import { useReferralActions } from '@/hooks/use-referralActions';
 import {
     useInitialAuth,
     useWalletConnection,
-} from '@/lib/effects/userReferralEffects';
+} from '@/hooks/use-referralEffects';
 import { ReferralActions, ReferralState } from '@/lib/referral';
-import { useReferralState } from '@/lib/state/userReferralState';
+import { useReferralState } from '@/hooks/use-referralState';
 import { useArweaveWalletInit } from './use-wallet';
 
 export interface StepContentProps {

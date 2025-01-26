@@ -1,9 +1,9 @@
 // lib/effects/useReferralEffects.ts
 
 import { useEffect } from 'react';
-import { db, TwitterAuthResponse } from '../database';
+import { db, TwitterAuthResponse } from '../lib/database';
 import { useArweaveWalletStore } from '@/hooks/use-wallet';
-import { ReferralState, Step } from '../referral';
+import { ReferralState, Step } from '../lib/referral';
 
 export const useInitialAuth = (
     updateState: (updates: Partial<ReferralState>) => void
