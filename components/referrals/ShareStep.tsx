@@ -43,10 +43,6 @@ export const ShareStep = ({ referralCode, state, onShare }: ShareStepProps) => {
 
             onShare();
 
-            // Refresh stats after successful share
-            const updatedStats = await db.getUserReferralStats(walletAddress);
-            setStats(updatedStats);
-
             setTimeout(() => setCopied(false), 2000);
         } catch (err) {
             setError((err as Error).message);
@@ -65,10 +61,6 @@ export const ShareStep = ({ referralCode, state, onShare }: ShareStepProps) => {
 
             window.open(links[platform], '_blank');
             onShare();
-
-            // Refresh stats after successful share
-            const updatedStats = await db.getUserReferralStats(walletAddress);
-            setStats(updatedStats);
         } catch (err) {
             setError((err as Error).message);
         }
