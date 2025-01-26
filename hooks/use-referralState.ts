@@ -3,9 +3,7 @@
 import { useState } from 'react';
 import { ReferralState, Step } from '../lib/referral';
 
-export const initialReferralState = (
-    referralCode?: string | null
-): ReferralState => ({
+const initialReferralState = (referralCode?: string | null): ReferralState => ({
     step: Step.TWITTER_AUTH,
     twitterData: null,
     loading: false,
