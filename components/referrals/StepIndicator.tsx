@@ -41,24 +41,34 @@ export const StepProgress = ({
             <StepIndicator
                 step={Step.TWITTER_AUTH}
                 active={currentStep === Step.TWITTER_AUTH}
-                completed={completedSteps.twitter}
+                completed={
+                    currentStep > Step.TWITTER_AUTH || completedSteps.twitter
+                }
             />
             <div className="w-16 h-0.5 bg-gray-200">
                 <div
                     className={`h-full bg-primary transition-all duration-500 ${
-                        completedSteps.twitter ? 'w-full' : 'w-0'
+                        currentStep > Step.TWITTER_AUTH ||
+                        completedSteps.twitter
+                            ? 'w-full'
+                            : 'w-0'
                     }`}
                 />
             </div>
             <StepIndicator
                 step={Step.WALLET_CONNECT}
                 active={currentStep === Step.WALLET_CONNECT}
-                completed={completedSteps.wallet}
+                completed={
+                    currentStep > Step.WALLET_CONNECT || completedSteps.wallet
+                }
             />
             <div className="w-16 h-0.5 bg-gray-200">
                 <div
                     className={`h-full bg-primary transition-all duration-500 ${
-                        completedSteps.wallet ? 'w-full' : 'w-0'
+                        currentStep > Step.WALLET_CONNECT ||
+                        completedSteps.wallet
+                            ? 'w-full'
+                            : 'w-0'
                     }`}
                 />
             </div>
