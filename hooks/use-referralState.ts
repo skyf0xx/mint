@@ -1,5 +1,3 @@
-// lib/state/useReferralState.ts
-
 import { useState } from 'react';
 import { ReferralState, Step } from '../lib/referral';
 
