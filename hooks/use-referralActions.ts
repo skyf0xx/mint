@@ -84,10 +84,9 @@ export const useReferralActions = (
 
     const handleShare = async () => {
         if (!state.walletAddress) return;
-
         try {
             await navigator.clipboard.writeText(
-                `https://mint.example.com/ref/${state.referralCode}`
+                `${window.location.origin}/pages/[referralCode]/${state.referralCode}`
             );
         } catch (err) {
             setError((err as Error).message);
