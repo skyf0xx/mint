@@ -91,10 +91,6 @@ export const useReferralActions = (
             await navigator.clipboard.writeText(
                 `https://mint.example.com/ref/${state.referralCode}`
             );
-            const stats = await db.getUserReferralStats(
-                state.twitterData?.user.id || ''
-            );
-            updateState({ referralStats: stats });
         } catch (err) {
             setError((err as Error).message);
         }
