@@ -58,14 +58,14 @@ export const useReferralActions = (
     };
 
     const handleTwitterFollow = async () => {
-        if (!state.walletAddress) return;
+        if (!state.twitterData?.user.id) return;
 
         try {
             window.open(
                 'https://twitter.com/intent/follow?screen_name=mithril_labs',
                 '_blank'
             );
-            await db.updateTwitterStatus(state.walletAddress, true);
+            await db.updateTwitterStatus(state.twitterData.user.id, true);
             updateState({
                 completedSteps: { ...state.completedSteps, twitter: true },
                 step: Step.SHARE,
