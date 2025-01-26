@@ -1,7 +1,7 @@
 // lib/actions/useReferralActions.ts
 
-import { db, TwitterAuthResponse } from '../database';
-import { ReferralState, Step } from '../referral';
+import { db, TwitterAuthResponse } from '../lib/database';
+import { ReferralState, Step } from '../lib/referral';
 
 export const useReferralActions = (
     state: ReferralState,

@@ -7,7 +7,7 @@ import { WalletStep } from './referrals/WalletStep';
 import { TwitterFollowStep } from './referrals/TwitterFollowStep';
 import { TwitterAuthStep } from './referrals/TwitterAuthStep';
 import ConnectedWallet from './referrals/ConnectedWallet';
-import { StepContentProps, useReferralFlow } from '@/hooks/userReferralFlow';
+import { StepContentProps, useReferralFlow } from '@/hooks/use-referralFlow';
 import { Step } from '@/lib/referral';
 
 const ErrorMessage = ({ error }: { error: string }) => (
