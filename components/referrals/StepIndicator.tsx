@@ -1,14 +1,14 @@
-// components/referral/StepIndicator.tsx
 import { Check } from 'lucide-react';
+import { Step } from '@/lib/referral';
 
 interface StepIndicatorProps {
-    number: number;
+    step: Step;
     active: boolean;
     completed: boolean;
 }
 
 export const StepIndicator = ({
-    number,
+    step,
     active,
     completed,
 }: StepIndicatorProps) => (
@@ -25,7 +25,7 @@ export const StepIndicator = ({
         transition-all duration-300
       `}
     >
-        {completed ? <Check className="w-4 h-4" /> : number}
+        {completed ? <Check className="w-4 h-4" /> : step}
     </div>
 );
 
@@ -33,26 +33,14 @@ export const StepProgress = ({
     currentStep,
     completedSteps,
 }: {
-    currentStep: number;
+    currentStep: Step;
     completedSteps: { wallet: boolean; twitter: boolean };
 }) => (
     <div className="flex items-center justify-center mb-8 relative">
         <div className="flex items-center space-x-4">
             <StepIndicator
-                number={1}
-                active={currentStep === 1}
-                completed={completedSteps.wallet}
-            />
-            <div className="w-16 h-0.5 bg-gray-200">
-                <div
-                    className={`h-full bg-primary transition-all duration-500 ${
-                        completedSteps.wallet ? 'w-full' : 'w-0'
-                    }`}
-                />
-            </div>
-            <StepIndicator
-                number={2}
-                active={currentStep === 2}
+                step={Step.TWITTER_AUTH}
+                active={currentStep === Step.TWITTER_AUTH}
                 completed={completedSteps.twitter}
             />
             <div className="w-16 h-0.5 bg-gray-200">
@@ -63,9 +51,33 @@ export const StepProgress = ({
                 />
             </div>
             <StepIndicator
-                number={3}
-                active={currentStep === 3}
-                completed={false}
+                step={Step.WALLET_CONNECT}
+                active={currentStep === Step.WALLET_CONNECT}
+                completed={completedSteps.wallet}
+            />
+            <div className="w-16 h-0.5 bg-gray-200">
+                <div
+                    className={`h-full bg-primary transition-all duration-500 ${
+                        completedSteps.wallet ? 'w-full' : 'w-0'
+                    }`}
+                />
+            </div>
+            <StepIndicator
+                step={Step.TWITTER_FOLLOW}
+                active={currentStep === Step.TWITTER_FOLLOW}
+                completed={currentStep > Step.TWITTER_FOLLOW}
+            />
+            <div className="w-16 h-0.5 bg-gray-200">
+                <div
+                    className={`h-full bg-primary transition-all duration-500 ${
+                        currentStep > Step.TWITTER_FOLLOW ? 'w-full' : 'w-0'
+                    }`}
+                />
+            </div>
+            <StepIndicator
+                step={Step.SHARE}
+                active={currentStep === Step.SHARE}
+                completed={currentStep > Step.SHARE}
             />
         </div>
     </div>
