@@ -1,5 +1,3 @@
-// lib/actions/useReferralActions.ts
-
 import { db, TwitterAuthResponse } from '../lib/database';
 import { ReferralState, Step } from '../lib/referral';
 

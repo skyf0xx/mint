@@ -1,5 +1,3 @@
-// lib/effects/useReferralEffects.ts
-
 import { useEffect } from 'react';
 import { db, TwitterAuthResponse } from '../lib/database';
 import { useArweaveWalletStore } from '@/hooks/use-wallet';
