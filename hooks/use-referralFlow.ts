@@ -12,13 +12,10 @@ export interface StepContentProps {
 }
 
 export const useReferralFlow = (initialReferralCode?: string | null) => {
-    // Initialize wallet once
     useArweaveWalletInit();
-
     const { state, setError, setLoading, updateState } =
         useReferralState(initialReferralCode);
 
-    // Move effects into a single useEffect to control execution
     useEffect(() => {
         const initFlow = async () => {
             try {
@@ -42,7 +39,7 @@ export const useReferralFlow = (initialReferralCode?: string | null) => {
         };
 
         initFlow();
-    }, [initialReferralCode]); // Only run on mount and when referral code changes
+    }, [initialReferralCode]); // Remove updateState and setError from dependencies
 
     const actions = useReferralActions(
         state,
