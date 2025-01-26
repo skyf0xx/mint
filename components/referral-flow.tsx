@@ -51,7 +51,7 @@ const StepContent = ({ state, actions }: StepContentProps) => {
             {step === Step.SHARE && (
                 <ShareStep
                     referralCode={state.referralCode}
-                    walletAddress={state.walletAddress || ''}
+                    state={state}
                     onShare={actions.handleShare}
                     stats={state.referralStats}
                 />

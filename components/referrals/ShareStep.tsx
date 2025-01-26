@@ -5,19 +5,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { db, ReferralStats } from '@/lib/database';
 import StatsCard from './StatsCard';
+import { ReferralState } from '@/lib/referral';
 
 interface ShareStepProps {
     referralCode: string;
-    walletAddress: string;
+    state: ReferralState;
     onShare: () => void;
     stats?: ReferralStats | null; // Add this line, make it optional
 }
 
-export const ShareStep = ({
-    referralCode,
-    walletAddress,
-    onShare,
-}: ShareStepProps) => {
+export const ShareStep = ({ referralCode, state, onShare }: ShareStepProps) => {
     const [copied, setCopied] = useState(false);
     const [stats, setStats] = useState<ReferralStats | null>(null);
     const [error, setError] = useState<string>('');
@@ -28,7 +25,7 @@ export const ShareStep = ({
         const loadStats = async () => {
             try {
                 const referralStats = await db.getUserReferralStats(
-                    walletAddress
+                    state.twitterData?.user.id || ''
                 );
                 setStats(referralStats);
             } catch (err) {
@@ -37,7 +34,7 @@ export const ShareStep = ({
         };
 
         loadStats();
-    }, [walletAddress]);
+    }, [state.twitterData?.user.id]);
 
     const handleCopy = async () => {
         try {
