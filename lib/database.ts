@@ -216,7 +216,6 @@ export class DatabaseService {
             if (referrer && referrer.wallet_address !== walletAddress) {
                 await this.createReferral(referrer.id, referredUserId);
             }
-            localStorage.removeItem('pendingReferralCode');
         } catch (error) {
             console.error('Failed to process pending referral:', error);
         }
