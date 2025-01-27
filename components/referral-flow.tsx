@@ -66,59 +66,50 @@ const StepContent = memo(({ state, actions }: StepContentProps) => {
 
 StepContent.displayName = 'StepContent';
 
-interface ReferralFlowProps {
-    initialReferralCode?: string | null;
-}
+export const ReferralFlow = () => {
+    console.log('CALLED');
+    const { state, actions } = useReferralFlow();
 
-export const ReferralFlow = memo(
-    ({ initialReferralCode }: ReferralFlowProps) => {
-        console.log('CALLED');
-        const { state, actions } = useReferralFlow(initialReferralCode);
+    return (
+        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-16 px-4">
+            <div className="max-w-xl mx-auto">
+                <StepProgress
+                    currentStep={state.step}
+                    completedSteps={state.completedSteps}
+                />
 
-        return (
-            <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-16 px-4">
-                <div className="max-w-xl mx-auto">
-                    <StepProgress
-                        currentStep={state.step}
-                        completedSteps={state.completedSteps}
-                    />
+                <Card className="shadow-lg border-2 border-primary/10">
+                    <CardHeader className="text-center pb-4">
+                        <CardTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
+                            Get Your MINT Tokens
+                        </CardTitle>
+                        {state.twitterData && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="mt-2 text-sm text-gray-600"
+                            >
+                                Connected as @{state.twitterData.user.username}
+                            </motion.div>
+                        )}
+                        {state.walletAddress && (
+                            <ConnectedWallet address={state.walletAddress} />
+                        )}
+                    </CardHeader>
 
-                    <Card className="shadow-lg border-2 border-primary/10">
-                        <CardHeader className="text-center pb-4">
-                            <CardTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
-                                Get Your MINT Tokens
-                            </CardTitle>
-                            {state.twitterData && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="mt-2 text-sm text-gray-600"
-                                >
-                                    Connected as @
-                                    {state.twitterData.user.username}
-                                </motion.div>
+                    <CardContent className="space-y-6">
+                        <AnimatePresence mode="wait">
+                            {state.error && (
+                                <ErrorMessage error={state.error} />
                             )}
-                            {state.walletAddress && (
-                                <ConnectedWallet
-                                    address={state.walletAddress}
-                                />
-                            )}
-                        </CardHeader>
-
-                        <CardContent className="space-y-6">
-                            <AnimatePresence mode="wait">
-                                {state.error && (
-                                    <ErrorMessage error={state.error} />
-                                )}
-                                <StepContent state={state} actions={actions} />
-                            </AnimatePresence>
-                        </CardContent>
-                    </Card>
-                </div>
+                            <StepContent state={state} actions={actions} />
+                        </AnimatePresence>
+                    </CardContent>
+                </Card>
             </div>
-        );
-    }
-);
+        </div>
+    );
+};
 
 ReferralFlow.displayName = 'ReferralFlow';
 

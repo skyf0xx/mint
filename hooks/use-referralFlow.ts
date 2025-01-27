@@ -11,12 +11,12 @@ export interface StepContentProps {
     actions: ReferralActions;
 }
 
-export const useReferralFlow = (initialReferralCode?: string | null) => {
+export const useReferralFlow = () => {
     useArweaveWalletInit();
-    const { state, setError, setLoading, updateState } =
-        useReferralState(initialReferralCode);
+    const { state, setError, setLoading, updateState } = useReferralState();
 
     useEffect(() => {
+        console.log('INIT FLOW');
         const initFlow = async () => {
             try {
                 const {
@@ -39,14 +39,13 @@ export const useReferralFlow = (initialReferralCode?: string | null) => {
         };
 
         initFlow();
-    }, [initialReferralCode]); // Remove updateState and setError from dependencies
+    }, []);
 
     const actions = useReferralActions(
         state,
         updateState,
         setError,
-        setLoading,
-        initialReferralCode
+        setLoading
     );
 
     return { state, actions };

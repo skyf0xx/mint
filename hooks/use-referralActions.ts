@@ -6,8 +6,7 @@ export const useReferralActions = (
     state: ReferralState,
     updateState: (updates: Partial<ReferralState>) => void,
     setError: (error: string) => void,
-    setLoading: (loading: boolean) => void,
-    initialReferralCode?: string | null
+    setLoading: (loading: boolean) => void
 ) => {
     const handleTwitterAuth = async (data: TwitterAuthResponse) => {
         setLoading(true);
@@ -36,9 +35,15 @@ export const useReferralActions = (
                 state.twitterData.user.id,
                 address
             );
-
+            const initialReferralCode = localStorage.getItem(
+                'pendingReferralCode'
+            );
+            console.log({ initialReferralCode });
             if (initialReferralCode) {
-                await db.processPendingReferral(address);
+                await db.processPendingReferral(
+                    address,
+                    state.twitterData.user.id
+                );
             }
 
             const stats = await db.getUserReferralStats(

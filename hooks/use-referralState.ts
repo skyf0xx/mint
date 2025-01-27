@@ -15,10 +15,8 @@ const initialReferralState = (referralCode?: string | null): ReferralState => ({
     referralStats: null,
 });
 
-export const useReferralState = (initialReferralCode?: string | null) => {
-    const [state, setState] = useState<ReferralState>(
-        initialReferralState(initialReferralCode)
-    );
+export const useReferralState = () => {
+    const [state, setState] = useState<ReferralState>(initialReferralState());
 
     const setError = (error: string) => setState((s) => ({ ...s, error }));
     const setLoading = (loading: boolean) =>
