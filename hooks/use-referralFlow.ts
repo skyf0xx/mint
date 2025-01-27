@@ -16,7 +16,6 @@ export const useReferralFlow = () => {
     const { state, setError, setLoading, updateState } = useReferralState();
 
     useEffect(() => {
-        console.log('INIT FLOW');
         const initFlow = async () => {
             try {
                 const {
