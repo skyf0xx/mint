@@ -109,7 +109,7 @@ export class DatabaseService {
 
         const { data, error } = await this.supabase
             .from('users')
-            .upsert(userData)
+            .upsert(userData, { onConflict: 'id' })
             .select()
             .single();
 
