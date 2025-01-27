@@ -49,6 +49,7 @@ const StepContent = memo(({ state, actions }: StepContentProps) => {
                 <TwitterFollowStep
                     onFollow={actions.handleTwitterFollow}
                     onSkip={actions.handleSkipFollow}
+                    twitterUserId={state.twitterData?.user.id ?? ''}
                 />
             )}
             {step === Step.SHARE && (
