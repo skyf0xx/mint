@@ -64,6 +64,21 @@ export class DatabaseService {
         });
     }
 
+    async getUserById(id: string): Promise<User | null> {
+        const { data, error } = await this.supabase
+            .from('users')
+            .select()
+            .eq('id', id)
+            .single();
+
+        if (error && error.code !== 'PGRST116') {
+            throw new Error(
+                `Failed to get user by Twitter ID: ${error.message}`
+            );
+        }
+        return data;
+    }
+
     async getUserByTwitterId(twitterId: string): Promise<User | null> {
         const { data, error } = await this.supabase
             .from('users')
