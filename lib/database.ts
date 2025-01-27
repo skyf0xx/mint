@@ -199,17 +199,24 @@ export class DatabaseService {
         return data;
     }
 
-    async processPendingReferral(walletAddress: string): Promise<void> {
+    async processPendingReferral(
+        walletAddress: string,
+        referredUserId: string
+    ): Promise<void> {
         const pendingCode = localStorage.getItem('pendingReferralCode');
         if (!pendingCode) return;
 
         try {
             const referrer = await this.getUserByReferralCode(pendingCode);
+            console.log(
+                { referrer },
+                'refferer id',
+                referrer?.id,
+                'referred',
+                referredUserId
+            );
             if (referrer && referrer.wallet_address !== walletAddress) {
-                await this.createReferral(
-                    referrer.wallet_address,
-                    walletAddress
-                );
+                await this.createReferral(referrer.id, referredUserId);
             }
             localStorage.removeItem('pendingReferralCode');
         } catch (error) {
