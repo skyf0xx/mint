@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useWallet } from '@/hooks/use-wallet';
 import { Wallet, Loader2 } from 'lucide-react';
 import WalletCelebration from './WalletCelebration';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 
 interface WalletStepProps {
@@ -17,6 +17,29 @@ export const WalletStep = ({ onConnect, loading }: WalletStepProps) => {
     const [connectedAddress, setConnectedAddress] = useState<string | null>(
         null
     );
+
+    useEffect(() => {
+        const checkConnection = async () => {
+            try {
+                if (!window.arweaveWallet) {
+                    return null;
+                }
+                const permissions = await window.arweaveWallet.getPermissions();
+                if (permissions.includes('ACCESS_ADDRESS')) {
+                    const addr = await window.arweaveWallet.getActiveAddress();
+                    setConnectedAddress(addr);
+                    onConnect(addr);
+                    return addr;
+                }
+                return null;
+            } catch (error) {
+                console.error('Error checking connection:', error);
+                return null;
+            }
+        };
+
+        checkConnection();
+    }, []);
 
     const handleConnect = async () => {
         const address = await connect();
