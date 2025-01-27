@@ -187,8 +187,8 @@ export class DatabaseService {
             .from('users')
             .select()
             .eq('referral_code', referralCode)
-            .single();
 
+            .single();
         if (error && error.code !== 'PGRST116') {
             throw new Error(
                 `Failed to get user by referral code: ${error.message}`
@@ -206,13 +206,7 @@ export class DatabaseService {
 
         try {
             const referrer = await this.getUserByReferralCode(pendingCode);
-            console.log(
-                { referrer },
-                'refferer id',
-                referrer?.id,
-                'referred',
-                referredUserId
-            );
+
             if (referrer && referrer.wallet_address !== walletAddress) {
                 await this.createReferral(referrer.id, referredUserId);
             }
@@ -225,19 +219,30 @@ export class DatabaseService {
         referrerId: string,
         referredId: string
     ): Promise<Referral> {
+        if (!referrerId || !referredId) {
+            throw new Error('Referrer or referred ID is missing');
+        }
+
+        // Use upsert to handle duplicate key conflicts
         const { data, error } = await this.supabase
             .from('referrals')
-            .insert({
-                referrer_id: referrerId,
-                referred_id: referredId,
-            })
+            .upsert(
+                {
+                    referrer_id: referrerId,
+                    referred_id: referredId,
+                },
+                { onConflict: 'referrer_id,referred_id' }
+            )
             .select()
             .single();
 
         if (error) {
-            throw new Error(`Failed to create referral: ${error.message}`);
+            throw new Error(
+                `Failed to create or update referral: ${error.message}`
+            );
         }
 
+        // Increment the referral count
         await this.supabase.rpc('increment_referral_count', {
             user_id: referrerId,
         });
