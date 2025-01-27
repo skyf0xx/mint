@@ -4,8 +4,8 @@ import { Check, Copy, Twitter, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { db, ReferralStats } from '@/lib/database';
-import StatsCard from './StatsCard';
 import { ReferralState } from '@/lib/referral';
+import StatsDash from './Stats';
 
 interface ShareStepProps {
     referralCode: string;
@@ -161,32 +161,7 @@ export const ShareStep = ({ referralCode, state, onShare }: ShareStepProps) => {
                 </div>
             </motion.div>
 
-            {stats && (
-                <motion.div
-                    className="mt-6 space-y-2"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                >
-                    <p className="text-sm text-gray-600">Your Referrals</p>
-                    <div className="grid grid-cols-3 gap-3">
-                        <div className="grid grid-cols-3 gap-3">
-                            <StatsCard
-                                title="Total"
-                                value={stats.totalReferrals}
-                            />
-                            <StatsCard
-                                title="Completed"
-                                value={stats.completedReferrals}
-                            />
-                            <StatsCard
-                                title="Pending"
-                                value={stats.pendingReferrals}
-                            />
-                        </div>
-                    </div>
-                </motion.div>
-            )}
+            {stats && <StatsDash stats={stats} />}
         </div>
     );
 };
