@@ -101,8 +101,6 @@ export class DatabaseService {
             id: twitterData.user.id,
             twitter_id: twitterData.user.twitter_id,
             twitter_username: twitterData.user.username,
-            wallet_address: '',
-            referral_code: '',
             twitter_name: twitterData.user.name,
             updated_at: new Date().toISOString(),
         };
