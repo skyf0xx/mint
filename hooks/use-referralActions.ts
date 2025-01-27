@@ -1,3 +1,4 @@
+import { referalLink } from '@/lib/helpers';
 import { db, TwitterAuthResponse } from '../lib/database';
 import { ReferralState, Step } from '../lib/referral';
 
@@ -86,7 +87,7 @@ export const useReferralActions = (
         if (!state.walletAddress) return;
         try {
             await navigator.clipboard.writeText(
-                `${window.location.origin}/${state.referralCode}`
+                referalLink(state.referralCode)
             );
         } catch (err) {
             setError((err as Error).message);

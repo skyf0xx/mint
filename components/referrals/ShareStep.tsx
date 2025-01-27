@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { db, ReferralStats } from '@/lib/database';
 import { ReferralState } from '@/lib/referral';
 import StatsDash from './Stats';
+import { referalLink } from '@/lib/helpers';
 
 interface ShareStepProps {
     referralCode: string;
@@ -18,7 +19,7 @@ export const ShareStep = ({ referralCode, state, onShare }: ShareStepProps) => {
     const [copied, setCopied] = useState(false);
     const [stats, setStats] = useState<ReferralStats | null>(null);
     const [error, setError] = useState<string>('');
-    const referralUrl = `https://mithril-mint-token.ar.io/ref/${referralCode}`;
+    const referralUrl = referalLink(referralCode);
     const shareText = 'Stake once, earn NAB forever with MINT token! 🚀';
 
     useEffect(() => {
