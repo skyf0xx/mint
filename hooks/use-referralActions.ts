@@ -75,12 +75,17 @@ export const useReferralActions = (
                 completedSteps: { ...state.completedSteps, twitter: true },
                 step: Step.SHARE,
             });
+            db.updateReferralStatus(state.twitterData.user.id, 'completed');
         } catch (err) {
             setError((err as Error).message);
         }
     };
 
     const handleSkipFollow = () => {
+        if (state.twitterData?.user.id) {
+            db.updateReferralStatus(state.twitterData.user.id, 'completed');
+        }
+
         updateState({
             completedSteps: { ...state.completedSteps, twitter: true },
             step: Step.SHARE,

@@ -251,15 +251,13 @@ export class DatabaseService {
     }
 
     async updateReferralStatus(
-        referralId: string,
         userId: string,
         status: 'pending' | 'completed'
     ): Promise<void> {
         const { error } = await this.supabase
             .from('referrals')
             .update({ status })
-            .eq('id', referralId)
-            .eq('referrer_id', userId);
+            .eq('referred_id', userId);
 
         if (error) {
             throw new Error(
