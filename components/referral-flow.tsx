@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, ExternalLink } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { ShareStep } from './referrals/ShareStep';
 import { StepProgress } from './referrals/StepIndicator';
@@ -10,6 +10,7 @@ import ConnectedWallet from './referrals/ConnectedWallet';
 import { StepContentProps, useReferralFlow } from '@/hooks/use-referralFlow';
 import { ReferralStats, Step, TwitterAuthResponse } from '@/lib/referral';
 import { memo } from 'react';
+import Link from 'next/link';
 
 // Primary focus: The main action component for each step
 const StepContent = memo(({ state, actions }: StepContentProps) => {
@@ -127,11 +128,22 @@ export const ReferralFlow = () => {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mb-6"
+                    className="mb-12 text-center space-y-4"
                 >
-                    <h1 className="text-6xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
+                    <h1 className="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
                         Begin Your Journey
                     </h1>
+                    <div className="flex items-center justify-center gap-2 text-lg text-gray-600">
+                        <span>Earn infinite rewards with</span>
+                        <Link
+                            target="_blank"
+                            href="/"
+                            className="flex items-center gap-1 text-primary font-semibold hover:text-primary-600 transition-colors group"
+                        >
+                            MINT
+                            <ExternalLink className="w-4 h-4 text-primary/50 group-hover:text-primary/70 transition-colors" />
+                        </Link>
+                    </div>
                 </motion.div>
 
                 {/* Secondary Content */}
