@@ -131,7 +131,7 @@ export const ReferralFlow = () => {
                     className="mb-12 text-center space-y-4"
                 >
                     <h1 className="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
-                        Begin Your Journey
+                        Start Your Journey
                     </h1>
                     <div className="flex items-center justify-center gap-2 text-lg text-gray-600">
                         <span>Earn infinite rewards with</span>
