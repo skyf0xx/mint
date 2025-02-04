@@ -1,55 +1,85 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Check, Copy, Twitter, Send } from 'lucide-react';
+import {
+    Check,
+    Copy,
+    Twitter,
+    Send,
+    ArrowRight,
+    Loader2,
+    ExternalLink,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { db, ReferralStats } from '@/lib/database';
-import StatsCard from './StatsCard';
+import { ReferralState } from '@/lib/referral';
+import StatsDash from './Stats';
+import { referalLink } from '@/lib/helpers';
+import GALXRewardsSection from './GALXRewards';
+import Link from 'next/link';
 
 interface ShareStepProps {
     referralCode: string;
-    walletAddress: string;
+    state: ReferralState;
     onShare: () => void;
-    stats?: ReferralStats | null; // Add this line, make it optional
+    stats?: ReferralStats | null;
 }
 
-export const ShareStep = ({
-    referralCode,
-    walletAddress,
-    onShare,
-}: ShareStepProps) => {
+export const ShareStep = ({ referralCode, state, onShare }: ShareStepProps) => {
     const [copied, setCopied] = useState(false);
     const [stats, setStats] = useState<ReferralStats | null>(null);
     const [error, setError] = useState<string>('');
-    const referralUrl = `https://mithril-mint-token.ar.io/ref/${referralCode}`;
+    const [loading, setLoading] = useState(false);
+    const referralUrl = referalLink(referralCode);
     const shareText = 'Stake once, earn NAB forever with MINT token! 🚀';
+    const completedSteps = {
+        wallet: !!state.walletAddress,
+        twitter: !!state.twitterData?.user.id && state.completedSteps.twitter,
+    };
 
     useEffect(() => {
         const loadStats = async () => {
+            setLoading(true);
             try {
-                const referralStats = await db.getUserReferralStats(
-                    walletAddress
-                );
-                setStats(referralStats);
+                if (state.twitterData?.user.id) {
+                    const referralStats = await db.getUserReferralStats(
+                        state.twitterData.user.id
+                    );
+                    setStats(referralStats);
+                }
             } catch (err) {
                 setError((err as Error).message);
+            } finally {
+                setLoading(false);
             }
         };
 
         loadStats();
-    }, [walletAddress]);
+    }, [state.twitterData?.user.id]);
+
+    useEffect(() => {
+        const loadStats = async () => {
+            setLoading(true);
+            try {
+                const referralStats = await db.getUserReferralStats(
+                    state.twitterData?.user.id || ''
+                );
+                setStats(referralStats);
+            } catch (err) {
+                setError((err as Error).message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadStats();
+    }, [state.twitterData?.user.id]);
 
     const handleCopy = async () => {
         try {
             await navigator.clipboard.writeText(referralUrl);
             setCopied(true);
-
             onShare();
-
-            // Refresh stats after successful share
-            const updatedStats = await db.getUserReferralStats(walletAddress);
-            setStats(updatedStats);
-
             setTimeout(() => setCopied(false), 2000);
         } catch (err) {
             setError((err as Error).message);
@@ -60,69 +90,58 @@ export const ShareStep = ({
         try {
             const text = encodeURIComponent(shareText);
             const url = encodeURIComponent(referralUrl);
-
             const links = {
                 twitter: `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
                 telegram: `https://t.me/share/url?url=${url}&text=${text}`,
             };
-
             window.open(links[platform], '_blank');
             onShare();
-
-            // Refresh stats after successful share
-            const updatedStats = await db.getUserReferralStats(walletAddress);
-            setStats(updatedStats);
         } catch (err) {
             setError((err as Error).message);
         }
     };
 
     return (
-        <div className="space-y-6">
-            {error && (
-                <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="bg-red-50 border border-red-200 rounded-lg p-4"
-                >
-                    <p className="text-red-600 text-sm">{error}</p>
-                </motion.div>
-            )}
-
+        <div className="space-y-8">
+            {/* Primary Focus: Main Share Action */}
             <motion.div
-                className="text-center space-y-2"
+                className="space-y-4 text-center"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
             >
-                <h3 className="text-xl font-medium">Share & Earn</h3>
-                <p className="text-gray-600">
-                    Share your unique referral link to start earning rewards
+                <h3 className="text-xl font-semibold bg-gradient-to-r from-primary to-primary-600 bg-clip-text text-transparent">
+                    Multiply Your Earnings
+                </h3>
+                <p className="text-gray-600 text-sm">
+                    Share your unique link to grow stronger together
                 </p>
             </motion.div>
 
+            {/* Primary Action: Copy Link Card */}
             <motion.div
                 className="relative"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
             >
-                <Card className="p-4 border-2 border-primary/10 hover:border-primary/20 transition-colors">
+                <Card className="p-4 border-2 border-primary/10 hover:border-primary/20 transition-all duration-300 bg-gradient-to-br from-white to-primary/5">
                     <div className="flex items-center space-x-3">
-                        <code className="text-sm flex-1 text-gray-600 overflow-hidden text-ellipsis font-mono">
+                        <code className="text-sm flex-1 overflow-hidden text-ellipsis font-mono bg-primary/5 p-3 rounded-lg">
                             {referralUrl}
                         </code>
                         <AnimatePresence mode="wait">
                             {copied ? (
                                 <motion.div
-                                    key="check"
+                                    key="success"
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
                                     exit={{ scale: 0 }}
-                                    className="text-green-500 px-3 py-1.5 bg-green-50 rounded-md flex items-center"
+                                    className="flex items-center space-x-2 bg-green-50 text-green-600 px-4 py-2 rounded-lg"
                                 >
-                                    <Check className="w-4 h-4 mr-1" />
-                                    <span className="text-sm">Copied!</span>
+                                    <Check className="w-4 h-4" />
+                                    <span className="text-sm font-medium">
+                                        Copied!
+                                    </span>
                                 </motion.div>
                             ) : (
                                 <motion.div
@@ -132,12 +151,12 @@ export const ShareStep = ({
                                     exit={{ scale: 0 }}
                                 >
                                     <Button
-                                        variant="ghost"
-                                        size="sm"
                                         onClick={handleCopy}
-                                        className="hover:bg-gray-100"
+                                        className="bg-primary/10 hover:bg-primary/20 text-primary hover:text-primary-600"
+                                        size="lg"
                                     >
-                                        <Copy className="w-4 h-4" />
+                                        <Copy className="w-5 h-5 mr-2" />
+                                        Copy Link
                                     </Button>
                                 </motion.div>
                             )}
@@ -146,58 +165,119 @@ export const ShareStep = ({
                 </Card>
             </motion.div>
 
+            {/* Secondary Action: Social Share Buttons */}
             <motion.div
-                className="space-y-3"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                className="space-y-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
             >
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-4">
                     <Button
                         variant="outline"
-                        className="py-6 group hover:border-primary/30 transition-colors"
+                        size="lg"
+                        className="py-6 group border-2 hover:border-primary/30 transition-all duration-300"
                         onClick={() => socialShare('twitter')}
                     >
                         <Twitter className="w-5 h-5 mr-2 group-hover:text-primary transition-colors" />
-                        Tweet
+                        Share on Twitter
+                        <ArrowRight className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                     </Button>
                     <Button
                         variant="outline"
-                        className="py-6 group hover:border-primary/30 transition-colors"
+                        size="lg"
+                        className="py-6 group border-2 hover:border-primary/30 transition-all duration-300"
                         onClick={() => socialShare('telegram')}
                     >
                         <Send className="w-5 h-5 mr-2 group-hover:text-primary transition-colors" />
-                        Telegram
+                        Share on Telegram
+                        <ArrowRight className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                     </Button>
                 </div>
             </motion.div>
 
-            {stats && (
-                <motion.div
-                    className="mt-6 space-y-2"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                >
-                    <p className="text-sm text-gray-600">Your Referrals</p>
-                    <div className="grid grid-cols-3 gap-3">
-                        <div className="grid grid-cols-3 gap-3">
-                            <StatsCard
-                                title="Total"
-                                value={stats.totalReferrals}
+            {/* Tertiary Content: Stats Dashboard */}
+            <AnimatePresence mode="wait">
+                {loading ? (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="flex justify-center py-8"
+                    >
+                        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                    </motion.div>
+                ) : stats ? (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                    >
+                        <Card className="p-6 border-2 border-primary/10 bg-gradient-to-br from-white to-primary/5">
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <h4 className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
+                                        Your Reward Points
+                                    </h4>
+                                    <Link
+                                        href="/discord"
+                                        className="flex items-center gap-1.5 text-sm text-primary/60 hover:text-primary transition-colors group"
+                                    >
+                                        Join Discord for $MINT distribution
+                                        dates
+                                        <ExternalLink className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
+                                    </Link>
+                                </div>
+                                <div className="flex justify-between items-baseline">
+                                    <p className="text-sm text-gray-600">
+                                        Share your link to earn more points
+                                        through referrals
+                                    </p>
+                                    <span className="text-xs text-gray-400">
+                                        Distribution: Monthly
+                                    </span>
+                                </div>
+                            </div>
+                            <StatsDash
+                                stats={stats}
+                                completedSteps={completedSteps}
                             />
-                            <StatsCard
-                                title="Completed"
-                                value={stats.completedReferrals}
+                            <GALXRewardsSection
+                                userId={state.twitterData?.user.id || ''}
+                                onSubmit={async (ethAddress) => {
+                                    try {
+                                        await db.updateGalxEthAddress(
+                                            state.twitterData?.user.id || '',
+                                            ethAddress
+                                        );
+                                    } catch (error) {
+                                        throw new Error(
+                                            'Failed to link GALX address: ' +
+                                                (error instanceof Error
+                                                    ? error.message
+                                                    : 'Unknown error')
+                                        );
+                                    }
+                                }}
                             />
-                            <StatsCard
-                                title="Pending"
-                                value={stats.pendingReferrals}
-                            />
-                        </div>
-                    </div>
-                </motion.div>
-            )}
+                        </Card>
+                    </motion.div>
+                ) : null}
+            </AnimatePresence>
+
+            {/* Error Handling */}
+            <AnimatePresence>
+                {error && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="rounded-lg p-4 bg-red-50 border border-red-100"
+                    >
+                        <p className="text-sm text-red-600">{error}</p>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
