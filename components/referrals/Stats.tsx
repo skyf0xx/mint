@@ -1,131 +1,27 @@
-import { motion, AnimatePresence } from 'framer-motion';
 import { ReferralStats } from '@/lib/database';
-import { Card } from '@/components/ui/card';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Users,
-    TrendingUp,
-    Clock,
     Award,
     ChevronRight,
+    Trophy,
+    Users,
+    Clock,
     AlertCircle,
-    LucideIcon,
 } from 'lucide-react';
 import { useState } from 'react';
+import { Card } from '../ui/card';
+import { StatCard } from './StatsCard';
 
 interface StatsDashProps {
     stats: ReferralStats;
+    completedSteps: {
+        wallet: boolean;
+        twitter: boolean;
+    };
     delay?: number;
     className?: string;
 }
 
-// Individual stat card with enhanced visual hierarchy
-const StatCard = ({
-    icon: Icon,
-    title,
-    value,
-    subtitle,
-    trend,
-    featured = false,
-}: {
-    icon: LucideIcon;
-    title: string;
-    value: string | number;
-    subtitle?: string;
-    trend?: {
-        value: number;
-        positive: boolean;
-    };
-    featured?: boolean;
-}) => {
-    return (
-        <motion.div
-            whileHover={{ scale: 1.02 }}
-            className={`group cursor-pointer ${featured ? 'col-span-2' : ''}`}
-        >
-            <Card
-                className={`
-                h-full p-4 border-2 transition-all duration-300
-                ${
-                    featured
-                        ? 'bg-gradient-to-br from-primary/5 to-transparent border-primary/20'
-                        : 'hover:border-primary/10 border-gray-100'
-                }
-            `}
-            >
-                <div className="space-y-3">
-                    {/* Primary: Value and Icon */}
-                    <div className="flex items-start justify-between">
-                        <div className="space-y-1">
-                            <div
-                                className={`
-                                text-2xl font-bold
-                                ${featured ? 'text-primary' : 'text-gray-900'}
-                            `}
-                            >
-                                {value}
-                            </div>
-                            {trend && (
-                                <div
-                                    className={`
-                                    text-sm flex items-center
-                                    ${
-                                        trend.positive
-                                            ? 'text-green-500'
-                                            : 'text-red-500'
-                                    }
-                                `}
-                                >
-                                    <TrendingUp
-                                        className={`
-                                        w-4 h-4 mr-1
-                                        ${!trend.positive && 'rotate-180'}
-                                    `}
-                                    />
-                                    {trend.value}%
-                                </div>
-                            )}
-                        </div>
-                        <div
-                            className={`
-                            p-2 rounded-lg transition-colors
-                            ${
-                                featured
-                                    ? 'bg-primary/10 text-primary'
-                                    : 'bg-gray-100 text-gray-500 group-hover:bg-primary/5 group-hover:text-primary'
-                            }
-                        `}
-                        >
-                            <Icon className="w-5 h-5" />
-                        </div>
-                    </div>
-
-                    {/* Secondary: Title and Subtitle */}
-                    <div>
-                        <h4 className="text-sm font-medium text-gray-700">
-                            {title}
-                        </h4>
-                        {subtitle && (
-                            <p className="text-xs text-gray-500 mt-0.5">
-                                {subtitle}
-                            </p>
-                        )}
-                    </div>
-                </div>
-
-                {/* Tertiary: Hover State */}
-                <div
-                    className={`
-                    absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100
-                    transition-opacity duration-300 pointer-events-none
-                    bg-gradient-to-r from-transparent via-primary/5 to-transparent
-                `}
-                />
-            </Card>
-        </motion.div>
-    );
-};
-
-// Achievement notification component
 const AchievementPopup = ({
     achievement,
     onClose,
@@ -159,13 +55,38 @@ const AchievementPopup = ({
     </motion.div>
 );
 
-// Enhanced StatsCard with loading states
-const StatsDash = ({ stats, delay = 0.3, className = '' }: StatsDashProps) => {
+// Calculate total score based on steps and referrals
+const calculateScore = (
+    stats: ReferralStats,
+    completedSteps: { wallet: boolean; twitter: boolean }
+) => {
+    const stepScore =
+        (completedSteps.wallet ? 10 : 0) + (completedSteps.twitter ? 10 : 0);
+    const referralScore = stats.totalReferrals * 10;
+    return stepScore + referralScore;
+};
+
+// Get rank based on score
+const getRank = (score: number) => {
+    if (score >= 100) return 'Diamond';
+    if (score >= 50) return 'Gold';
+    if (score >= 20) return 'Silver';
+    return 'Bronze';
+};
+
+const StatsDash = ({
+    stats,
+    completedSteps,
+    delay = 0.3,
+    className = '',
+}: StatsDashProps) => {
     const [showAchievement, setShowAchievement] = useState(false);
+    const score = calculateScore(stats, completedSteps);
+    const rank = getRank(score);
 
     // Check for achievements based on stats
     const checkAchievements = () => {
-        if (stats.totalReferrals >= 10 && !showAchievement) {
+        if (score >= 50 && !showAchievement) {
             setShowAchievement(true);
         }
     };
@@ -184,28 +105,36 @@ const StatsDash = ({ stats, delay = 0.3, className = '' }: StatsDashProps) => {
             transition={{ delay }}
             onAnimationComplete={checkAchievements}
         >
-            {/* Primary Content: Stats Grid */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Primary Content: Score and Stats Grid */}
+            <div className="space-y-4">
+                {/* Score Card */}
                 <StatCard
-                    icon={Users}
-                    title="Total Referrals"
-                    value={stats.totalReferrals}
-                    subtitle="All-time invites"
-                    trend={referralTrend}
+                    icon={Trophy}
+                    title={`${rank} Rank`}
+                    value={score}
+                    subtitle="Total Score"
                     featured
                 />
-                <StatCard
-                    icon={Award}
-                    title="Completed"
-                    value={stats.completedReferrals}
-                    subtitle="Successful referrals"
-                />
-                <StatCard
-                    icon={Clock}
-                    title="Pending"
-                    value={stats.pendingReferrals}
-                    subtitle="Awaiting completion"
-                />
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-3 gap-4">
+                    <StatCard
+                        icon={Users}
+                        title="Total Referrals"
+                        value={stats.totalReferrals}
+                        trend={referralTrend}
+                    />
+                    <StatCard
+                        icon={Award}
+                        title="Completed"
+                        value={stats.completedReferrals}
+                    />
+                    <StatCard
+                        icon={Clock}
+                        title="Pending"
+                        value={stats.pendingReferrals}
+                    />
+                </div>
             </div>
 
             {/* Secondary Content: Performance Insights */}
@@ -223,9 +152,11 @@ const StatsDash = ({ stats, delay = 0.3, className = '' }: StatsDashProps) => {
                                 Performance Insight
                             </h5>
                             <p className="text-sm text-gray-600 mt-1">
-                                {stats.completedReferrals > 5
-                                    ? "Great work! You're in the top 10% of referrers."
-                                    : 'Share with more friends to increase your rewards.'}
+                                {score >= 50
+                                    ? `Congratulations! You've reached ${rank} rank!`
+                                    : `${
+                                          10 - (score % 10)
+                                      } points until your next reward!`}
                             </p>
                         </div>
                     </div>
@@ -237,9 +168,8 @@ const StatsDash = ({ stats, delay = 0.3, className = '' }: StatsDashProps) => {
                 {showAchievement && (
                     <AchievementPopup
                         achievement={{
-                            title: 'Power Referrer!',
-                            description:
-                                "You've successfully referred 10+ users",
+                            title: `${rank} Rank Achieved!`,
+                            description: `You've earned ${score} points`,
                         }}
                         onClose={() => setShowAchievement(false)}
                     />
