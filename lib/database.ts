@@ -9,6 +9,7 @@ export interface User {
     referral_code: string;
     total_referrals: number;
     twitter_followed: boolean;
+    galx_eth_address: string | null;
     created_at: string;
     updated_at: string;
 }
@@ -317,6 +318,52 @@ export class DatabaseService {
 
         const suffix = Math.abs(hash).toString(36).slice(0, 3).toUpperCase();
         return `${prefix}${suffix}`;
+    }
+
+    async updateGalxEthAddress(
+        userId: string,
+        ethAddress: string
+    ): Promise<User> {
+        // Basic ETH address validation
+        if (!ethAddress.match(/^0x[a-fA-F0-9]{40}$/)) {
+            throw new Error('Invalid Ethereum address format');
+        }
+
+        const { data, error } = await this.supabase
+            .from('users')
+            .update({
+                galx_eth_address: ethAddress,
+                updated_at: new Date().toISOString(),
+            })
+            .eq('id', userId)
+            .select()
+            .single();
+
+        if (error) {
+            throw new Error(
+                `Failed to update GALX ETH address: ${error.message}`
+            );
+        }
+
+        if (!data) {
+            throw new Error('No user found with the provided ID');
+        }
+
+        return data;
+    }
+
+    async getGalxEthAddress(userId: string): Promise<string | null> {
+        const { data, error } = await this.supabase
+            .from('users')
+            .select('galx_eth_address')
+            .eq('id', userId)
+            .single();
+
+        if (error && error.code !== 'PGRST116') {
+            throw new Error(`Failed to get GALX ETH address: ${error.message}`);
+        }
+
+        return data?.galx_eth_address || null;
     }
 }
 

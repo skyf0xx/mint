@@ -15,6 +15,7 @@ import { db, ReferralStats } from '@/lib/database';
 import { ReferralState } from '@/lib/referral';
 import StatsDash from './Stats';
 import { referalLink } from '@/lib/helpers';
+import GALXRewardsSection from './GALXRewards';
 
 interface ShareStepProps {
     referralCode: string;
@@ -195,6 +196,24 @@ export const ShareStep = ({ referralCode, state, onShare }: ShareStepProps) => {
                                 <Share2 className="w-5 h-5 text-primary/60" />
                             </div>
                             <StatsDash stats={stats} />
+                            <GALXRewardsSection
+                                userId={state.twitterData?.user.id || ''}
+                                onSubmit={async (ethAddress) => {
+                                    try {
+                                        await db.updateGalxEthAddress(
+                                            state.twitterData?.user.id || '',
+                                            ethAddress
+                                        );
+                                    } catch (error) {
+                                        throw new Error(
+                                            'Failed to link GALX address: ' +
+                                                (error instanceof Error
+                                                    ? error.message
+                                                    : 'Unknown error')
+                                        );
+                                    }
+                                }}
+                            />
                         </Card>
                     </motion.div>
                 ) : null}
