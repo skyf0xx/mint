@@ -5,9 +5,9 @@ import {
     Copy,
     Twitter,
     Send,
-    Share2,
     ArrowRight,
     Loader2,
+    ExternalLink,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
@@ -16,6 +16,7 @@ import { ReferralState } from '@/lib/referral';
 import StatsDash from './Stats';
 import { referalLink } from '@/lib/helpers';
 import GALXRewardsSection from './GALXRewards';
+import Link from 'next/link';
 
 interface ShareStepProps {
     referralCode: string;
@@ -31,6 +32,30 @@ export const ShareStep = ({ referralCode, state, onShare }: ShareStepProps) => {
     const [loading, setLoading] = useState(false);
     const referralUrl = referalLink(referralCode);
     const shareText = 'Stake once, earn NAB forever with MINT token! 🚀';
+    const completedSteps = {
+        wallet: !!state.walletAddress,
+        twitter: !!state.twitterData?.user.id && state.completedSteps.twitter,
+    };
+
+    useEffect(() => {
+        const loadStats = async () => {
+            setLoading(true);
+            try {
+                if (state.twitterData?.user.id) {
+                    const referralStats = await db.getUserReferralStats(
+                        state.twitterData.user.id
+                    );
+                    setStats(referralStats);
+                }
+            } catch (err) {
+                setError((err as Error).message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadStats();
+    }, [state.twitterData?.user.id]);
 
     useEffect(() => {
         const loadStats = async () => {
@@ -189,13 +214,34 @@ export const ShareStep = ({ referralCode, state, onShare }: ShareStepProps) => {
                         exit={{ opacity: 0, y: -20 }}
                     >
                         <Card className="p-6 border-2 border-primary/10 bg-gradient-to-br from-white to-primary/5">
-                            <div className="flex items-center justify-between mb-4">
-                                <h4 className="text-lg font-medium text-gray-700">
-                                    Your Impact
-                                </h4>
-                                <Share2 className="w-5 h-5 text-primary/60" />
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <h4 className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
+                                        Your Reward Points
+                                    </h4>
+                                    <Link
+                                        href="/discord"
+                                        className="flex items-center gap-1.5 text-sm text-primary/60 hover:text-primary transition-colors group"
+                                    >
+                                        Join Discord for $MINT distribution
+                                        dates
+                                        <ExternalLink className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
+                                    </Link>
+                                </div>
+                                <div className="flex justify-between items-baseline">
+                                    <p className="text-sm text-gray-600">
+                                        Share your link to earn more points
+                                        through referrals
+                                    </p>
+                                    <span className="text-xs text-gray-400">
+                                        Distribution: Monthly
+                                    </span>
+                                </div>
                             </div>
-                            <StatsDash stats={stats} />
+                            <StatsDash
+                                stats={stats}
+                                completedSteps={completedSteps}
+                            />
                             <GALXRewardsSection
                                 userId={state.twitterData?.user.id || ''}
                                 onSubmit={async (ethAddress) => {

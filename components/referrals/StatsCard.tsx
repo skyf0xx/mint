@@ -1,64 +1,109 @@
-import { Card } from '@/components/ui/card';
 import { motion } from 'framer-motion';
+import { LucideIcon, TrendingUp } from 'lucide-react';
+import { Card } from '../ui/card';
 
-interface StatsCardProps {
-    title: string;
-    value: string | number;
-    subtitle?: string;
-    loading?: boolean;
-    trend?: {
-        direction: 'up' | 'down' | 'neutral';
-        value: string;
-    };
-}
-
-const StatsCard = ({
+export const StatCard = ({
+    icon: Icon,
     title,
     value,
     subtitle,
-    loading = false,
     trend,
-}: StatsCardProps) => (
-    <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="h-full"
-    >
-        <Card className="p-4 h-full border-2 border-gray-100 hover:border-primary/10 transition-colors duration-300">
-            {loading ? (
+    featured = false,
+}: {
+    icon: LucideIcon;
+    title: string;
+    value: string | number;
+    subtitle?: string;
+    trend?: {
+        value: number;
+        positive: boolean;
+    };
+    featured?: boolean;
+}) => {
+    return (
+        <motion.div
+            whileHover={{ scale: 1.02 }}
+            className={`group cursor-pointer ${featured ? 'col-span-2' : ''}`}
+        >
+            <Card
+                className={`
+                h-full p-4 border-2 transition-all duration-300
+                ${
+                    featured
+                        ? 'bg-gradient-to-br from-primary/5 to-transparent border-primary/20'
+                        : 'hover:border-primary/10 border-gray-100'
+                }
+            `}
+            >
                 <div className="space-y-3">
-                    <div className="w-20 h-4 bg-gray-200 rounded animate-pulse" />
-                    <div className="w-16 h-8 bg-gray-200 rounded animate-pulse" />
-                    {subtitle && (
-                        <div className="w-24 h-4 bg-gray-200 rounded animate-pulse" />
-                    )}
-                </div>
-            ) : (
-                <div className="space-y-2">
-                    <p className="text-sm text-gray-600">{title}</p>
-                    <p className="text-2xl font-bold text-primary">
-                        {value}
-                        {trend && (
-                            <span
-                                className={`text-sm ml-2 ${
-                                    trend.direction === 'up'
-                                        ? 'text-green-500'
-                                        : trend.direction === 'down'
-                                        ? 'text-red-500'
-                                        : 'text-gray-500'
-                                }`}
+                    {/* Primary: Value and Icon */}
+                    <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                            <div
+                                className={`
+                                text-2xl font-bold
+                                ${featured ? 'text-primary' : 'text-gray-900'}
+                            `}
                             >
-                                {trend.value}
-                            </span>
-                        )}
-                    </p>
-                    {subtitle && (
-                        <p className="text-sm text-gray-500">{subtitle}</p>
-                    )}
-                </div>
-            )}
-        </Card>
-    </motion.div>
-);
+                                {value}
+                            </div>
+                            {trend && (
+                                <div
+                                    className={`
+                                    text-sm flex items-center
+                                    ${
+                                        trend.positive
+                                            ? 'text-green-500'
+                                            : 'text-red-500'
+                                    }
+                                `}
+                                >
+                                    <TrendingUp
+                                        className={`
+                                        w-4 h-4 mr-1
+                                        ${!trend.positive && 'rotate-180'}
+                                    `}
+                                    />
+                                    {trend.value}%
+                                </div>
+                            )}
+                        </div>
+                        <div
+                            className={`
+                            p-2 rounded-lg transition-colors
+                            ${
+                                featured
+                                    ? 'bg-primary/10 text-primary'
+                                    : 'bg-gray-100 text-gray-500 group-hover:bg-primary/5 group-hover:text-primary'
+                            }
+                        `}
+                        >
+                            <Icon className="w-5 h-5" />
+                        </div>
+                    </div>
 
-export default StatsCard;
+                    {/* Secondary: Title and Subtitle */}
+                    <div>
+                        <h4 className="text-sm font-medium text-gray-700">
+                            {title}
+                        </h4>
+                        {subtitle && (
+                            <p className="text-xs text-gray-500 mt-0.5">
+                                {subtitle}
+                            </p>
+                        )}
+                    </div>
+                </div>
+
+                {/* Tertiary: Hover State */}
+                <div
+                    className={`
+                    absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100
+                    transition-opacity duration-300 pointer-events-none
+                    bg-gradient-to-r from-transparent via-primary/5 to-transparent
+                `}
+                />
+            </Card>
+        </motion.div>
+    );
+};
