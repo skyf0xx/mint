@@ -14,5 +14,5 @@ export default function ReferralPage() {
         }
     }, [referralCode]);
 
-    return <ReferralFlow initialReferralCode={referralCode as string} />;
+    return <ReferralFlow />;
 }
