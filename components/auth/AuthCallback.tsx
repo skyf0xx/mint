@@ -1,11 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { db } from '@/lib/database';
 
 export function AuthCallback() {
-    const router = useRouter();
     const searchParams = useSearchParams();
 
     useEffect(() => {
@@ -18,9 +17,9 @@ export function AuthCallback() {
                 data: { session },
             } = await db.supabase.auth.getSession();
             if (session) {
-                router.push(redirectPath);
+                window.location.href = redirectPath;
             } else {
-                router.push('/');
+                window.location.href = '/';
             }
         };
 

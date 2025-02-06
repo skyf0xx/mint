@@ -3,7 +3,6 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import { useRef } from 'react';
 import { InfinityLogo } from './logo';
-import { useRouter } from 'next/navigation';
 
 const FloatingDecoration = ({ className }: { className?: string }) => (
     <motion.div
@@ -27,7 +26,6 @@ const CTA = () => {
         target: containerRef,
         offset: ['start end', 'end start'],
     });
-    const router = useRouter();
 
     // Parallax effects for background elements
     const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '20%']);
@@ -233,7 +231,9 @@ const CTA = () => {
                             <Button
                                 size="lg"
                                 className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 group relative overflow-hidden bg-gradient-to-r from-primary to-primary-600 hover:to-primary transition-all duration-500 w-full sm:w-auto"
-                                onClick={() => router.push('/get-started')}
+                                onClick={() =>
+                                    (window.location.href = '/get-started.html')
+                                }
                             >
                                 <span className="relative z-10 flex items-center">
                                     Get MINT Now
