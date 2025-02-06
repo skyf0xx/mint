@@ -23,6 +23,14 @@ const useScrollProgress = () => {
     });
 
     useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const path = params.get('p');
+        if (path) {
+            window.location.href = path;
+        }
+    }, []);
+
+    useEffect(() => {
         const updateProgress = () => {
             const sections = {
                 hero: document.getElementById('hero'),
