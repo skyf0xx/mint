@@ -17,6 +17,7 @@ const nextConfig = {
             ...defaultPathMap,
             '/get-started': { page: '/get-started' },
             '/privacy': { page: '/privacy' },
+            '/tos': { page: '/tos' },
         };
     },
 };
