@@ -36,7 +36,7 @@ export const useReferralActions = (
                 address
             );
             const initialReferralCode = localStorage.getItem(
-                'pendingReferralCode'
+                'pendingReferralCodeV1'
             );
             if (initialReferralCode) {
                 await db.processPendingReferral(

@@ -202,7 +202,7 @@ export class DatabaseService {
         walletAddress: string,
         referredUserId: string
     ): Promise<void> {
-        const pendingCode = localStorage.getItem('pendingReferralCode');
+        const pendingCode = localStorage.getItem('pendingReferralCodeV1');
         if (!pendingCode) return;
 
         try {

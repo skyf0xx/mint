@@ -10,7 +10,7 @@ export default function ReferralPage() {
     useEffect(() => {
         // Store referral code in localStorage when user lands
         if (referralCode && typeof referralCode === 'string') {
-            localStorage.setItem('pendingReferralCode', referralCode);
+            localStorage.setItem('pendingReferralCodeV1', referralCode);
         }
     }, [referralCode]);
 
