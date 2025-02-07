@@ -31,7 +31,6 @@ export const ShareStep = ({ referralCode, state, onShare }: ShareStepProps) => {
     const [error, setError] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const referralUrl = referalLink(referralCode);
-    const shareText = 'Stake once, earn NAB forever with MINT token! 🚀';
     const completedSteps = {
         wallet: !!state.walletAddress,
         twitter: !!state.twitterData?.user.id && state.completedSteps.twitter,
@@ -88,7 +87,12 @@ export const ShareStep = ({ referralCode, state, onShare }: ShareStepProps) => {
 
     const socialShare = async (platform: 'twitter' | 'telegram') => {
         try {
-            const text = encodeURIComponent(shareText);
+            const text = encodeURIComponent(
+                '🚀 Earn $NAB and $MINT tokens by following this link!%0A%0A' +
+                    "Let's both get rewarded! 💰%0A%0A" +
+                    '#NABToken #MINTToken #CryptoRewards'
+            );
+
             const url = encodeURIComponent(referralUrl);
             const links = {
                 twitter: `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
