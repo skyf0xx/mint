@@ -48,7 +48,7 @@ export class DatabaseService {
     }
 
     async signInWithTwitter(referralCode?: string) {
-        const redirectTo = new URL(`${window.location.origin}/callback`);
+        const redirectTo = new URL(`${window.location.origin}/callback.html`);
         if (referralCode) {
             redirectTo.searchParams.set('ref', referralCode);
         }
