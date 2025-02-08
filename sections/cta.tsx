@@ -232,7 +232,8 @@ const CTA = () => {
                                 size="lg"
                                 className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 group relative overflow-hidden bg-gradient-to-r from-primary to-primary-600 hover:to-primary transition-all duration-500 w-full sm:w-auto"
                                 onClick={() =>
-                                    (window.location.href = '/get-started.html')
+                                    (window.location.href =
+                                        '/get-started/index.html')
                                 }
                             >
                                 <span className="relative z-10 flex items-center">
