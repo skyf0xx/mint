@@ -10,8 +10,8 @@ export function AuthCallback() {
     useEffect(() => {
         const ref = searchParams.get('ref');
         const redirectPath = ref
-            ? `/get-started.html?ref=${ref}`
-            : '/get-started.html';
+            ? `/get-started/index.html?ref=${ref}`
+            : '/get-started/index.html';
 
         // Handle auth callback
         const handleCallback = async () => {
