@@ -23,11 +23,15 @@ export const StatCard = ({
     return (
         <motion.div
             whileHover={{ scale: 1.02 }}
-            className={`group cursor-pointer ${featured ? 'col-span-2' : ''}`}
+            className={`group cursor-pointer ${
+                featured
+                    ? 'col-span-full sm:col-span-2'
+                    : 'col-span-full sm:col-span-1'
+            }`}
         >
             <Card
                 className={`
-                h-full p-4 border-2 transition-all duration-300
+                h-full p-3 sm:p-4 border-2 transition-all duration-300
                 ${
                     featured
                         ? 'bg-gradient-to-br from-primary/5 to-transparent border-primary/20'
@@ -35,13 +39,13 @@ export const StatCard = ({
                 }
             `}
             >
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                     {/* Primary: Value and Icon */}
                     <div className="flex items-start justify-between">
-                        <div className="space-y-1">
+                        <div className="space-y-0.5 sm:space-y-1">
                             <div
                                 className={`
-                                text-2xl font-bold
+                                text-xl sm:text-2xl font-bold
                                 ${featured ? 'text-primary' : 'text-gray-900'}
                             `}
                             >
@@ -50,7 +54,7 @@ export const StatCard = ({
                             {trend && (
                                 <div
                                     className={`
-                                    text-sm flex items-center
+                                    text-xs sm:text-sm flex items-center
                                     ${
                                         trend.positive
                                             ? 'text-green-500'
@@ -60,7 +64,7 @@ export const StatCard = ({
                                 >
                                     <TrendingUp
                                         className={`
-                                        w-4 h-4 mr-1
+                                        w-3 h-3 sm:w-4 sm:h-4 mr-1
                                         ${!trend.positive && 'rotate-180'}
                                     `}
                                     />
@@ -70,7 +74,7 @@ export const StatCard = ({
                         </div>
                         <div
                             className={`
-                            p-2 rounded-lg transition-colors
+                            p-1.5 sm:p-2 rounded-lg transition-colors
                             ${
                                 featured
                                     ? 'bg-primary/10 text-primary'
@@ -78,13 +82,13 @@ export const StatCard = ({
                             }
                         `}
                         >
-                            <Icon className="w-5 h-5" />
+                            <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                     </div>
 
                     {/* Secondary: Title and Subtitle */}
                     <div>
-                        <h4 className="text-sm font-medium text-gray-700">
+                        <h4 className="text-xs sm:text-sm font-medium text-gray-700">
                             {title}
                         </h4>
                         {subtitle && (

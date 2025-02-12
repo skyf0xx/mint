@@ -33,14 +33,16 @@ const AchievementPopup = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        className="fixed bottom-4 right-4 z-50"
+        className="fixed bottom-4 right-4 z-50 max-w-[calc(100vw-2rem)] sm:max-w-sm"
     >
-        <Card className="p-4 bg-gradient-to-r from-primary to-primary-600 text-white">
+        <Card className="p-3 sm:p-4 bg-gradient-to-r from-primary to-primary-600 text-white">
             <div className="flex items-start space-x-3">
-                <Award className="w-6 h-6 flex-shrink-0" />
+                <Award className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
                 <div>
-                    <h4 className="font-medium">{achievement.title}</h4>
-                    <p className="text-sm opacity-90">
+                    <h4 className="text-sm sm:text-base font-medium">
+                        {achievement.title}
+                    </h4>
+                    <p className="text-xs sm:text-sm opacity-90">
                         {achievement.description}
                     </p>
                 </div>
@@ -48,14 +50,13 @@ const AchievementPopup = ({
                     onClick={onClose}
                     className="text-white/60 hover:text-white"
                 >
-                    <ChevronRight className="w-5 h-5" />
+                    <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
             </div>
         </Card>
     </motion.div>
 );
 
-// Calculate total score based on steps and referrals
 const calculateScore = (
     stats: ReferralStats,
     completedSteps: { wallet: boolean; twitter: boolean }
@@ -66,7 +67,6 @@ const calculateScore = (
     return stepScore + referralScore;
 };
 
-// Get rank based on score
 const getRank = (score: number) => {
     if (score >= 100) return 'Diamond';
     if (score >= 50) return 'Gold';
@@ -84,14 +84,12 @@ const StatsDash = ({
     const score = calculateScore(stats, completedSteps);
     const rank = getRank(score);
 
-    // Check for achievements based on stats
     const checkAchievements = () => {
         if (score >= 50 && !showAchievement) {
             setShowAchievement(true);
         }
     };
 
-    // Process trend data
     const referralTrend = {
         value: (stats.completedReferrals / stats.totalReferrals) * 100 || 0,
         positive: stats.completedReferrals > stats.pendingReferrals,
@@ -99,14 +97,14 @@ const StatsDash = ({
 
     return (
         <motion.div
-            className={`space-y-6 ${className}`}
+            className={`space-y-4 sm:space-y-6 ${className}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay }}
             onAnimationComplete={checkAchievements}
         >
             {/* Primary Content: Score and Stats Grid */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
                 {/* Score Card */}
                 <StatCard
                     icon={Trophy}
@@ -117,7 +115,7 @@ const StatsDash = ({
                 />
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                     <StatCard
                         icon={Users}
                         title="Total Referrals"
@@ -143,15 +141,15 @@ const StatsDash = ({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: delay + 0.2 }}
-                    className="p-4 rounded-lg bg-primary/5 border border-primary/10"
+                    className="p-3 sm:p-4 rounded-lg bg-primary/5 border border-primary/10"
                 >
                     <div className="flex items-start space-x-3">
-                        <AlertCircle className="w-5 h-5 text-primary mt-0.5" />
+                        <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-0.5" />
                         <div>
-                            <h5 className="text-sm font-medium text-gray-700">
+                            <h5 className="text-xs sm:text-sm font-medium text-gray-700">
                                 Performance Insight
                             </h5>
-                            <p className="text-sm text-gray-600 mt-1">
+                            <p className="text-xs sm:text-sm text-gray-600 mt-1">
                                 {score >= 50
                                     ? `Congratulations! You've reached ${rank} rank!`
                                     : `${
