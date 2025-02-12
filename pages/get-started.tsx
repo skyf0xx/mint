@@ -6,7 +6,10 @@ export default function GetStartedPage() {
     const referralCode = searchParams.get('ref');
 
     if (referralCode && typeof referralCode === 'string') {
-        localStorage.setItem('pendingReferralCodeV1', referralCode);
+        localStorage.setItem(
+            process.env.NEXT_PUBLIC_REFERRAL_CODE_KEY!,
+            referralCode
+        );
     }
 
     return <ReferralFlow />;
