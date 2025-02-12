@@ -68,7 +68,7 @@ export const StatCard = ({
                                         ${!trend.positive && 'rotate-180'}
                                     `}
                                     />
-                                    {trend.value}%
+                                    {trend.value}% success rate
                                 </div>
                             )}
                         </div>
@@ -86,7 +86,7 @@ export const StatCard = ({
                         </div>
                     </div>
 
-                    {/* Secondary: Title and Subtitle */}
+                    {/* Secondary: Title and Helpful Context */}
                     <div>
                         <h4 className="text-xs sm:text-sm font-medium text-gray-700">
                             {title}
