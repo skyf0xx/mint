@@ -61,10 +61,10 @@ const calculateScore = (
     stats: ReferralStats,
     completedSteps: { wallet: boolean; twitter: boolean }
 ) => {
-    const stepScore =
+    const onboardingPoints =
         (completedSteps.wallet ? 10 : 0) + (completedSteps.twitter ? 10 : 0);
-    const referralScore = stats.totalReferrals * 10;
-    return stepScore + referralScore;
+    const referralPoints = stats.totalReferrals * 10;
+    return onboardingPoints + referralPoints;
 };
 
 const getRank = (score: number) => {
@@ -108,9 +108,9 @@ const StatsDash = ({
                 {/* Score Card */}
                 <StatCard
                     icon={Trophy}
-                    title={`${rank} Rank`}
+                    title={`${rank} Rank Holder`}
                     value={score}
-                    subtitle="Total Score"
+                    subtitle="10 points per successful referral"
                     featured
                 />
 
@@ -118,19 +118,22 @@ const StatsDash = ({
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                     <StatCard
                         icon={Users}
-                        title="Total Referrals"
+                        title="Successful Referrals"
                         value={stats.totalReferrals}
+                        subtitle={`${stats.totalReferrals * 10} points earned`}
                         trend={referralTrend}
                     />
                     <StatCard
                         icon={Award}
-                        title="Completed"
+                        title="Active Users"
                         value={stats.completedReferrals}
+                        subtitle="Fully onboarded"
                     />
                     <StatCard
                         icon={Clock}
-                        title="Pending"
+                        title="In Progress"
                         value={stats.pendingReferrals}
+                        subtitle="Still onboarding"
                     />
                 </div>
             </div>
@@ -147,14 +150,14 @@ const StatsDash = ({
                         <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-0.5" />
                         <div>
                             <h5 className="text-xs sm:text-sm font-medium text-gray-700">
-                                Performance Insight
+                                Referral Progress
                             </h5>
                             <p className="text-xs sm:text-sm text-gray-600 mt-1">
                                 {score >= 50
-                                    ? `Congratulations! You've reached ${rank} rank!`
+                                    ? `Congratulations on reaching ${rank} rank! Each new referral earns you 10 more points.`
                                     : `${
                                           10 - (score % 10)
-                                      } points until your next reward!`}
+                                      } points until your next milestone. Earn 10 points for each successful referral.`}
                             </p>
                         </div>
                     </div>
@@ -166,8 +169,8 @@ const StatsDash = ({
                 {showAchievement && (
                     <AchievementPopup
                         achievement={{
-                            title: `${rank} Rank Achieved!`,
-                            description: `You've earned ${score} points`,
+                            title: `${rank} Rank Achievement`,
+                            description: `You've earned ${score} points through successful referrals!`,
                         }}
                         onClose={() => setShowAchievement(false)}
                     />
