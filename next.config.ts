@@ -18,6 +18,7 @@ const nextConfig = {
             '/get-started': { page: '/get-started' },
             '/privacy': { page: '/privacy' },
             '/tos': { page: '/tos' },
+            '/referral': { page: '/referral' },
         };
     },
 };
