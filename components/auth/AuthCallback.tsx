@@ -13,6 +13,13 @@ export function AuthCallback() {
             ? `/get-started/index.html?ref=${ref}`
             : '/get-started/index.html';
 
+        if (ref) {
+            localStorage.setItem(
+                process.env.NEXT_PUBLIC_REFERRAL_CODE_KEY!,
+                ref
+            );
+        }
+
         // Handle auth callback
         const handleCallback = async () => {
             const {
