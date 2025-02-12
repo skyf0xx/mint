@@ -22,7 +22,7 @@ export default function ReferralPage() {
 
         setReferralCode(code);
         // Store referral code in localStorage
-        localStorage.setItem('pendingReferralCode', code);
+        localStorage.setItem(process.env.NEXT_PUBLIC_REFERRAL_CODE_KEY!, code);
     }, []);
 
     // Don't render anything until we're on the client
