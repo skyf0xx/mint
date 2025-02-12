@@ -3,5 +3,5 @@ export const scrollToSection = (id: string) => {
 };
 
 export const referalLink = (referralCode: string) => {
-    return `${window.location.origin}/${referralCode}`;
+    return `${window.location.origin}/referral/index.html?ref=${referralCode}`;
 };
