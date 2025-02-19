@@ -214,7 +214,7 @@ const Hero = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-16">
                             <MetricCard
                                 title="Current Supply"
-                                value="37.5M"
+                                value="77M"
                                 subtitle="MINT Tokens"
                                 delay={1.0}
                             />

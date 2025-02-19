@@ -154,7 +154,7 @@ const ScarcityMechanics = () => {
                                         >
                                             <Minus className="w-5 h-5 text-primary/60" />
                                             <span>
-                                                Cannot exceed 37.5M total supply
+                                                Cannot exceed 77M total supply
                                             </span>
                                         </motion.li>
                                         <motion.li
