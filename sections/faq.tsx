@@ -15,7 +15,7 @@ const faqItems = [
     },
     {
         question: 'What is the weekly burn rate?',
-        answer: 'MINT has a fixed weekly burn rate of 0.25% that applies to all unstaked tokens. This controlled supply reduction continues until reaching the mathematical floor of 21M tokens from the initial 37.5M supply. Permanently staked tokens are exempt from these burns.',
+        answer: 'MINT has a fixed weekly burn rate of 0.25% that applies to all unstaked tokens. This controlled supply reduction continues until reaching the mathematical floor of 21M tokens from the initial 77M supply. Permanently staked tokens are exempt from these burns.',
     },
     {
         question: 'What are the benefits of LP staking vs direct staking?',
