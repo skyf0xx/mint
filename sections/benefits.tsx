@@ -130,7 +130,7 @@ const Benefits = () => {
                 "Watch your stake grow stronger as MINT's supply decreases through our guaranteed weekly burn rate.",
             content: [
                 'MINT features an automatic burn mechanism, reducing unstaked supply by 0.25% every week.',
-                'Starting with a 37.5M MINT supply, it will progressively decrease to a floor of 21M MINT.',
+                'Starting with a 77M MINT supply, it will progressively decrease to a floor of 21M MINT.',
                 'This deflationary model is fully automated and mathematically secured, eliminating the need for manual intervention.',
             ],
             index: 1,

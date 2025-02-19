@@ -1,17 +1,24 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { scrollToSection } from '@/lib/helpers';
-import { ChevronRight, ArrowDown } from 'lucide-react';
+import { ChevronRight, ArrowDown, Loader2 } from 'lucide-react';
 import { InfinityLogo } from './logo';
 import { motion } from 'framer-motion';
 import NABReference from './nab-reference';
+import CountUp from 'react-countup';
+import { getTotalSupply } from '@/lib/wallet-actions';
+import { useState, useEffect } from 'react';
 
 interface MetricProps {
     title: string;
-    value: string;
+    value: string | number;
     subtitle: string;
     delay?: number;
     featured?: boolean;
+    loading?: boolean;
+    animate?: boolean;
+    suffix: string;
+    decimals: number;
 }
 
 const FloatingDecoration = ({ className }: { className?: string }) => (
@@ -36,12 +43,16 @@ const MetricCard = ({
     subtitle,
     delay = 0,
     featured = false,
+    loading = false,
+    animate = false,
+    suffix,
+    decimals,
 }: MetricProps) => (
     <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay }}
-        className="h-full" // Ensure the motion div takes full height
+        className="h-full"
     >
         <Card
             className={`h-full group transition-all duration-500 hover:shadow-lg ${
@@ -65,7 +76,25 @@ const MetricCard = ({
                                     : 'text-gray-900'
                             }`}
                         >
-                            {value}
+                            {loading ? (
+                                <div className="flex items-center space-x-2">
+                                    <Loader2 className="w-6 h-6 animate-spin text-primary/50" />
+                                    <span className="text-primary/50">
+                                        Loading...
+                                    </span>
+                                </div>
+                            ) : animate && typeof value === 'number' ? (
+                                <CountUp
+                                    end={value}
+                                    duration={2.5}
+                                    separator=","
+                                    decimal="."
+                                    decimals={decimals}
+                                    suffix={suffix}
+                                />
+                            ) : (
+                                value
+                            )}
                         </dd>
                     </div>
                     <dd className="text-sm text-gray-500 mt-2">{subtitle}</dd>
@@ -76,6 +105,29 @@ const MetricCard = ({
 );
 
 const Hero = () => {
+    const [currentSupply, setCurrentSupply] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchSupply = async () => {
+            try {
+                const supply = await getTotalSupply();
+                setCurrentSupply(supply);
+            } catch (error) {
+                console.error('Failed to fetch supply:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchSupply();
+    }, []);
+
+    // Convert supply string to number for CountUp
+    const supplyNumber = currentSupply
+        ? parseFloat(currentSupply.replace(/,/g, '')) / 1000000 // Convert to millions
+        : 0;
+
     return (
         <section
             id="hero"
@@ -214,22 +266,32 @@ const Hero = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-16">
                             <MetricCard
                                 title="Current Supply"
-                                value="37.5M"
+                                value={loading ? 'Loading...' : supplyNumber}
                                 subtitle="MINT Tokens"
                                 delay={1.0}
+                                loading={loading}
+                                animate={!loading}
+                                suffix="M"
+                                decimals={3}
                             />
                             <MetricCard
                                 title="Target Supply"
-                                value="21M"
+                                value={21}
                                 subtitle="MINT Tokens"
                                 delay={1.1}
                                 featured={true}
+                                animate={true}
+                                suffix="M"
+                                decimals={3}
                             />
                             <MetricCard
                                 title="Weekly Burn Rate"
-                                value="0.25%"
+                                value={0.25}
                                 subtitle="of unstaked supply"
                                 delay={1.2}
+                                animate={true}
+                                suffix="%"
+                                decimals={2}
                             />
                         </div>
                     </div>

@@ -224,7 +224,7 @@ export const ShareStep = ({ referralCode, state, onShare }: ShareStepProps) => {
                                         Your Reward Points
                                     </h4>
                                     <Link
-                                        href="/discord"
+                                        href="https://discord.gg/RSXg24mCrJ"
                                         className="flex items-center gap-1.5 text-sm text-primary/60 hover:text-primary transition-colors group"
                                     >
                                         Join Discord for $MINT distribution
