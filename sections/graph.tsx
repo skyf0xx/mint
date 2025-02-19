@@ -32,8 +32,8 @@ const MintSupplyGraph = () => {
     // Calculate supply evolution data
     const generateSupplyData = () => {
         const weeks = 520; // 10 years
-        const initialSupply = 37500000;
-        const targetFloor = 21000000;
+        const initialSupply = 77_000_000;
+        const targetFloor = 21_000_000;
         const weeklyBurnRate = 0.0025; // 0.25%
 
         const data = [];
@@ -229,7 +229,7 @@ const MintSupplyGraph = () => {
                                         Initial Supply
                                     </h4>
                                     <p className="text-2xl font-bold text-primary">
-                                        37.5M MINT
+                                        77M MINT
                                     </p>
                                 </div>
                                 <div className="p-4 rounded-xl bg-primary/5">
