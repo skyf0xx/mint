@@ -15,10 +15,6 @@ const nextConfig = {
     async exportPathMap(defaultPathMap: Record<string, { page: string }>) {
         return {
             ...defaultPathMap,
-            '/get-started': { page: '/get-started' },
-            '/privacy': { page: '/privacy' },
-            '/tos': { page: '/tos' },
-            '/referral': { page: '/referral' },
         };
     },
 };
