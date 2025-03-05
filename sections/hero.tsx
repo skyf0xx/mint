@@ -4,10 +4,7 @@ import { scrollToSection } from '@/lib/helpers';
 import { ChevronRight, ArrowDown, Loader2 } from 'lucide-react';
 import { InfinityLogo } from './logo';
 import { motion } from 'framer-motion';
-import NABReference from './nab-reference';
 import CountUp from 'react-countup';
-import { getTotalSupply } from '@/lib/wallet-actions';
-import { useState, useEffect } from 'react';
 
 interface MetricProps {
     title: string;
@@ -105,29 +102,6 @@ const MetricCard = ({
 );
 
 const Hero = () => {
-    const [currentSupply, setCurrentSupply] = useState<string | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchSupply = async () => {
-            try {
-                const supply = await getTotalSupply();
-                setCurrentSupply(supply);
-            } catch (error) {
-                console.error('Failed to fetch supply:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchSupply();
-    }, []);
-
-    // Convert supply string to number for CountUp
-    const supplyNumber = currentSupply
-        ? parseFloat(currentSupply.replace(/,/g, '')) / 1000000 // Convert to millions
-        : 0;
-
     return (
         <section
             id="hero"
@@ -140,13 +114,13 @@ const Hero = () => {
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[80px] opacity-20" />
             </div>
 
-            {/* Add floating decorations with adjusted positioning for mobile */}
+            {/* Add floating decorations */}
             <FloatingDecoration className="top-32 left-[8%] opacity-60 hidden sm:block" />
             <FloatingDecoration className="top-48 right-[12%] w-20 h-20 opacity-40 hidden sm:block" />
             <FloatingDecoration className="bottom-40 left-[15%] w-24 h-24 opacity-50 hidden sm:block" />
             <FloatingDecoration className="top-1/3 right-[18%] w-12 h-12 opacity-70 hidden sm:block" />
 
-            {/* Add accent squares with mobile visibility control */}
+            {/* Add accent squares */}
             <motion.div
                 className="absolute top-1/4 right-[25%] w-8 h-8 rounded-lg border-2 border-accent/20 hidden sm:block"
                 animate={{
@@ -183,7 +157,7 @@ const Hero = () => {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6 }}
                         >
-                            {/* Enhanced MINT branding */}
+                            {/* Brand logo */}
                             <div className="relative">
                                 <motion.div
                                     initial={{ scale: 0.8, opacity: 0 }}
@@ -205,7 +179,7 @@ const Hero = () => {
                                 </motion.div>
                             </div>
 
-                            {/* Value proposition with adjusted text sizes */}
+                            {/* Updated value proposition */}
                             <motion.div
                                 className="space-y-6 px-4 sm:px-0"
                                 initial={{ opacity: 0, y: 20 }}
@@ -213,22 +187,21 @@ const Hero = () => {
                                 transition={{ delay: 0.6 }}
                             >
                                 <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
-                                    Stake Once,{' '}
                                     <span className="relative inline-block">
                                         <span className="relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-accent">
-                                            Earn Forever
+                                            Single Sided LP Protocol.
                                         </span>
                                         <span className="absolute inset-x-0 bottom-2 h-3 bg-accent/10 -rotate-1" />
                                     </span>
+                                    <p>Safer Earnings.</p>
                                 </h2>
                                 <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                                    Transform your crypto strategy with MINT —
-                                    the deflationary token that rewards you with{' '}
-                                    <NABReference /> tokens for life.
-                                </p>{' '}
+                                    Single-sided liquidity with built-in
+                                    impermanent loss protection.
+                                </p>
                             </motion.div>
 
-                            {/* Call to Action with mobile-optimized buttons */}
+                            {/* Updated Call to Action buttons */}
                             <motion.div
                                 className="flex flex-col sm:flex-row justify-center gap-4 pt-8"
                                 initial={{ opacity: 0, y: 20 }}
@@ -240,11 +213,11 @@ const Hero = () => {
                                     className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 group relative overflow-hidden bg-gradient-to-r from-primary to-primary-600 hover:to-primary transition-all duration-500 w-full sm:w-auto"
                                     onClick={() =>
                                         (window.location.href =
-                                            'https://botega.arweave.dev/#/swap?from=OsK9Vgjxo0ypX_HLz2iJJuh4hp3I80yA9KArsJjIloU&to=SWQx44W-1iMwGFBSHlC3lStCq3Z7O2WZrx9quLeZOu0')
+                                            'https://app.mint.arweave.dev')
                                     }
                                 >
                                     <span className="relative z-10 flex items-center justify-center">
-                                        Get MINT Now
+                                        Start Staking Now
                                         <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                                     </span>
                                     <span className="absolute inset-0 bg-gradient-to-r from-accent to-accent-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -256,42 +229,50 @@ const Hero = () => {
                                     className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 group border-2 w-full sm:w-auto"
                                     onClick={() => scrollToSection('benefits')}
                                 >
-                                    Learn More
+                                    Explore Protection
                                     <ArrowDown className="ml-2 group-hover:translate-y-1 transition-transform" />
                                 </Button>
                             </motion.div>
                         </motion.div>
 
-                        {/* Metrics Display with mobile grid adjustments */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-16">
+                        {/* Updated metrics with protection focus */}
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 sm:gap-4 mt-16">
                             <MetricCard
-                                title="Current Supply"
-                                value={loading ? 'Loading...' : supplyNumber}
-                                subtitle="MINT Tokens"
+                                title="Total Value Locked"
+                                value={24.8}
+                                subtitle="Million USD"
                                 delay={1.0}
-                                loading={loading}
-                                animate={!loading}
+                                animate={true}
                                 suffix="M"
-                                decimals={3}
+                                decimals={1}
                             />
                             <MetricCard
-                                title="Target Supply"
-                                value={21}
-                                subtitle="MINT Tokens"
+                                title="Protection Provided"
+                                value={1.2}
+                                subtitle="Million USD"
                                 delay={1.1}
                                 featured={true}
                                 animate={true}
                                 suffix="M"
-                                decimals={3}
+                                decimals={1}
                             />
                             <MetricCard
-                                title="Weekly Burn Rate"
-                                value={0.25}
-                                subtitle="of unstaked supply"
+                                title="Active Positions"
+                                value={4721}
+                                subtitle="Staking Positions"
                                 delay={1.2}
                                 animate={true}
+                                suffix=""
+                                decimals={0}
+                            />
+                            <MetricCard
+                                title="Average Protection"
+                                value={38.5}
+                                subtitle="Coverage Percentage"
+                                delay={1.3}
+                                animate={true}
                                 suffix="%"
-                                decimals={2}
+                                decimals={1}
                             />
                         </div>
                     </div>
