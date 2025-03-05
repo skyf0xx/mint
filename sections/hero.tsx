@@ -149,10 +149,10 @@ const Hero = () => {
             />
 
             <div className="w-full max-w-[100vw] overflow-hidden">
-                <div className="container mx-auto px-4 pt-32 pb-24 relative">
+                <div className="container mx-auto px-4 pt-24 sm:pt-32 pb-16 sm:pb-24 relative">
                     <div className="max-w-4xl mx-auto">
                         <motion.div
-                            className="text-center space-y-8"
+                            className="text-center space-y-6 sm:space-y-8"
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6 }}
@@ -170,7 +170,7 @@ const Hero = () => {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.4 }}
-                                    className="mt-6"
+                                    className="mt-4 sm:mt-6"
                                 >
                                     <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-accent mb-4">
                                         MINT
@@ -181,7 +181,7 @@ const Hero = () => {
 
                             {/* Updated value proposition */}
                             <motion.div
-                                className="space-y-6 px-4 sm:px-0"
+                                className="space-y-4 sm:space-y-6 px-4 sm:px-0"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.6 }}
@@ -203,7 +203,7 @@ const Hero = () => {
 
                             {/* Updated Call to Action buttons */}
                             <motion.div
-                                className="flex flex-col sm:flex-row justify-center gap-4 pt-8"
+                                className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 pt-6 sm:pt-8"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.8 }}
@@ -236,7 +236,7 @@ const Hero = () => {
                         </motion.div>
 
                         {/* Updated metrics with protection focus */}
-                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 sm:gap-4 mt-16">
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 sm:gap-4 mt-12 sm:mt-16">
                             <MetricCard
                                 title="Total Value Locked"
                                 value={24.8}
