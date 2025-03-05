@@ -233,7 +233,7 @@ const CTA = () => {
                                 className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 group relative overflow-hidden bg-gradient-to-r from-primary to-primary-600 hover:to-primary transition-all duration-500 w-full sm:w-auto"
                                 onClick={() =>
                                     (window.location.href =
-                                        '/get-started/index.html')
+                                        'https://botega.arweave.dev/#/swap?from=OsK9Vgjxo0ypX_HLz2iJJuh4hp3I80yA9KArsJjIloU&to=SWQx44W-1iMwGFBSHlC3lStCq3Z7O2WZrx9quLeZOu0')
                                 }
                             >
                                 <span className="relative z-10 flex items-center">
