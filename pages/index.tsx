@@ -14,9 +14,21 @@ import FAQ from '@/sections/faq';
 import ScarcityMechanics from '@/sections/scarcity';
 import Tokenomics from '@/sections/tokenomics';
 
+// Define the progress state type
+type ProgressState = {
+    hero: boolean;
+    benefits: boolean;
+    howItWorks: boolean;
+    tokenomics: boolean;
+    supply: boolean;
+    scarcity: boolean;
+    trust: boolean;
+    faq: boolean;
+};
+
 // Progress tracking hook
 const useScrollProgress = () => {
-    const [progress, setProgress] = useState({
+    const [progress, setProgress] = useState<ProgressState>({
         hero: true,
         benefits: false,
         howItWorks: false,
@@ -41,7 +53,7 @@ const useScrollProgress = () => {
                 hero: document.getElementById('hero'),
                 benefits: document.getElementById('benefits'),
                 howItWorks: document.getElementById('how-it-works'),
-                tokenomics: document.getElementById('how-it-works'), // Uses same section ID
+                tokenomics: document.getElementById('tokenomics'),
                 supply: document.getElementById('supply-graph'),
                 scarcity: document.getElementById('scarcity'),
                 trust: document.getElementById('trust'),
@@ -51,32 +63,67 @@ const useScrollProgress = () => {
             const viewportHeight = window.innerHeight;
             const scrollPosition = window.scrollY + viewportHeight * 0.3;
 
-            setProgress({
-                hero: scrollPosition < (sections.benefits?.offsetTop || 0),
-                benefits:
-                    scrollPosition >= (sections.benefits?.offsetTop || 0) &&
-                    scrollPosition < (sections.howItWorks?.offsetTop || 0),
-                howItWorks:
-                    scrollPosition >= (sections.howItWorks?.offsetTop || 0) &&
-                    scrollPosition < (sections.tokenomics?.offsetTop || 0),
-                tokenomics:
-                    scrollPosition >= (sections.tokenomics?.offsetTop || 0) &&
-                    scrollPosition < (sections.supply?.offsetTop || 0),
-                supply:
-                    scrollPosition >= (sections.supply?.offsetTop || 0) &&
-                    scrollPosition < (sections.scarcity?.offsetTop || 0),
-                scarcity:
-                    scrollPosition >= (sections.scarcity?.offsetTop || 0) &&
-                    scrollPosition < (sections.trust?.offsetTop || 0),
-                trust:
-                    scrollPosition >= (sections.trust?.offsetTop || 0) &&
-                    scrollPosition < (sections.faq?.offsetTop || 0),
-                faq: scrollPosition >= (sections.faq?.offsetTop || 0),
-            });
+            // Get all section offsets
+            const sectionOffsets = [
+                { id: 'hero', offset: sections.hero?.offsetTop || 0 },
+                {
+                    id: 'benefits',
+                    offset: sections.benefits?.offsetTop || Infinity,
+                },
+                {
+                    id: 'howItWorks',
+                    offset: sections.howItWorks?.offsetTop || Infinity,
+                },
+                {
+                    id: 'tokenomics',
+                    offset: sections.tokenomics?.offsetTop || Infinity,
+                },
+                {
+                    id: 'supply',
+                    offset: sections.supply?.offsetTop || Infinity,
+                },
+                {
+                    id: 'scarcity',
+                    offset: sections.scarcity?.offsetTop || Infinity,
+                },
+                { id: 'trust', offset: sections.trust?.offsetTop || Infinity },
+                { id: 'faq', offset: sections.faq?.offsetTop || Infinity },
+                { id: 'end', offset: document.body.scrollHeight },
+            ].sort((a, b) => a.offset - b.offset);
+
+            // Find active section
+            let activeSection = 'hero';
+            for (let i = 0; i < sectionOffsets.length - 1; i++) {
+                const currentOffset = sectionOffsets[i].offset;
+                const nextOffset = sectionOffsets[i + 1].offset;
+
+                if (
+                    scrollPosition >= currentOffset &&
+                    scrollPosition < nextOffset
+                ) {
+                    activeSection = sectionOffsets[i].id;
+                    break;
+                }
+            }
+
+            // Create new progress state with only the active section set to true
+            const newProgress: ProgressState = {
+                hero: activeSection === 'hero',
+                benefits: activeSection === 'benefits',
+                howItWorks: activeSection === 'howItWorks',
+                tokenomics: activeSection === 'tokenomics',
+                supply: activeSection === 'supply',
+                scarcity: activeSection === 'scarcity',
+                trust: activeSection === 'trust',
+                faq: activeSection === 'faq',
+            };
+
+            setProgress(newProgress);
         };
 
         window.addEventListener('scroll', updateProgress);
-        updateProgress();
+        updateProgress(); // Initialize on mount
+
         return () => window.removeEventListener('scroll', updateProgress);
     }, []);
 
@@ -97,14 +144,16 @@ const Home = () => {
             {/* Hero Section */}
             <Hero />
 
-            {/* How It Works Section */}
-            <HowItWorks />
-
             {/* Benefits Section */}
             <Benefits />
 
+            {/* How It Works Section */}
+            <HowItWorks />
+
             {/* Tokenomics Section */}
-            <Tokenomics />
+            <div id="tokenomics">
+                <Tokenomics />
+            </div>
 
             {/* Visual section */}
             <div id="supply-graph">

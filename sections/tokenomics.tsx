@@ -97,7 +97,7 @@ const Tokenomics = () => {
     ];
 
     return (
-        <section id="how-it-works" className="relative py-32 overflow-hidden">
+        <section className="relative py-32 overflow-hidden">
             {/* Enhanced background elements */}
             <div className="absolute inset-0 bg-gradient-to-b from-gray-50/50 to-transparent" />
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] bg-primary/5 rounded-full blur-[120px] opacity-30" />
