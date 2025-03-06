@@ -172,7 +172,7 @@ const HowItWorks = () => {
                     <h2 className="text-5xl font-bold mb-6">
                         <span className="relative">
                             <span className="relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-primary-700">
-                                How Single-Sided Staking Works
+                                How Single-Sided Liquidity Works
                             </span>
                             <motion.span
                                 className="absolute inset-x-0 bottom-0 h-3 bg-accent/10 -rotate-1"
