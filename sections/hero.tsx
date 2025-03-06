@@ -189,15 +189,16 @@ const Hero = () => {
                                 <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
                                     <span className="relative inline-block">
                                         <span className="relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-accent">
-                                            Single Sided LP Protocol.
+                                            Single Sided Liquidity
                                         </span>
                                         <span className="absolute inset-x-0 bottom-2 h-3 bg-accent/10 -rotate-1" />
                                     </span>
-                                    <p>Safer Earnings.</p>
+                                    <p className="mt-2">Made Simple.</p>
                                 </h2>
                                 <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                                    Single-sided liquidity with built-in
-                                    impermanent loss protection.
+                                    Skip token pairing. Let MINT supply the
+                                    other side <strong>and</strong> reduce your
+                                    exposure to impermanent loss.
                                 </p>
                             </motion.div>
 
@@ -217,7 +218,7 @@ const Hero = () => {
                                     }
                                 >
                                     <span className="relative z-10 flex items-center justify-center">
-                                        Start Staking Now
+                                        Start Earning Now
                                         <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                                     </span>
                                     <span className="absolute inset-0 bg-gradient-to-r from-accent to-accent-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
