@@ -41,11 +41,9 @@ const rawBenefitsData: BenefitDataType[] = [
         icon: 'TrendingUp',
         title: 'Enhanced Returns',
         description:
-            'Earn trading fees from Botega pools plus additional MINT rewards, maximizing your yield while minimizing exposure to impermanent loss.',
+            'Earn trading fees from Botega pools while minimizing exposure to impermanent loss.',
         content: [
-            'Earn 100% of standard Botega trading fees',
-            'Receive additional MINT token rewards',
-            'Benefit from auto-compounding of rewards',
+            'Earn 99% of standard Botega trading fees',
             'Maintain upside potential of your token',
             'Reduce impact of market volatility on returns',
         ],
