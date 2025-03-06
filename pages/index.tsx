@@ -77,11 +77,11 @@ const Home = () => {
             {/* Hero Section */}
             <Hero />
 
-            {/* Benefits Section */}
-            <Benefits />
-
             {/* How It Works Section */}
             <HowItWorks />
+
+            {/* Benefits Section */}
+            <Benefits />
 
             {/* Tokenomics Works Section */}
             <Tokenomics />
