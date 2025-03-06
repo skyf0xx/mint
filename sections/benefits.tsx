@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { ChevronRight, InfinityIcon, BarChart3, Users } from 'lucide-react';
+import { ChevronRight, Shield, ArrowRight, TrendingUp } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import LearnMoreDialog from '@/components/ui/learn-more';
@@ -55,7 +55,7 @@ const BenefitCard = ({
                         <motion.div
                             className="p-4 rounded-xl bg-primary/5 group-hover:bg-primary/10 transition-all duration-500"
                             whileHover={{ scale: 1.1 }}
-                            transition={{ duration: 6, repeat: Infinity }}
+                            transition={{ duration: 0.3 }}
                         >
                             <Icon className="w-12 h-12 text-primary transition-all duration-500 group-hover:text-primary-600" />
                         </motion.div>
@@ -112,39 +112,41 @@ const BenefitCard = ({
 const Benefits = () => {
     const benefitsData = [
         {
-            icon: InfinityIcon,
-            title: 'Endless NAB Rewards',
+            icon: ArrowRight,
+            title: 'Single-Sided Simplicity',
             description:
-                'Stake your MINT tokens once and enjoy lifetime NAB rewards with zero hassle.',
+                'Provide liquidity on Botega with just one token. MINT automatically creates complete LP positions without requiring paired tokens.',
             content: [
-                'Your staked MINT tokens are permanently locked, shielding them from the weekly burn mechanism, ensuring consistent rewards.',
-                'Direct staking offers the highest NAB reward rate, optimizing your earnings compared to LP staking.',
-                'The staking process is simple - stake once and earn perpetually, with no need for constant adjustments or complex strategies.',
+                'No paired tokens required - stake your preferred token directly',
+                'Maintain 100% exposure to your asset of choice',
+                'MINT provides the other side of the LP position',
+                'The LP is created on Botega and staked on MINT automatically',
+                'You can withdraw at anytime',
             ],
             index: 0,
         },
         {
-            icon: BarChart3,
-            title: 'Deflationary By Design',
+            icon: Shield,
+            title: 'Impermanent Loss Protection',
             description:
-                "Watch your stake grow stronger as MINT's supply decreases through our guaranteed weekly burn rate.",
+                'Up to 50% protection against impermanent loss that vests linearly over 30 days of staking.',
             content: [
-                'MINT features an automatic burn mechanism, reducing unstaked supply by 0.25% every week.',
-                'Starting with a 77M MINT supply, it will progressively decrease to a floor of 21M MINT.',
-                'This deflationary model is fully automated and mathematically secured, eliminating the need for manual intervention.',
+                'Protection vests linearly from 0% to 50% over 30 days',
+                'Automatically calculated and applied when you unstake',
+                'Coverage follows you through market volatility',
+                'Protection paid in MINT tokens up to 50,000 MINT per position',
+                'Formula: min(IL × Coverage% × Final Price Ratio, 50,000 MINT)',
             ],
             index: 1,
         },
         {
-            icon: Users,
-            title: 'Empowered Governance',
+            icon: TrendingUp,
+            title: 'Optimized Returns',
             description:
-                'Gain influence in the NAB ecosystem and help steer its future as MINT’s supply diminishes.',
+                'Keep 99% of profits when your token appreciates while still benefiting from reduced impermanent loss when markets fluctuate.',
             content: [
-                'Staked MINT tokens grant proportional voting power, enabling active participation in NAB governance.',
-                'As supply decreases, your staked position becomes more influential, amplifying your governance role.',
-                'Governance rights allow you to shape key ecosystem decisions and future initiatives.',
-                'Early stakers benefit from enhanced governance power as their relative share increases with supply contraction.',
+                '99% profit sharing when your token value increases',
+                'Coverage keeps you safer from impermanent loss',
             ],
             index: 2,
         },
@@ -203,8 +205,8 @@ const Benefits = () => {
                         Core Benefits
                     </h2>
                     <p className="text-gray-600 text-xl leading-relaxed">
-                        Discover how MINT token creates lasting value through
-                        innovative tokenomics and sustainable rewards.
+                        Discover how MINT simplifies liquidity provision while
+                        protecting your returns.
                     </p>
                 </motion.div>
 
