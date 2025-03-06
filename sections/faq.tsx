@@ -3,31 +3,55 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus, Minus } from 'lucide-react';
 
-// FAQ data array
+// Enhanced FAQ data array with single-sided LP questions
 const faqItems = [
+    {
+        question: 'What is single-sided liquidity provision?',
+        answer: 'Single-sided liquidity provision allows you to contribute to a liquidity pool using only one token instead of the traditional two. MINT automatically provides the matching token (MINT) to create a complete LP position, eliminating the need for you to own or provide both tokens in a pair.',
+    },
+    {
+        question: 'How does impermanent loss protection work?',
+        answer: "MINT's impermanent loss protection gradually vests over a 30-day period, starting at 0% and reaching a maximum of 50% protection. When you unstake your position, the protocol automatically calculates your impermanent loss and compensates you based on your vested protection percentage. This significantly reduces the risk traditionally associated with providing liquidity.",
+    },
+    {
+        question: 'What happens to my tokens when I stake them?',
+        answer: 'When you stake a token, the protocol automatically pairs it with MINT tokens to create a complete LP position. This position is then staked on Botega, allowing you to earn trading fees. Your original token exposure is maintained while the protocol handles the complexity of liquidity provision behind the scenes.',
+    },
+    {
+        question: 'Can I unstake at any time?',
+        answer: "Yes, you can unstake your position at any time. When you do, you'll receive your original tokens back plus any earned profits, along with impermanent loss compensation based on your vesting period. The longer you've staked, the higher percentage of protection you'll receive, up to 50% after 30 days.",
+    },
+    {
+        question: 'What tokens can I use for single-sided staking?',
+        answer: 'The protocol supports staking various tokens including qAR, wAR, NAB, AO, and USDC. You can provide any of these tokens, and the protocol will automatically match it with the appropriate amount of MINT tokens to create a complete LP position.',
+    },
     {
         question: 'What is MINT token?',
         answer: 'MINT is a deflationary cryptocurrency token that allows holders to earn perpetual NAB rewards through staking. It features an innovative burn mechanism that reduces supply over time while providing sustainable yield generation through permanent staking.',
     },
     {
         question: 'How does permanent staking work?',
-        answer: 'When you permanently stake MINT tokens, they become locked forever in exchange for continuous NAB rewards. These staked tokens are protected from the weekly burn mechanism and provide governance rights in the NAB ecosystem. The staking is irreversible, ensuring long-term alignment with the protocol.',
+        answer: 'When you permanently stake MINT tokens at nabtoken.xyz, they become locked forever in exchange for continuous NAB rewards. These staked tokens are protected from the weekly burn mechanism and provide governance rights in the NAB ecosystem. The staking is irreversible, ensuring long-term alignment with the protocol.',
     },
     {
         question: 'What is the weekly burn rate?',
         answer: 'MINT has a fixed weekly burn rate of 0.25% that applies to all unstaked tokens. This controlled supply reduction continues until reaching the mathematical floor of 21M tokens from the initial 77M supply. Permanently staked tokens are exempt from these burns.',
     },
     {
-        question: 'What are the benefits of LP staking vs direct staking?',
-        answer: 'Direct staking offers NAB rewards and complete burn protection but requires permanent lock-up. LP staking provides more flexibility with withdrawal options but is subject to burns. Choose based on your preferred balance of rewards versus flexibility.',
+        question: 'How do I earn with single-sided liquidity provision?',
+        answer: 'You earn in multiple ways: 1) 99% of the standard trading fees from the Botega pool, 2) Appreciation of your underlying token, and 3) Protection from impermanent loss that gradually vests up to 50% over 30 days, reducing the risk traditionally associated with liquidity provision.',
+    },
+    {
+        question: 'What happens if my token price changes while staked?',
+        answer: 'If your staked token appreciates in value, you retain 99% of the profits. If the price changes cause impermanent loss, the protocol compensates you for a portion of that loss based on your vesting period (up to 50% after 30 days). This creates a more balanced risk/reward profile compared to traditional LP positions.',
+    },
+    {
+        question: 'How does single-sided LP differ from traditional LP?',
+        answer: 'Traditional LP requires you to provide equal value of two tokens, often forcing you to sell half your position and exposing you to full impermanent loss. Single-sided LP allows you to provide just one token, maintain full asset exposure, receive up to 50% IL protection, and enjoy a simplified one-click process without complex position calculations.',
     },
     {
         question: 'How do governance rights work?',
         answer: 'Staked MINT tokens grant proportional voting power in the NAB ecosystem. As the total supply decreases through burns while your staked amount remains constant, your governance influence naturally increases over time. This allows you to participate in crucial protocol decisions and shape the future of the ecosystem.',
-    },
-    {
-        question: 'What happens to my staked tokens over time?',
-        answer: 'Your staked MINT tokens remain permanently locked while continuously generating NAB rewards. As the unstaked supply decreases through burns, your staked position represents an increasingly larger percentage of the total supply, enhancing both your governance power and relative share of the ecosystem.',
     },
 ];
 
@@ -156,7 +180,8 @@ const FAQ = () => {
                         </span>
                     </h2>
                     <p className="text-xl text-gray-600 leading-relaxed">
-                        Everything you need to know about MINT token and staking
+                        Everything you need to know about MINT token and
+                        single-sided staking
                     </p>
                 </motion.div>
 
