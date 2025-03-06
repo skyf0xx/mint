@@ -237,7 +237,7 @@ const CTA = () => {
                                 }
                             >
                                 <span className="relative z-10 flex items-center">
-                                    Start Earning Now
+                                    Launch App
                                     <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                                 </span>
                                 <span className="absolute inset-0 bg-gradient-to-r from-accent to-accent-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
