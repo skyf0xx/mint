@@ -20,7 +20,11 @@ const useScrollProgress = () => {
         hero: true,
         benefits: false,
         howItWorks: false,
+        tokenomics: false,
+        supply: false,
+        scarcity: false,
         trust: false,
+        faq: false,
     });
 
     useEffect(() => {
@@ -37,7 +41,11 @@ const useScrollProgress = () => {
                 hero: document.getElementById('hero'),
                 benefits: document.getElementById('benefits'),
                 howItWorks: document.getElementById('how-it-works'),
+                tokenomics: document.getElementById('how-it-works'), // Uses same section ID
+                supply: document.getElementById('supply-graph'),
+                scarcity: document.getElementById('scarcity'),
                 trust: document.getElementById('trust'),
+                faq: document.getElementById('faq'),
             };
 
             const viewportHeight = window.innerHeight;
@@ -50,8 +58,20 @@ const useScrollProgress = () => {
                     scrollPosition < (sections.howItWorks?.offsetTop || 0),
                 howItWorks:
                     scrollPosition >= (sections.howItWorks?.offsetTop || 0) &&
+                    scrollPosition < (sections.tokenomics?.offsetTop || 0),
+                tokenomics:
+                    scrollPosition >= (sections.tokenomics?.offsetTop || 0) &&
+                    scrollPosition < (sections.supply?.offsetTop || 0),
+                supply:
+                    scrollPosition >= (sections.supply?.offsetTop || 0) &&
+                    scrollPosition < (sections.scarcity?.offsetTop || 0),
+                scarcity:
+                    scrollPosition >= (sections.scarcity?.offsetTop || 0) &&
                     scrollPosition < (sections.trust?.offsetTop || 0),
-                trust: scrollPosition >= (sections.trust?.offsetTop || 0),
+                trust:
+                    scrollPosition >= (sections.trust?.offsetTop || 0) &&
+                    scrollPosition < (sections.faq?.offsetTop || 0),
+                faq: scrollPosition >= (sections.faq?.offsetTop || 0),
             });
         };
 
@@ -83,22 +103,29 @@ const Home = () => {
             {/* Benefits Section */}
             <Benefits />
 
-            {/* Tokenomics Works Section */}
+            {/* Tokenomics Section */}
             <Tokenomics />
 
             {/* Visual section */}
-            <MintSupplyGraph />
+            <div id="supply-graph">
+                <MintSupplyGraph />
+            </div>
 
             {/* Scarcity Mechanics Section */}
-            <ScarcityMechanics />
+            <div id="scarcity">
+                <ScarcityMechanics />
+            </div>
 
             {/* Trust Section */}
             <Trust />
 
+            {/* FAQ Section */}
+            <div id="faq">
+                <FAQ />
+            </div>
+
             {/* Final CTA */}
             <CTA />
-
-            <FAQ />
 
             {/* Footer */}
             <Footer />

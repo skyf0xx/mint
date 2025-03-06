@@ -1,5 +1,18 @@
 export const scrollToSection = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    const element = document.getElementById(id);
+    if (element) {
+        // Get the height of the navbar (assuming it's 64px or 4rem)
+        const navbarHeight = 64;
+
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition =
+            elementPosition + window.pageYOffset - navbarHeight;
+
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth',
+        });
+    }
 };
 
 export const referalLink = (referralCode: string) => {
