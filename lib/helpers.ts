@@ -1,12 +1,10 @@
-export const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-        // Get the height of the navbar (assuming it's 64px or 4rem)
-        const navbarHeight = 64;
-
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition =
-            elementPosition + window.pageYOffset - navbarHeight;
+export const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        // Add offset to account for sticky header
+        const offset = 80; // Adjust this value based on your navbar height
+        const elementPosition = section.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
 
         window.scrollTo({
             top: offsetPosition,

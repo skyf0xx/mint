@@ -87,7 +87,7 @@ const Navbar = ({ progress, scrollToSection }: NavbarProps) => {
                         </NavButton>
                         <NavButton
                             active={progress.tokenomics}
-                            onClick={() => handleNavClick('how-it-works')}
+                            onClick={() => handleNavClick('tokenomics')}
                         >
                             Tokenomics
                         </NavButton>
@@ -182,7 +182,7 @@ const Navbar = ({ progress, scrollToSection }: NavbarProps) => {
                         </MobileNavButton>
                         <MobileNavButton
                             active={progress.tokenomics}
-                            onClick={() => handleNavClick('how-it-works')}
+                            onClick={() => handleNavClick('tokenomics')}
                         >
                             Tokenomics
                         </MobileNavButton>
