@@ -4,9 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Info, ArrowRight } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
-import SingleSidedVisual from './visualizations/SingleSidedVisual';
-import ProtectionVisual from './visualizations/ProtectionVisual';
-import ReturnsVisual from './visualizations/ReturnsVisual';
+
 import LearnMoreDialog from '@/components/ui/learn-more';
 
 export interface BenefitCardProps {
@@ -29,20 +27,6 @@ const BenefitCard = ({
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const shouldReduceMotion = useReducedMotion();
-
-    // Function to get the appropriate visual component
-    const getVisualComponent = () => {
-        switch (index) {
-            case 0:
-                return <SingleSidedVisual />;
-            case 1:
-                return <ProtectionVisual />;
-            case 2:
-                return <ReturnsVisual />;
-            default:
-                return null;
-        }
-    };
 
     // Convert content array to paragraphs for the dialog
     const dialogContent = content.map((item) => `${item}`);
@@ -224,9 +208,7 @@ const BenefitCard = ({
                         initial="hidden"
                         whileInView="visible"
                         viewport={{ once: true }}
-                    >
-                        {getVisualComponent()}
-                    </motion.div>
+                    ></motion.div>
 
                     {/* Learn More Button with enhanced hover effect */}
                     <motion.div
