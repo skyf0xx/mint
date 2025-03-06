@@ -13,6 +13,7 @@ import BackToTop from '@/components/back-to-top';
 import FAQ from '@/sections/faq';
 import ScarcityMechanics from '@/sections/scarcity';
 import Tokenomics from '@/sections/tokenomics';
+import App from '@/sections/app';
 
 // Define the progress state type
 type ProgressState = {
@@ -143,6 +144,9 @@ const Home = () => {
 
             {/* Hero Section */}
             <Hero />
+
+            {/* App Section */}
+            <App />
 
             {/* Benefits Section */}
             <Benefits />
