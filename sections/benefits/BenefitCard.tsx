@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Info, ChevronDown } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import SingleSidedVisual from './visualizations/SingleSidedVisual';
 import ProtectionVisual from './visualizations/ProtectionVisual';
 import ReturnsVisual from './visualizations/ReturnsVisual';
+import LearnMoreDialog from '@/components/ui/learn-more';
 
 export interface BenefitCardProps {
     icon: LucideIcon;
@@ -25,7 +26,7 @@ const BenefitCard = ({
     content,
     isHighlighted = false,
 }: BenefitCardProps) => {
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     // Function to get the appropriate visual component
     const getVisualComponent = () => {
@@ -40,6 +41,9 @@ const BenefitCard = ({
                 return null;
         }
     };
+
+    // Convert content array to paragraphs for the dialog
+    const dialogContent = content.map((item) => `${item}`);
 
     return (
         <motion.div
@@ -111,61 +115,29 @@ const BenefitCard = ({
                     {/* Visual representation */}
                     <div className="mb-6">{getVisualComponent()}</div>
 
-                    {/* Expandable content section */}
+                    {/* Learn More Button */}
                     <div className="mt-auto">
                         <Button
                             variant="ghost"
-                            onClick={() => setIsExpanded(!isExpanded)}
+                            onClick={() => setIsDialogOpen(true)}
                             className="w-full justify-between group/button hover:bg-primary/5 transition-all duration-300"
                         >
                             <span className="flex items-center text-primary">
                                 <Info className="mr-2 h-4 w-4" />
-                                {isExpanded ? 'Hide details' : 'Show details'}
+                                Learn more about {title}
                             </span>
-                            <ChevronDown
-                                className={`h-4 w-4 text-primary transition-transform duration-300 ${
-                                    isExpanded ? 'rotate-180' : ''
-                                }`}
-                            />
                         </Button>
-
-                        <AnimatePresence>
-                            {isExpanded && (
-                                <motion.div
-                                    initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: 'auto', opacity: 1 }}
-                                    exit={{ height: 0, opacity: 0 }}
-                                    transition={{ duration: 0.3 }}
-                                    className="overflow-hidden"
-                                >
-                                    <div className="pt-4 space-y-2">
-                                        {content.map((item, idx) => (
-                                            <motion.div
-                                                key={idx}
-                                                initial={{ opacity: 0, x: -10 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                transition={{
-                                                    delay: idx * 0.1,
-                                                }}
-                                                className="flex items-start space-x-2"
-                                            >
-                                                <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                                    <span className="text-primary text-xs font-medium">
-                                                        {idx + 1}
-                                                    </span>
-                                                </div>
-                                                <p className="text-gray-600">
-                                                    {item}
-                                                </p>
-                                            </motion.div>
-                                        ))}
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
                     </div>
                 </CardContent>
             </Card>
+
+            {/* Learn More Dialog */}
+            <LearnMoreDialog
+                isOpen={isDialogOpen}
+                onClose={() => setIsDialogOpen(false)}
+                title={title}
+                content={dialogContent}
+            />
         </motion.div>
     );
 };
