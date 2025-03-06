@@ -103,10 +103,7 @@ const MetricCard = ({
 
 const Hero = () => {
     return (
-        <section
-            id="hero"
-            className="relative min-h-[90vh] flex flex-col justify-center w-full overflow-x-hidden"
-        >
+        <section id="hero" className="relative w-full overflow-x-hidden">
             {/* Enhanced gradient background */}
             <div className="absolute inset-0">
                 <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-white to-transparent" />
@@ -149,7 +146,8 @@ const Hero = () => {
             />
 
             <div className="w-full max-w-[100vw] overflow-hidden">
-                <div className="container mx-auto px-4 pt-24 sm:pt-32 pb-16 sm:pb-24 relative">
+                {/* Main hero content - Now with more vertical space */}
+                <div className="container mx-auto px-4 pt-24 sm:pt-32 min-h-[90vh] flex flex-col justify-center relative">
                     <div className="max-w-4xl mx-auto">
                         <motion.div
                             className="text-center space-y-6 sm:space-y-8"
@@ -228,54 +226,68 @@ const Hero = () => {
                                     variant="outline"
                                     size="lg"
                                     className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 group border-2 w-full sm:w-auto"
-                                    onClick={() => scrollToSection('benefits')}
+                                    onClick={() => scrollToSection('metrics')}
                                 >
                                     Explore Protection
                                     <ArrowDown className="ml-2 group-hover:translate-y-1 transition-transform" />
                                 </Button>
                             </motion.div>
                         </motion.div>
+                    </div>
+                </div>
 
-                        {/* Updated metrics with protection focus */}
-                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 sm:gap-4 mt-12 sm:mt-16">
-                            <MetricCard
-                                title="Total Value Locked"
-                                value={24.8}
-                                subtitle="Million USD"
-                                delay={1.0}
-                                animate={true}
-                                suffix="M"
-                                decimals={1}
-                            />
-                            <MetricCard
-                                title="Protection Provided"
-                                value={1.2}
-                                subtitle="Million USD"
-                                delay={1.1}
-                                featured={true}
-                                animate={true}
-                                suffix="M"
-                                decimals={1}
-                            />
-                            <MetricCard
-                                title="Active Positions"
-                                value={4721}
-                                subtitle="Staking Positions"
-                                delay={1.2}
-                                animate={true}
-                                suffix=""
-                                decimals={0}
-                            />
-                            <MetricCard
-                                title="Average Protection"
-                                value={38.5}
-                                subtitle="Coverage Percentage"
-                                delay={1.3}
-                                animate={true}
-                                suffix="%"
-                                decimals={1}
-                            />
-                        </div>
+                {/* Stats section - Now as a separate section below the fold */}
+                <div
+                    id="metrics"
+                    className="container mx-auto px-4 py-24 relative bg-gradient-to-b from-transparent to-gray-50/30"
+                >
+                    <motion.h3
+                        className="text-2xl sm:text-3xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                    >
+                        Protocol Metrics
+                    </motion.h3>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-5xl mx-auto">
+                        <MetricCard
+                            title="Total Value Locked"
+                            value={24.8}
+                            subtitle="Million USD"
+                            delay={0.1}
+                            animate={true}
+                            suffix="M"
+                            decimals={1}
+                        />
+                        <MetricCard
+                            title="Protection Provided"
+                            value={1.2}
+                            subtitle="Million USD"
+                            delay={0.2}
+                            featured={true}
+                            animate={true}
+                            suffix="M"
+                            decimals={1}
+                        />
+                        <MetricCard
+                            title="Active Positions"
+                            value={4721}
+                            subtitle="Staking Positions"
+                            delay={0.3}
+                            animate={true}
+                            suffix=""
+                            decimals={0}
+                        />
+                        <MetricCard
+                            title="Average Protection"
+                            value={38.5}
+                            subtitle="Coverage Percentage"
+                            delay={0.4}
+                            animate={true}
+                            suffix="%"
+                            decimals={1}
+                        />
                     </div>
                 </div>
             </div>
