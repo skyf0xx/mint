@@ -12,6 +12,7 @@ import MintSupplyGraph from '@/sections/graph';
 import BackToTop from '@/components/back-to-top';
 import FAQ from '@/sections/faq';
 import ScarcityMechanics from '@/sections/scarcity';
+import Tokenomics from '@/sections/tokenomics';
 
 // Progress tracking hook
 const useScrollProgress = () => {
@@ -81,6 +82,9 @@ const Home = () => {
 
             {/* How It Works Section */}
             <HowItWorks />
+
+            {/* Tokenomics Works Section */}
+            <Tokenomics />
 
             {/* Visual section */}
             <MintSupplyGraph />
