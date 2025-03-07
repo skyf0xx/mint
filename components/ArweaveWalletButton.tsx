@@ -4,6 +4,8 @@ import {
     useArweaveWalletInit,
     useArweaveWalletStore,
 } from '@/hooks/use-wallet';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 
 export const ArweaveWalletButton: React.FC = () => {
     // Initialize wallet event listeners
@@ -20,35 +22,49 @@ export const ArweaveWalletButton: React.FC = () => {
 
     if (connecting) {
         return (
-            <button
+            <Button
                 disabled
-                className="bg-gray-400 text-black font-sour-gummy py-2 px-6 rounded-full text-lg transition-all flex items-center gap-2"
+                className="bg-gray-100 text-gray-600 opacity-80"
+                size="sm"
             >
-                <Loader2 className="h-5 w-5 animate-spin" />
-                connecting...
-            </button>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Connecting...
+            </Button>
         );
     }
 
     if (connected && address) {
         return (
-            <button
-                onClick={disconnect}
-                className="bg-red-400 hover:bg-red-500 text-black font-sour-gummy py-2 px-6 rounded-full text-lg transition-all flex items-center gap-2"
-            >
-                <Wallet className="h-5 w-5" />
-                {formatAddress(address)}
-            </button>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                    onClick={disconnect}
+                    variant="outline"
+                    size="sm"
+                    className="group relative overflow-hidden border-primary/30 text-primary hover:text-white"
+                >
+                    <span className="relative z-10 flex items-center">
+                        <Wallet className="h-4 w-4 mr-2" />
+                        {formatAddress(address)}
+                    </span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </Button>
+            </motion.div>
         );
     }
 
     return (
-        <button
-            onClick={connect}
-            className="bg-green-400 hover:bg-green-500 text-black font-sour-gummy py-2 px-6 rounded-full text-lg transition-all flex items-center gap-2"
-        >
-            <Wallet className="h-5 w-5" />
-            connect wallet
-        </button>
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+                onClick={connect}
+                size="sm"
+                className="group relative overflow-hidden bg-gradient-to-r from-primary to-primary-600 hover:to-primary transition-all duration-300"
+            >
+                <span className="relative z-10 flex items-center">
+                    <Wallet className="h-4 w-4 mr-2" />
+                    Connect Wallet
+                </span>
+                <span className="absolute inset-0 bg-gradient-to-r from-accent to-accent-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </Button>
+        </motion.div>
     );
 };
