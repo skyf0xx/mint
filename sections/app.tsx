@@ -1,20 +1,127 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+// components/app/index.tsx
+import React, { useState } from 'react';
 import {
     useArweaveWalletStore,
     useArweaveWalletInit,
 } from '@/hooks/use-wallet';
-import { ArweaveWalletButton } from '@/components/ArweaveWalletButton';
 import { motion } from 'framer-motion';
-import { ChevronRight, Shield } from 'lucide-react';
+import ConnectCard from '@/components/app/connect-card';
+import Dashboard from '@/components/app/dashboard';
+import StakingForm from '@/components/app/staking/staking-form';
+import UnstakeForm from '@/components/app/unstaking/unstake-form';
+
+// Define the possible app view states
+type AppView = 'dashboard' | 'staking' | 'unstaking' | 'position-details';
 
 const App = () => {
-    // Initialize wallet event listeners
+    // Initialize wallet
     useArweaveWalletInit();
 
     // Get wallet state
     const { address, connected } = useArweaveWalletStore();
+
+    // Local state
+    const [currentView, setCurrentView] = useState<AppView>('dashboard');
+    const [selectedPositionId, setSelectedPositionId] = useState<string | null>(
+        null
+    );
+
+    // Mock positions data - in real implementation this would come from an API
+    const [positions, setPositions] = useState<any[]>([]);
+
+    // Mock position for unstaking view
+    const mockPosition = {
+        id: '123',
+        token: 'qAR',
+        initialAmount: '100',
+        currentValue: '94.2',
+        stakedDays: 24,
+        ilProtectionPercentage: 40,
+    };
+
+    // Event handlers
+    const handleStartStaking = () => {
+        setCurrentView('staking');
+    };
+
+    const handleViewPosition = (id: string) => {
+        setSelectedPositionId(id);
+        setCurrentView('position-details');
+    };
+
+    const handleStakeSubmit = async (token: string, amount: string) => {
+        // In a real implementation, this would call the API to stake tokens
+        console.log(`Staking ${amount} ${token}`);
+
+        // Mock adding a new position
+        const newPosition = {
+            id: Date.now().toString(),
+            token,
+            amount,
+            stakedDate: new Date(),
+            ilProtectionPercentage: 0,
+        };
+
+        setPositions([...positions, newPosition]);
+        setCurrentView('dashboard');
+
+        // This would be a real API call in production
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+    };
+
+    const handleUnstakeSubmit = async (positionId: string, amount: string) => {
+        // In a real implementation, this would call the API to unstake tokens
+        console.log(`Unstaking ${amount} from position ${positionId}`);
+
+        // Mock removing the position
+        setPositions(positions.filter((p) => p.id !== positionId));
+        setCurrentView('dashboard');
+
+        // This would be a real API call in production
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+    };
+
+    // Render the appropriate view
+    const renderContent = () => {
+        if (!connected) {
+            return <ConnectCard />;
+        }
+
+        switch (currentView) {
+            case 'staking':
+                return (
+                    <StakingForm
+                        onCancel={() => setCurrentView('dashboard')}
+                        onSubmit={handleStakeSubmit}
+                    />
+                );
+            case 'unstaking':
+                return (
+                    <UnstakeForm
+                        position={mockPosition}
+                        onCancel={() => setCurrentView('dashboard')}
+                        onUnstake={handleUnstakeSubmit}
+                    />
+                );
+            case 'position-details':
+                // This would be implemented later
+                return <div>Position Details (to be implemented)</div>;
+            case 'dashboard':
+            default:
+                return (
+                    <Dashboard
+                        address={address}
+                        positions={positions}
+                        onStartStaking={handleStartStaking}
+                        onViewPosition={handleViewPosition}
+                        onUnstake={(id) => {
+                            setSelectedPositionId(id);
+                            setCurrentView('unstaking');
+                        }}
+                    />
+                );
+        }
+    };
 
     return (
         <section
@@ -48,98 +155,7 @@ const App = () => {
                     </p>
                 </motion.div>
 
-                {!connected ? (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="max-w-lg mx-auto text-center"
-                    >
-                        <Card className="border-2 border-primary/10 shadow-lg hover:shadow-xl transition-all duration-300">
-                            <CardHeader>
-                                <CardTitle className="text-2xl text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
-                                    Connect Your Wallet
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-6 pb-8">
-                                <p className="text-lg text-gray-600">
-                                    Connect your Arweave wallet to start staking
-                                    and earning rewards with impermanent loss
-                                    protection.
-                                </p>
-
-                                <div className="flex justify-center pt-4">
-                                    <ArweaveWalletButton />
-                                </div>
-
-                                <div className="mt-6 pt-6 border-t border-gray-200">
-                                    <div className="flex items-center justify-center gap-2 text-gray-500">
-                                        <Shield className="w-5 h-5 text-primary" />
-                                        <span>
-                                            Your assets are secure and under
-                                            your control
-                                        </span>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-                ) : (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="max-w-4xl mx-auto"
-                    >
-                        <Card className="border-2 border-primary/10 shadow-lg">
-                            <CardHeader className="border-b border-gray-100">
-                                <div className="flex justify-between items-center">
-                                    <CardTitle className="text-2xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
-                                        Your Staking Dashboard
-                                    </CardTitle>
-                                    <ArweaveWalletButton />
-                                </div>
-                            </CardHeader>
-                            <CardContent className="p-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                                    <div className="bg-primary/5 p-4 rounded-lg">
-                                        <div className="text-sm text-gray-500 mb-1">
-                                            Connected Address
-                                        </div>
-                                        <div className="font-medium text-gray-700 truncate">
-                                            {address}
-                                        </div>
-                                    </div>
-                                    <div className="bg-primary/5 p-4 rounded-lg">
-                                        <div className="text-sm text-gray-500 mb-1">
-                                            IL Protection Status
-                                        </div>
-                                        <div className="font-medium text-primary">
-                                            Active - 50% Coverage Max
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-6">
-                                    <div className="text-lg font-semibold">
-                                        Your Staking Positions
-                                    </div>
-                                    <div className="bg-gray-50 p-6 rounded-lg text-center border border-dashed border-gray-300">
-                                        <p className="text-gray-500">
-                                            You don&apos;t have any active
-                                            staking positions
-                                        </p>
-                                        <Button className="mt-4 bg-gradient-to-r from-primary to-primary-600 hover:to-primary transition-all duration-300">
-                                            <span className="flex items-center">
-                                                Start Staking
-                                                <ChevronRight className="ml-2" />
-                                            </span>
-                                        </Button>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-                )}
+                {renderContent()}
             </div>
         </section>
     );
