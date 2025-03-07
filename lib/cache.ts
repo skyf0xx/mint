@@ -1,7 +1,7 @@
 import { Redis } from '@upstash/redis';
 import { MessageResult } from './wallet-actions';
 
-const CACHE_PREFIX = 'nab:';
+const CACHE_PREFIX = 'mint:';
 
 // Initialize Redis client
 
