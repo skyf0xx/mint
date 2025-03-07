@@ -12,7 +12,7 @@ import {
 } from '@/lib/cache';
 
 // Constants
-const MINT_PROCESS = 'TO_UPDATE';
+const MINT_PROCESS = 'lNtrei6YLQiWS8cyFFHDrOBvRzICQPTvrjZBP8fz-ZI';
 const MAX_VESTING_DAYS = 30;
 const MAX_COVERAGE_PERCENTAGE = 50;
 const MAX_COMPENSATION_CAP = 50000; // 50,000 MINT tokens maximum compensation
