@@ -17,55 +17,6 @@ const MAX_VESTING_DAYS = 30;
 const MAX_COVERAGE_PERCENTAGE = 50;
 const MAX_COMPENSATION_CAP = 50000; // 50,000 MINT tokens maximum compensation
 
-// Helper function to process messages with or without cache
-async function sendAndGetResult(
-    target: string,
-    tags: { name: string; value: string }[],
-    signer = false,
-    cacheExpiry: number | false = false,
-    data = ''
-) {
-    let response;
-    let cached;
-    let cacheKey = '';
-
-    // Check cache if caching is enabled
-    if (cacheExpiry) {
-        cacheKey = generateCacheKey(target, tags);
-        cached = await getFromCache(cacheKey);
-    }
-
-    if (cached) {
-        return cached;
-    }
-
-    // Execute the operation based on whether signing is required
-    if (signer === false) {
-        response = await dryrun({
-            process: target,
-            tags,
-            data,
-        });
-    } else {
-        const messageId = await sendMessage(target, tags, signer, data);
-        if (!messageId) {
-            throw new Error('Failed to send message');
-        }
-
-        response = await result({
-            message: messageId,
-            process: target,
-        });
-    }
-
-    // Cache the result if caching is enabled
-    if (cacheExpiry) {
-        setCache(cacheKey, response, cacheExpiry);
-    }
-
-    return response;
-}
-
 /**
  * Fetches all tokens supported by the staking protocol
  * @returns Array of token information
