@@ -1,15 +1,10 @@
 // services/staking-service.ts
 
 import { sendMessage } from '@/lib/messages';
-import { dryrun, result } from '@permaweb/aoconnect';
 import { StakingPosition, TokenInfo, ILProtectionInfo } from '@/types/staking';
 import { adjustDecimalString, withRetry } from '@/lib/utils';
-import {
-    CACHE_EXPIRY,
-    generateCacheKey,
-    getFromCache,
-    setCache,
-} from '@/lib/cache';
+import { CACHE_EXPIRY } from '@/lib/cache';
+import { sendAndGetResult } from '@/lib/wallet-actions';
 
 // Constants
 const MINT_PROCESS = 'lNtrei6YLQiWS8cyFFHDrOBvRzICQPTvrjZBP8fz-ZI';
@@ -30,7 +25,7 @@ export async function getAllowedTokens(): Promise<TokenInfo[]> {
                 false,
                 CACHE_EXPIRY.HOUR
             );
-
+            console.log('allowed tokens', { response });
             if (!response?.Messages?.[0]?.Data) {
                 throw new Error('Invalid response format for allowed tokens');
             }
@@ -137,7 +132,7 @@ export async function getUserPositions(
             false,
             CACHE_EXPIRY.MINUTE * 5
         );
-
+        console.log('positions', { response });
         if (!response?.Messages?.[0]?.Data) {
             return []; // No positions or invalid response
         }
