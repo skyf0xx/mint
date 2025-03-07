@@ -16,8 +16,6 @@ interface StakedBalance {
 }
 
 // Constants
-const MINT_TOKEN = 'SWQx44W-1iMwGFBSHlC3lStCq3Z7O2WZrx9quLeZOu0';
-const MINT_LIQUIDITY_PROVIDER = '_to_define_';
 
 // Types
 export interface JWK {
@@ -92,36 +90,6 @@ async function sendAndGetResult(
 
     return response;
 }
-
-/**
- * Fetches the current total supply of NAB tokens in circulation
- * @returns The total supply as a formatted string, or null if the fetch fails
- */
-export const getTotalSupply = async (): Promise<string | null> => {
-    const tags = [{ name: 'Action', value: 'Total-Supply', 'x-token': 'MINT' }]; //need to add x-token to create a unique cache key
-
-    try {
-        const result = await sendAndGetResult(
-            MINT_TOKEN,
-            tags,
-            false,
-            CACHE_EXPIRY.DAY
-        );
-        if (!result.Messages?.[0]?.Data) {
-            throw new Error('No total supply data in response');
-        }
-
-        const denomination = 8;
-
-        // Format the total supply with proper decimal places
-        return Number.parseFloat(
-            adjustDecimalString(result.Messages[0].Data, denomination)
-        ).toLocaleString(undefined, { maximumFractionDigits: denomination });
-    } catch (error) {
-        console.error(error, 'getting total supply', null);
-        return null;
-    }
-};
 
 interface ArweaveWallet {
     connect(permissions: string[]): Promise<void>;
