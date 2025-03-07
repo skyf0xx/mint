@@ -1,6 +1,6 @@
 import { dryrun, result } from '@permaweb/aoconnect';
 import { sendMessage } from './messages';
-import { adjustDecimalString } from './utils';
+import { adjustDecimalString, withRetry } from './utils';
 import {
     CACHE_EXPIRY,
     generateCacheKey,
@@ -17,6 +17,7 @@ interface StakedBalance {
 
 // Constants
 const MINT_TOKEN = 'SWQx44W-1iMwGFBSHlC3lStCq3Z7O2WZrx9quLeZOu0';
+const MINT_LIQUIDITY_PROVIDER = '_to_define_';
 
 // Types
 export interface JWK {
@@ -121,3 +122,126 @@ export const getTotalSupply = async (): Promise<string | null> => {
         return null;
     }
 };
+
+interface ArweaveWallet {
+    connect(permissions: string[]): Promise<void>;
+    disconnect(): Promise<void>;
+}
+
+// Helper Functions
+async function connectWallet(): Promise<ArweaveWallet> {
+    if (!('arweaveWallet' in globalThis)) {
+        throw new Error(
+            'Arweave wallet is not available. Please install or enable it.'
+        );
+    }
+
+    const arweaveWallet = (globalThis as typeof window)
+        .arweaveWallet as ArweaveWallet;
+    await arweaveWallet.connect(['ACCESS_ADDRESS', 'SIGN_TRANSACTION']);
+    return arweaveWallet;
+}
+
+function parseMessageData<T>(result: MessageResult, errorMessage: string): T {
+    if (!result.Messages?.[0]?.Data) {
+        throw new Error(errorMessage);
+    }
+    return JSON.parse(result.Messages[0].Data);
+}
+
+function findTagValue(
+    result: MessageResult,
+    tagName: string
+): string | undefined {
+    return result.Messages[0].Tags.find((tag) => tag.name === tagName)?.value;
+}
+
+function handleError<T>(error: unknown, context: string, defaultValue?: T): T {
+    console.error(`Error ${context}:`, error);
+    if (defaultValue !== undefined) {
+        return defaultValue;
+    }
+    throw error;
+}
+
+async function executeWalletAction<T>(
+    actionName: string,
+    action: () => Promise<T>,
+    defaultValue: T
+): Promise<T> {
+    try {
+        await connectWallet();
+        return await action();
+    } catch (error) {
+        return handleError(error, actionName, defaultValue);
+    }
+}
+
+// Balance response interface
+export interface TokenBalance {
+    balance: string;
+    ticker?: string;
+    account?: string;
+}
+
+// New getBalance function
+export async function getBalance(
+    address: string,
+    token: string
+): Promise<TokenBalance | null> {
+    const tags = [
+        { name: 'Action', value: 'Balance' },
+        { name: 'Target', value: address },
+    ];
+
+    try {
+        const result = await sendAndGetResult(token, tags, false, false);
+        // Get values from tags
+        const balance = findTagValue(result, 'Balance');
+        const ticker = findTagValue(result, 'Ticker');
+        const account = address;
+
+        if (!balance || !ticker || !account) {
+            console.error('Missing required balance information in response');
+            return null;
+        }
+
+        const denomination = await getTokenDenomination(token);
+        const adjustedBalance = adjustDecimalString(balance, denomination);
+
+        return {
+            balance: adjustedBalance,
+            ticker: ticker,
+            account: account,
+        };
+    } catch (error) {
+        return handleError(error, 'getting token balance', null);
+    }
+}
+
+export async function getTokenDenomination(token: string): Promise<number> {
+    const tags = [{ name: 'Action', value: 'Info' }];
+
+    try {
+        return await withRetry(async () => {
+            const result = await sendAndGetResult(
+                token,
+                tags,
+                false,
+                CACHE_EXPIRY.WEEK
+            );
+            const denominationTag = result.Messages[0]?.Tags.find(
+                (tag) => tag.name === 'Denomination'
+            );
+
+            if (!denominationTag) {
+                throw new Error('Denomination tag not found in response');
+            }
+
+            const denomination = Number(denominationTag.value);
+            return isNaN(denomination) ? 8 : denomination;
+        });
+    } catch (error) {
+        return handleError(error, 'getting token denomination', 8);
+    }
+}
