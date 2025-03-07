@@ -1,5 +1,4 @@
-// components/app/index.tsx
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import {
     useArweaveWalletStore,
     useArweaveWalletInit,
@@ -9,9 +8,11 @@ import ConnectCard from '@/components/app/connect-card';
 import Dashboard from '@/components/app/dashboard';
 import StakingForm from '@/components/app/staking/staking-form';
 import UnstakeForm from '@/components/app/unstaking/unstake-form';
-
-// Define the possible app view states
-type AppView = 'dashboard' | 'staking' | 'unstaking' | 'position-details';
+import PositionDetailView from '@/components/app/position/position-detail-view';
+import LoadingState from '@/components/app/shared/loading-state';
+import { useStakingStore, useStakingInit } from '@/store/staking-store';
+import { StakingPosition } from '@/types/staking';
+import ILProtectionModal from '@/components/app/education/il-protection-modal';
 
 const App = () => {
     // Initialize wallet
@@ -20,66 +21,58 @@ const App = () => {
     // Get wallet state
     const { address, connected } = useArweaveWalletStore();
 
-    // Local state
-    const [currentView, setCurrentView] = useState<AppView>('dashboard');
-    const [selectedPositionId, setSelectedPositionId] = useState<string | null>(
-        null
-    );
+    // Get staking state
+    const {
+        currentView,
+        setView,
+        selectedPositionId,
+        selectPosition,
+        userPositions,
+        isLoading,
+        stakeToken,
+        unstakePosition,
+        fetchPositionDetails,
+    } = useStakingStore();
 
-    // Mock positions data - in real implementation this would come from an API
-    const [positions, setPositions] = useState<any[]>([]);
+    // Initialize staking data
+    useStakingInit(address);
 
-    // Mock position for unstaking view
-    const mockPosition = {
-        id: '123',
-        token: 'qAR',
-        initialAmount: '100',
-        currentValue: '94.2',
-        stakedDays: 24,
-        ilProtectionPercentage: 40,
-    };
+    // Local state for educational modal
+    const [showILModal, setShowILModal] = React.useState(false);
+
+    // Load position details when a position is selected
+    useEffect(() => {
+        if (connected && address && selectedPositionId) {
+            fetchPositionDetails(selectedPositionId, address);
+        }
+    }, [connected, address, selectedPositionId, fetchPositionDetails]);
 
     // Event handlers
     const handleStartStaking = () => {
-        setCurrentView('staking');
+        setView('staking');
     };
 
     const handleViewPosition = (id: string) => {
-        setSelectedPositionId(id);
-        setCurrentView('position-details');
+        selectPosition(id);
+        setView('position-details');
     };
 
-    const handleStakeSubmit = async (token: string, amount: string) => {
-        // In a real implementation, this would call the API to stake tokens
-        console.log(`Staking ${amount} ${token}`);
-
-        // Mock adding a new position
-        const newPosition = {
-            id: Date.now().toString(),
-            token,
-            amount,
-            stakedDate: new Date(),
-            ilProtectionPercentage: 0,
-        };
-
-        setPositions([...positions, newPosition]);
-        setCurrentView('dashboard');
-
-        // This would be a real API call in production
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+    const handleStakeSubmit = async (tokenAddress: string, amount: string) => {
+        return await stakeToken(tokenAddress, amount);
     };
 
     const handleUnstakeSubmit = async (positionId: string, amount: string) => {
-        // In a real implementation, this would call the API to unstake tokens
-        console.log(`Unstaking ${amount} from position ${positionId}`);
-
-        // Mock removing the position
-        setPositions(positions.filter((p) => p.id !== positionId));
-        setCurrentView('dashboard');
-
-        // This would be a real API call in production
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        return await unstakePosition(positionId, amount);
     };
+
+    const handleShowILInfo = () => {
+        setShowILModal(true);
+    };
+
+    // Find the selected position if we're in position details or unstaking view
+    const selectedPosition = userPositions.find(
+        (p) => p.id === selectedPositionId
+    );
 
     // Render the appropriate view
     const renderContent = () => {
@@ -87,37 +80,62 @@ const App = () => {
             return <ConnectCard />;
         }
 
+        if (isLoading && currentView !== 'dashboard') {
+            return <LoadingState message="Loading your staking data..." />;
+        }
+
         switch (currentView) {
             case 'staking':
                 return (
                     <StakingForm
-                        onCancel={() => setCurrentView('dashboard')}
+                        onCancel={() => setView('dashboard')}
                         onSubmit={handleStakeSubmit}
+                        onShowILInfo={handleShowILInfo}
                     />
                 );
             case 'unstaking':
+                if (!selectedPosition) {
+                    return <LoadingState message="Loading position data..." />;
+                }
+
                 return (
                     <UnstakeForm
-                        position={mockPosition}
-                        onCancel={() => setCurrentView('dashboard')}
+                        position={selectedPosition as StakingPosition}
+                        onCancel={() => setView('dashboard')}
                         onUnstake={handleUnstakeSubmit}
+                        onShowILInfo={handleShowILInfo}
                     />
                 );
             case 'position-details':
-                // This would be implemented later
-                return <div>Position Details (to be implemented)</div>;
+                if (!selectedPosition) {
+                    return (
+                        <LoadingState message="Loading position details..." />
+                    );
+                }
+
+                return (
+                    <PositionDetailView
+                        position={selectedPosition as StakingPosition}
+                        onBack={() => setView('dashboard')}
+                        onUnstake={() => {
+                            setView('unstaking');
+                        }}
+                        onShowILInfo={handleShowILInfo}
+                    />
+                );
             case 'dashboard':
             default:
                 return (
                     <Dashboard
                         address={address}
-                        positions={positions}
+                        positions={userPositions}
                         onStartStaking={handleStartStaking}
                         onViewPosition={handleViewPosition}
                         onUnstake={(id) => {
-                            setSelectedPositionId(id);
-                            setCurrentView('unstaking');
+                            selectPosition(id);
+                            setView('unstaking');
                         }}
+                        isLoading={isLoading}
                     />
                 );
         }
@@ -156,6 +174,12 @@ const App = () => {
                 </motion.div>
 
                 {renderContent()}
+
+                {/* Educational modal for impermanent loss protection */}
+                <ILProtectionModal
+                    isOpen={showILModal}
+                    onClose={() => setShowILModal(false)}
+                />
             </div>
         </section>
     );

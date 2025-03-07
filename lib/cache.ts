@@ -12,6 +12,7 @@ const redis = new Redis({
 
 // Cache expiry times in seconds
 export const CACHE_EXPIRY = {
+    MINUTE: 60,
     TEN_MINUTES: 600,
     HOUR: 3600,
     DAY: 86400,
