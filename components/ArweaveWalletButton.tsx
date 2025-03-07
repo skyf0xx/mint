@@ -3,7 +3,7 @@ import { Wallet, Loader2 } from 'lucide-react';
 import {
     useArweaveWalletInit,
     useArweaveWalletStore,
-} from '@/hooks/useArweaveWallet';
+} from '@/hooks/use-wallet';
 
 export const ArweaveWalletButton: React.FC = () => {
     // Initialize wallet event listeners

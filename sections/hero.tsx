@@ -5,6 +5,10 @@ import { ChevronRight, ArrowDown, Loader2 } from 'lucide-react';
 import { InfinityLogo } from './logo';
 import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
+import {
+    useArweaveWalletInit,
+    useArweaveWalletStore,
+} from '@/hooks/use-wallet';
 
 interface MetricProps {
     title: string;
@@ -102,6 +106,18 @@ const MetricCard = ({
 );
 
 const Hero = () => {
+    // Initialize wallet
+    useArweaveWalletInit();
+    const { connected, connect } = useArweaveWalletStore();
+
+    const handleLaunchAppClick = () => {
+        if (connected) {
+            scrollToSection('app');
+        } else {
+            connect();
+        }
+    };
+
     return (
         <section id="hero" className="relative w-full overflow-x-hidden">
             {/* Enhanced gradient background */}
@@ -210,13 +226,12 @@ const Hero = () => {
                                 <Button
                                     size="lg"
                                     className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 group relative overflow-hidden bg-gradient-to-r from-primary to-primary-600 hover:to-primary transition-all duration-500 w-full sm:w-auto"
-                                    onClick={() =>
-                                        (window.location.href =
-                                            'https://app.mint.arweave.dev')
-                                    }
+                                    onClick={handleLaunchAppClick}
                                 >
                                     <span className="relative z-10 flex items-center justify-center">
-                                        Launch App
+                                        {connected
+                                            ? 'Open Dashboard'
+                                            : 'Launch App'}
                                         <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                                     </span>
                                     <span className="absolute inset-0 bg-gradient-to-r from-accent to-accent-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
