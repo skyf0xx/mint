@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
 import { InfinityLogo } from './logo';
+import {
+    useArweaveWalletStore,
+    useArweaveWalletInit,
+} from '@/hooks/use-wallet';
+import { ArweaveWalletButton } from '@/components/ArweaveWalletButton';
 
 interface NavbarProps {
     progress: {
@@ -19,6 +24,17 @@ const Navbar = ({ progress, scrollToSection }: NavbarProps) => {
     const [scrolled, setScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+    // Initialize wallet
+    useArweaveWalletInit();
+    const { connected, connect } = useArweaveWalletStore();
+
+    // Update the scrollToStakingDashboard function in the wallet store
+    useEffect(() => {
+        useArweaveWalletStore.setState({
+            scrollToStakingDashboard: () => scrollToSection('app'),
+        });
+    }, [scrollToSection]);
+
     // Handle scroll effect
     useEffect(() => {
         const handleScroll = () => {
@@ -36,6 +52,14 @@ const Navbar = ({ progress, scrollToSection }: NavbarProps) => {
     const handleNavClick = (sectionId: string) => {
         scrollToSection(sectionId);
         setIsMobileMenuOpen(false);
+    };
+
+    const handleLaunchAppClick = () => {
+        if (connected) {
+            scrollToSection('app');
+        } else {
+            connect();
+        }
     };
 
     return (
@@ -145,15 +169,24 @@ const Navbar = ({ progress, scrollToSection }: NavbarProps) => {
 
                     {/* Right section - Call to Action */}
                     <div className="hidden md:block">
-                        <button
-                            onClick={() =>
-                                (window.location.href =
-                                    'https://app.mint.arweave.dev')
-                            }
-                            className="px-4 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary-600 transition-colors"
-                        >
-                            Launch App
-                        </button>
+                        {connected ? (
+                            <div className="flex items-center space-x-3">
+                                <button
+                                    onClick={() => scrollToSection('app')}
+                                    className="px-4 py-2 text-sm bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors"
+                                >
+                                    Dashboard
+                                </button>
+                                <ArweaveWalletButton />
+                            </div>
+                        ) : (
+                            <button
+                                onClick={handleLaunchAppClick}
+                                className="px-4 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary-600 transition-colors"
+                            >
+                                Launch App
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -205,15 +238,26 @@ const Navbar = ({ progress, scrollToSection }: NavbarProps) => {
                             FAQ
                         </MobileNavButton>
                         <div className="pt-2">
-                            <button
-                                onClick={() =>
-                                    (window.location.href =
-                                        'https://app.mint.arweave.dev')
-                                }
-                                className="w-full px-4 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary-600 transition-colors"
-                            >
-                                Launch App
-                            </button>
+                            {connected ? (
+                                <div className="space-y-2">
+                                    <button
+                                        onClick={() => handleNavClick('app')}
+                                        className="w-full px-4 py-2 text-sm bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors"
+                                    >
+                                        Dashboard
+                                    </button>
+                                    <div className="flex justify-center">
+                                        <ArweaveWalletButton />
+                                    </div>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={handleLaunchAppClick}
+                                    className="w-full px-4 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary-600 transition-colors"
+                                >
+                                    Launch App
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
