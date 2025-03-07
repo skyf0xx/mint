@@ -48,7 +48,7 @@ export interface MessageResult {
     }>;
 }
 
-async function sendAndGetResult(
+export async function sendAndGetResult(
     target: string,
     tags: { name: string; value: string }[],
     signer = false,
