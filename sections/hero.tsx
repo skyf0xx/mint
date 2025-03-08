@@ -276,9 +276,9 @@ const Hero = () => {
                             decimals={1}
                         />
                         <MetricCard
-                            title="Protection Provided"
+                            title="MINT Insuarance Treasury"
                             value={1.2}
-                            subtitle="Million USD"
+                            subtitle="MINT"
                             delay={0.2}
                             featured={true}
                             animate={true}
