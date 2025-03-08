@@ -14,9 +14,10 @@ const redis = new Redis({
 export const CACHE_EXPIRY = {
     MINUTE: 60,
     TEN_MINUTES: 600,
-    HOUR: 3600,
-    DAY: 86400,
-    WEEK: 604800,
+    HOUR: 3_600,
+    DAY: 86_400,
+    WEEK: 604_800,
+    MONTH: 2_629_746,
 };
 
 // Generate cache key from target and tags
