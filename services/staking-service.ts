@@ -23,7 +23,7 @@ export async function getAllowedTokens(): Promise<TokenInfo[]> {
                 MINT_PROCESS,
                 [{ name: 'Action', value: 'Get-Allowed-Tokens' }],
                 false,
-                CACHE_EXPIRY.HOUR
+                CACHE_EXPIRY.DAY
             );
             console.log('allowed tokens', { response });
             if (!response?.Messages?.[0]?.Data) {
