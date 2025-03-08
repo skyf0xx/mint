@@ -91,32 +91,7 @@ export async function sendAndGetResult(
     return response;
 }
 
-interface ArweaveWallet {
-    connect(permissions: string[]): Promise<void>;
-    disconnect(): Promise<void>;
-}
-
 // Helper Functions
-async function connectWallet(): Promise<ArweaveWallet> {
-    if (!('arweaveWallet' in globalThis)) {
-        throw new Error(
-            'Arweave wallet is not available. Please install or enable it.'
-        );
-    }
-
-    const arweaveWallet = (globalThis as typeof window)
-        .arweaveWallet as ArweaveWallet;
-    await arweaveWallet.connect(['ACCESS_ADDRESS', 'SIGN_TRANSACTION']);
-    return arweaveWallet;
-}
-
-function parseMessageData<T>(result: MessageResult, errorMessage: string): T {
-    if (!result.Messages?.[0]?.Data) {
-        throw new Error(errorMessage);
-    }
-    return JSON.parse(result.Messages[0].Data);
-}
-
 function findTagValue(
     result: MessageResult,
     tagName: string
@@ -130,19 +105,6 @@ function handleError<T>(error: unknown, context: string, defaultValue?: T): T {
         return defaultValue;
     }
     throw error;
-}
-
-async function executeWalletAction<T>(
-    actionName: string,
-    action: () => Promise<T>,
-    defaultValue: T
-): Promise<T> {
-    try {
-        await connectWallet();
-        return await action();
-    } catch (error) {
-        return handleError(error, actionName, defaultValue);
-    }
 }
 
 // Balance response interface
