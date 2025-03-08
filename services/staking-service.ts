@@ -25,7 +25,6 @@ export async function getAllowedTokens(): Promise<TokenInfo[]> {
                 false,
                 CACHE_EXPIRY.DAY
             );
-            console.log('allowed tokens', { response });
             if (!response?.Messages?.[0]?.Data) {
                 throw new Error('Invalid response format for allowed tokens');
             }
@@ -133,7 +132,6 @@ export async function getUserPositions(
             CACHE_EXPIRY.MINUTE * 5,
             userAddress
         );
-        console.log('positions', { response });
         if (!response?.Messages?.[0]?.Data) {
             return []; // No positions or invalid response
         }
