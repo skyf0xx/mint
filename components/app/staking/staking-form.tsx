@@ -197,7 +197,7 @@ const StakingForm = ({
                         className="text-primary text-sm flex items-center"
                     >
                         <Info className="h-4 w-4 mr-1" />
-                        What is impermanent loss protection?
+                        Protection details
                     </Button>
                 </div>
             </CardContent>
