@@ -160,7 +160,7 @@ export async function getTokenDenomination(token: string): Promise<number> {
                 token,
                 tags,
                 false,
-                CACHE_EXPIRY.WEEK
+                CACHE_EXPIRY.MONTH
             );
             const denominationTag = result.Messages[0]?.Tags.find(
                 (tag) => tag.name === 'Denomination'
