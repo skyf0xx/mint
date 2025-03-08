@@ -440,42 +440,6 @@ export async function getCurrentPriceRatio(
 }
 
 /**
- * Calculates historical price data for a position
- * @param positionId ID of the position
- * @param userAddress User's wallet address
- * @returns Array of price data points or empty array if unavailable
- */
-export async function getPositionPriceHistory(
-    positionId: string,
-    userAddress: string
-) {
-    try {
-        const response = await sendAndGetResult(
-            MINT_PROCESS,
-            [
-                { name: 'Action', value: 'Get-Position-History' },
-                { name: 'Position-ID', value: positionId },
-                { name: 'User', value: userAddress },
-            ],
-            false,
-            CACHE_EXPIRY.HOUR // Cache for an hour
-        );
-
-        if (!response?.Messages?.[0]?.Data) {
-            return []; // No history or invalid response
-        }
-
-        return JSON.parse(response.Messages[0].Data);
-    } catch (error) {
-        console.error(
-            `Error fetching price history for position ${positionId}:`,
-            error
-        );
-        return [];
-    }
-}
-
-/**
  * Fetches dashboard metrics for a user
  * @param userAddress User's wallet address
  * @returns Dashboard metrics or default values if unavailable
