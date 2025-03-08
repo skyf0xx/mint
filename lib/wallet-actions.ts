@@ -52,14 +52,16 @@ export async function sendAndGetResult(
     target: string,
     tags: { name: string; value: string }[],
     signer = false,
-    cacheExpiry: number | false
+    cacheExpiry: number | false,
+    userKey = ''
 ): Promise<MessageResult> {
     let response;
     let cached;
     let cacheKey = '';
 
     if (cacheExpiry) {
-        cacheKey = generateCacheKey(target, tags);
+        cacheKey =
+            generateCacheKey(target, tags) + (userKey ? '-' + userKey : '');
         cached = await getFromCache(cacheKey);
     }
 

@@ -130,7 +130,8 @@ export async function getUserPositions(
                 { name: 'User', value: userAddress },
             ],
             false,
-            CACHE_EXPIRY.MINUTE * 5
+            CACHE_EXPIRY.MINUTE * 5,
+            userAddress
         );
         console.log('positions', { response });
         if (!response?.Messages?.[0]?.Data) {
@@ -205,7 +206,8 @@ export async function getPositionDetails(
                 { name: 'User', value: userAddress },
             ],
             false,
-            CACHE_EXPIRY.MINUTE * 2 // Cache for 2 minutes
+            CACHE_EXPIRY.MINUTE * 2, // Cache for 2 minutes
+            userAddress
         );
 
         if (!response?.Messages?.[0]?.Data) {
