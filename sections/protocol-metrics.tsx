@@ -146,38 +146,10 @@ const ProtocolMetrics = () => {
         }
     };
 
-    // Calculate Treasury Coverage Ratio
-    const calculateCoverageRatio = () => {
-        if (!metrics || !metrics.protocolSettings) return 38.5; // Fallback
-
-        const tvl = calculateTVL() * 1000000; // Convert back from millions
-        if (tvl === 0) return 0;
-
-        // Extract max coverage percentage (e.g., "50%" -> 0.5)
-        const maxCoveragePercentageMatch =
-            metrics.protocolSettings.maxCoveragePercentage.match(/([0-9.]+)/);
-        const maxCoveragePercentage = maxCoveragePercentageMatch
-            ? parseFloat(maxCoveragePercentageMatch[1]) / 100
-            : 0.5; // Default to 50%
-
-        // Calculate potential maximum IL (assuming worst case of max coverage percentage of TVL)
-        const potentialMaxIL = tvl * maxCoveragePercentage;
-
-        // Treasury balance in original units
-        const treasuryBalance = parseTreasuryBalance() * 1000000; // Convert back from millions
-
-        // Calculate coverage ratio
-        const ratio =
-            potentialMaxIL > 0 ? (treasuryBalance / potentialMaxIL) * 100 : 0;
-
-        return ratio;
-    };
-
     // Get values for display
     const tvl = calculateTVL();
     const treasuryBalance = parseTreasuryBalance();
     const activePositions = metrics?.totalStakingPositions || 4721; // Fallback
-    const coverageRatio = calculateCoverageRatio();
 
     return (
         <section
@@ -209,7 +181,7 @@ const ProtocolMetrics = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-5xl mx-auto">
                 <MetricCard
                     title="Total Value Locked"
                     value={tvl}
@@ -243,17 +215,6 @@ const ProtocolMetrics = () => {
                     suffix=""
                     decimals={0}
                     tooltip="The total number of active staking positions across all supported tokens"
-                />
-                <MetricCard
-                    title="Treasury Coverage"
-                    value={coverageRatio}
-                    subtitle="Protection Percentage"
-                    delay={0.4}
-                    loading={loading}
-                    animate={true}
-                    suffix="%"
-                    decimals={1}
-                    tooltip="The percentage of potential impermanent loss that the treasury can cover, based on current staking positions and the maximum protection rate"
                     featured={true}
                 />
             </div>
