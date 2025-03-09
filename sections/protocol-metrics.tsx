@@ -125,28 +125,25 @@ const ProtocolMetrics = () => {
         }
 
         // Return in millions
-        return totalStaked / 1000000;
+        return totalStaked / 100000000;
     };
 
     // Parse the treasury balance amount
     const parseTreasuryBalance = () => {
-        if (!metrics || !metrics.formattedTreasuryBalance) return 1.2; // Fallback
+        if (!metrics || !metrics.formattedTreasuryBalance) return 0;
 
-        // If formattedTreasuryBalance is already formatted, extract the numeric value
-        const match = metrics.formattedTreasuryBalance.match(/([0-9,.]+)/);
-        if (match && match[1]) {
-            return parseFloat(match[1].replace(/,/g, ''));
+        // If formattedTreasuryBalance is already formatted, parse it directly
+        try {
+            // Remove any commas and convert to number
+            const value = parseFloat(
+                metrics.formattedTreasuryBalance.replace(/,/g, '')
+            );
+            // Convert to millions
+            return value / 100000000;
+        } catch (e) {
+            console.error('Error parsing treasury balance:', e);
+            return 0;
         }
-
-        // If no formatted value, try to parse from raw balance
-        if (metrics.treasuryBalance) {
-            // Assuming MINT has 8 decimals
-            return (
-                parseFloat(metrics.treasuryBalance) / Math.pow(10, 8) / 1000000
-            ); // Convert to millions
-        }
-
-        return 1.2; // Fallback
     };
 
     // Calculate Treasury Coverage Ratio
@@ -273,21 +270,6 @@ const ProtocolMetrics = () => {
                     {new Date(metrics.timestamp * 1000).toLocaleString()}
                 </motion.div>
             )}
-
-            {/* Learn more link */}
-            <motion.div
-                className="text-center mt-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.7 }}
-            >
-                <a
-                    href="#insurance-info"
-                    className="text-sm text-primary-600 hover:underline"
-                >
-                    Learn more about impermanent loss protection
-                </a>
-            </motion.div>
         </section>
     );
 };
