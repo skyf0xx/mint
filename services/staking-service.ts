@@ -4,10 +4,9 @@ import { sendMessage } from '@/lib/messages';
 import { StakingPosition, TokenInfo, ILProtectionInfo } from '@/types/staking';
 import { adjustDecimalString, withRetry } from '@/lib/utils';
 import { CACHE_EXPIRY } from '@/lib/cache';
-import { sendAndGetResult } from '@/lib/wallet-actions';
+import { MINT_PROCESS, sendAndGetResult } from '@/lib/wallet-actions';
 
 // Constants
-const MINT_PROCESS = 'lNtrei6YLQiWS8cyFFHDrOBvRzICQPTvrjZBP8fz-ZI';
 const MAX_VESTING_DAYS = 30;
 const MAX_COVERAGE_PERCENTAGE = 50;
 const MAX_COMPENSATION_CAP = 50000; // 50,000 MINT tokens maximum compensation

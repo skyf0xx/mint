@@ -8,6 +8,8 @@ import {
     setCache,
 } from './cache';
 
+export const MINT_PROCESS = 'lNtrei6YLQiWS8cyFFHDrOBvRzICQPTvrjZBP8fz-ZI';
+
 interface StakedBalance {
     address: never;
     name: string;

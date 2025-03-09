@@ -1,8 +1,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
+import { Loader2, RefreshCw, Info } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import CountUp from 'react-countup';
+import { useProtocolMetrics } from '@/hooks/use-protocol-metrics';
 
 interface MetricProps {
     title: string;
@@ -14,6 +21,7 @@ interface MetricProps {
     animate?: boolean;
     suffix: string;
     decimals: number;
+    tooltip?: string;
 }
 
 const MetricCard = ({
@@ -26,6 +34,7 @@ const MetricCard = ({
     animate = false,
     suffix,
     decimals,
+    tooltip,
 }: MetricProps) => (
     <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -44,9 +53,23 @@ const MetricCard = ({
                         <dt
                             className={`text-sm font-medium ${
                                 featured ? 'text-primary-600' : 'text-gray-600'
-                            }`}
+                            } flex items-center`}
                         >
                             {title}
+                            {tooltip && (
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Info className="ml-1 h-4 w-4 text-gray-400 cursor-help" />
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p className="max-w-xs">
+                                                {tooltip}
+                                            </p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            )}
                         </dt>
                         <dd
                             className={`text-2xl sm:text-3xl font-bold tracking-tight ${
@@ -84,59 +107,187 @@ const MetricCard = ({
 );
 
 const ProtocolMetrics = () => {
+    const { metrics, loading, refetch } = useProtocolMetrics();
+
+    // Calculate TVL (Total Value Locked)
+    const calculateTVL = () => {
+        if (!metrics || !metrics.tokenMetrics) return 24.8; // Fallback to a default value
+
+        let totalStaked = 0;
+
+        for (const tokenAddress in metrics.tokenMetrics) {
+            const tokenMetric = metrics.tokenMetrics[tokenAddress];
+            // Convert from token units to human-readable amount based on decimals
+            const amount =
+                parseFloat(tokenMetric.totalStaked) /
+                Math.pow(10, tokenMetric.decimals || 8);
+            totalStaked += amount;
+        }
+
+        // Return in millions
+        return totalStaked / 1000000;
+    };
+
+    // Parse the treasury balance amount
+    const parseTreasuryBalance = () => {
+        if (!metrics || !metrics.formattedTreasuryBalance) return 1.2; // Fallback
+
+        // If formattedTreasuryBalance is already formatted, extract the numeric value
+        const match = metrics.formattedTreasuryBalance.match(/([0-9,.]+)/);
+        if (match && match[1]) {
+            return parseFloat(match[1].replace(/,/g, ''));
+        }
+
+        // If no formatted value, try to parse from raw balance
+        if (metrics.treasuryBalance) {
+            // Assuming MINT has 8 decimals
+            return (
+                parseFloat(metrics.treasuryBalance) / Math.pow(10, 8) / 1000000
+            ); // Convert to millions
+        }
+
+        return 1.2; // Fallback
+    };
+
+    // Calculate Treasury Coverage Ratio
+    const calculateCoverageRatio = () => {
+        if (!metrics || !metrics.protocolSettings) return 38.5; // Fallback
+
+        const tvl = calculateTVL() * 1000000; // Convert back from millions
+        if (tvl === 0) return 0;
+
+        // Extract max coverage percentage (e.g., "50%" -> 0.5)
+        const maxCoveragePercentageMatch =
+            metrics.protocolSettings.maxCoveragePercentage.match(/([0-9.]+)/);
+        const maxCoveragePercentage = maxCoveragePercentageMatch
+            ? parseFloat(maxCoveragePercentageMatch[1]) / 100
+            : 0.5; // Default to 50%
+
+        // Calculate potential maximum IL (assuming worst case of max coverage percentage of TVL)
+        const potentialMaxIL = tvl * maxCoveragePercentage;
+
+        // Treasury balance in original units
+        const treasuryBalance = parseTreasuryBalance() * 1000000; // Convert back from millions
+
+        // Calculate coverage ratio
+        const ratio =
+            potentialMaxIL > 0 ? (treasuryBalance / potentialMaxIL) * 100 : 0;
+
+        return ratio;
+    };
+
+    // Get values for display
+    const tvl = calculateTVL();
+    const treasuryBalance = parseTreasuryBalance();
+    const activePositions = metrics?.totalStakingPositions || 4721; // Fallback
+    const coverageRatio = calculateCoverageRatio();
+
     return (
         <section
             id="metrics"
             className="container mx-auto px-4 py-24 relative bg-gradient-to-b from-transparent to-gray-50/30"
         >
-            <motion.h3
-                className="text-2xl sm:text-3xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-            >
-                Protocol Metrics
-            </motion.h3>
+            <div className="flex justify-between items-center mb-8">
+                <motion.h3
+                    className="text-2xl sm:text-3xl font-bold text-center w-full bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                >
+                    Protocol Metrics
+                </motion.h3>
+
+                {/* Add refresh button */}
+                <div className="absolute right-8">
+                    <motion.button
+                        className="text-gray-500 hover:text-primary transition-colors p-2 rounded-full hover:bg-gray-100"
+                        onClick={refetch}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                        aria-label="Refresh metrics"
+                    >
+                        <RefreshCw className="h-5 w-5" />
+                    </motion.button>
+                </div>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-5xl mx-auto">
                 <MetricCard
                     title="Total Value Locked"
-                    value={24.8}
+                    value={tvl}
                     subtitle="Million USD"
                     delay={0.1}
+                    loading={loading}
                     animate={true}
                     suffix="M"
                     decimals={1}
+                    tooltip="The total value of all tokens staked in the protocol across all supported tokens"
                 />
                 <MetricCard
-                    title="MINT Insuarance Treasury"
-                    value={1.2}
-                    subtitle="MINT"
+                    title="MINT Treasury"
+                    value={treasuryBalance}
+                    subtitle="Million MINT"
                     delay={0.2}
-                    featured={true}
+                    loading={loading}
                     animate={true}
                     suffix="M"
                     decimals={1}
+                    tooltip="The amount of MINT tokens reserved to protect users against impermanent loss"
+                    featured={true}
                 />
                 <MetricCard
                     title="Active Positions"
-                    value={4721}
+                    value={activePositions}
                     subtitle="Staking Positions"
                     delay={0.3}
+                    loading={loading}
                     animate={true}
                     suffix=""
                     decimals={0}
+                    tooltip="The total number of active staking positions across all supported tokens"
                 />
                 <MetricCard
-                    title="Average Protection"
-                    value={38.5}
-                    subtitle="Coverage Percentage"
+                    title="Treasury Coverage"
+                    value={coverageRatio}
+                    subtitle="Protection Percentage"
                     delay={0.4}
+                    loading={loading}
                     animate={true}
                     suffix="%"
                     decimals={1}
+                    tooltip="The percentage of potential impermanent loss that the treasury can cover, based on current staking positions and the maximum protection rate"
+                    featured={true}
                 />
             </div>
+
+            {/* Add last updated timestamp */}
+            {metrics?.timestamp && (
+                <motion.div
+                    className="text-center text-xs text-gray-400 mt-6"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                >
+                    Last updated:{' '}
+                    {new Date(metrics.timestamp * 1000).toLocaleString()}
+                </motion.div>
+            )}
+
+            {/* Learn more link */}
+            <motion.div
+                className="text-center mt-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7 }}
+            >
+                <a
+                    href="#insurance-info"
+                    className="text-sm text-primary-600 hover:underline"
+                >
+                    Learn more about impermanent loss protection
+                </a>
+            </motion.div>
         </section>
     );
 };
