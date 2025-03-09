@@ -88,6 +88,8 @@ export async function sendAndGetResult(
         });
     }
 
+    console.log({ tags, response });
+
     if (cacheExpiry) {
         setCache(cacheKey, response, cacheExpiry);
     }
