@@ -14,7 +14,7 @@ import { motion } from 'framer-motion';
 
 const FloatingDecoration = ({ className }: { className?: string }) => (
     <motion.div
-        className={`absolute w-16 h-16 rounded-2xl border-2 border-primary/10 ${className}`}
+        className={`absolute w-16 h-16 rounded-2xl border-2 border-violet-500/15 ${className}`}
         animate={{
             y: [0, -20, 0],
             rotate: [0, 45, 0],
@@ -67,9 +67,9 @@ const MintSupplyGraph = () => {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
         >
-            {/* Background decorative elements */}
-            <div className="absolute inset-0 bg-gradient-to-b from-gray-50/50 to-white" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl opacity-30" />
+            {/* Background decorative elements with violet tones */}
+            <div className="absolute inset-0 bg-gradient-to-b from-gray-50/50 via-violet-50/20 to-white"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-primary/5 via-violet-400/10 to-violet-600/5 rounded-full blur-3xl opacity-30"></div>
 
             {/* Add floating decorations */}
             <FloatingDecoration className="top-20 left-[5%] opacity-60" />
@@ -80,7 +80,7 @@ const MintSupplyGraph = () => {
 
             {/* Add accent squares */}
             <motion.div
-                className="absolute top-1/4 right-[22%] w-8 h-8 rounded-lg border-2 border-accent/20"
+                className="absolute top-1/4 right-[22%] w-8 h-8 rounded-lg border-2 border-violet-500/20"
                 animate={{
                     y: [0, -15, 0],
                     rotate: [0, -45, 0],
@@ -93,7 +93,7 @@ const MintSupplyGraph = () => {
                 }}
             />
             <motion.div
-                className="absolute bottom-1/3 left-[18%] w-10 h-10 rounded-lg border-2 border-accent/20"
+                className="absolute bottom-1/3 left-[18%] w-10 h-10 rounded-lg border-2 border-violet-500/20"
                 animate={{
                     y: [0, 15, 0],
                     rotate: [0, 45, 0],
@@ -115,7 +115,7 @@ const MintSupplyGraph = () => {
                         transition={{ delay: 0.2 }}
                     >
                         <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-primary-700">
+                            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-violet-600 to-primary-700">
                                 Supply Evolution
                             </span>
                         </h2>
@@ -124,12 +124,12 @@ const MintSupplyGraph = () => {
                             mathematically guaranteed burn mechanism
                         </p>
                         <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                            Permanetly staked tokens are protected from the
+                            Permanently staked tokens are protected from the
                             burn.
                         </p>
                     </motion.div>
 
-                    <Card className="overflow-hidden border-2 border-primary/10">
+                    <Card className="overflow-hidden border-2 border-violet-500/10">
                         <CardContent className="p-6">
                             <div className="h-[600px] w-full">
                                 <ResponsiveContainer width="100%" height="100%">
@@ -183,11 +183,11 @@ const MintSupplyGraph = () => {
                                         />
                                         <ReferenceLine
                                             y={21000000}
-                                            stroke="#6366F1"
+                                            stroke="#8B5CF6"
                                             strokeDasharray="3 3"
                                             label={{
                                                 value: '21M',
-                                                fill: '#6366F1',
+                                                fill: '#8B5CF6',
                                                 position: 'right',
                                             }}
                                         />
@@ -201,12 +201,12 @@ const MintSupplyGraph = () => {
                                             >
                                                 <stop
                                                     offset="0%"
-                                                    stopColor="rgb(99, 102, 241)"
+                                                    stopColor="rgb(124, 58, 237)"
                                                     stopOpacity={0.3}
                                                 />
                                                 <stop
                                                     offset="100%"
-                                                    stopColor="rgb(99, 102, 241)"
+                                                    stopColor="rgb(124, 58, 237)"
                                                     stopOpacity={0.05}
                                                 />
                                             </linearGradient>
@@ -214,7 +214,7 @@ const MintSupplyGraph = () => {
                                         <Area
                                             type="monotone"
                                             dataKey="supply"
-                                            stroke="#6366F1"
+                                            stroke="#8B5CF6"
                                             strokeWidth={2}
                                             fill="url(#supplyGradient)"
                                             animationDuration={2000}
@@ -224,27 +224,27 @@ const MintSupplyGraph = () => {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                                <div className="p-4 rounded-xl bg-primary/5">
+                                <div className="p-4 rounded-xl bg-violet-500/5">
                                     <h4 className="text-sm font-medium text-gray-600 mb-1">
                                         Initial Supply
                                     </h4>
-                                    <p className="text-2xl font-bold text-primary">
+                                    <p className="text-2xl font-bold text-violet-600">
                                         77M MINT
                                     </p>
                                 </div>
-                                <div className="p-4 rounded-xl bg-primary/5">
+                                <div className="p-4 rounded-xl bg-violet-500/5">
                                     <h4 className="text-sm font-medium text-gray-600 mb-1">
                                         Supply Floor
                                     </h4>
-                                    <p className="text-2xl font-bold text-primary">
+                                    <p className="text-2xl font-bold text-violet-600">
                                         21M MINT
                                     </p>
                                 </div>
-                                <div className="p-4 rounded-xl bg-primary/5">
+                                <div className="p-4 rounded-xl bg-violet-500/5">
                                     <h4 className="text-sm font-medium text-gray-600 mb-1">
                                         Weekly Burn Rate
                                     </h4>
-                                    <p className="text-2xl font-bold text-primary">
+                                    <p className="text-2xl font-bold text-violet-600">
                                         0.25%
                                     </p>
                                 </div>
