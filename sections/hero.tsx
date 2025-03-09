@@ -122,16 +122,18 @@ const Hero = () => {
                                 <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
                                     <span className="relative inline-block">
                                         <span className="relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-accent">
-                                            Single Sided Liquidity
+                                            Single Sided Liquidity Protocol
                                         </span>
                                         <span className="absolute inset-x-0 bottom-2 h-3 bg-accent/10 -rotate-1" />
                                     </span>
-                                    <p className="mt-2">Made Simple.</p>
+                                    <p className="mt-2">
+                                        Safer Earnings for You.
+                                    </p>
                                 </h2>
                                 <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
                                     Skip token pairing. Let MINT supply the
-                                    other side <strong>and</strong> reduce your
-                                    exposure to impermanent loss.
+                                    other side of your LP <strong>and</strong>{' '}
+                                    reduce your exposure to impermanent loss.
                                 </p>
                             </motion.div>
 
