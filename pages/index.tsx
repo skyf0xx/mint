@@ -15,6 +15,7 @@ import ScarcityMechanics from '@/sections/scarcity';
 import Tokenomics from '@/sections/tokenomics';
 import App from '@/sections/app';
 import ProtocolMetrics from '@/sections/protocol-metrics'; // Add this import
+import SectionDivider from '@/components/section-divider';
 
 // Define the progress state type
 type ProgressState = {
@@ -160,11 +161,13 @@ const Home = () => {
             {/* App Section */}
             <App />
 
+            {/* How It Works Section */}
+            <HowItWorks />
+
             {/* Benefits Section */}
             <Benefits />
 
-            {/* How It Works Section */}
-            <HowItWorks />
+            <SectionDivider id="tokenomics-divider" label="TOKEN MECHANICS" />
 
             {/* Tokenomics Section */}
             <div id="tokenomics">
