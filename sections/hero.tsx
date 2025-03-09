@@ -126,7 +126,7 @@ const Hero = () => {
                                         </span>
                                         <span className="absolute inset-x-0 bottom-2 h-3 bg-accent/10 -rotate-1" />
                                     </span>
-                                    <p className="mt-2">
+                                    <p className="mt-4">
                                         Safer Earnings for You.
                                     </p>
                                 </h2>
