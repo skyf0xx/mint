@@ -14,10 +14,12 @@ import FAQ from '@/sections/faq';
 import ScarcityMechanics from '@/sections/scarcity';
 import Tokenomics from '@/sections/tokenomics';
 import App from '@/sections/app';
+import ProtocolMetrics from '@/sections/protocol-metrics'; // Add this import
 
 // Define the progress state type
 type ProgressState = {
     hero: boolean;
+    metrics: boolean;
     benefits: boolean;
     howItWorks: boolean;
     tokenomics: boolean;
@@ -31,6 +33,7 @@ type ProgressState = {
 const useScrollProgress = () => {
     const [progress, setProgress] = useState<ProgressState>({
         hero: true,
+        metrics: false,
         benefits: false,
         howItWorks: false,
         tokenomics: false,
@@ -52,6 +55,7 @@ const useScrollProgress = () => {
         const updateProgress = () => {
             const sections = {
                 hero: document.getElementById('hero'),
+                metrics: document.getElementById('metrics'),
                 benefits: document.getElementById('benefits'),
                 howItWorks: document.getElementById('how-it-works'),
                 tokenomics: document.getElementById('tokenomics'),
@@ -67,6 +71,10 @@ const useScrollProgress = () => {
             // Get all section offsets
             const sectionOffsets = [
                 { id: 'hero', offset: sections.hero?.offsetTop || 0 },
+                {
+                    id: 'metrics',
+                    offset: sections.metrics?.offsetTop || Infinity,
+                },
                 {
                     id: 'benefits',
                     offset: sections.benefits?.offsetTop || Infinity,
@@ -110,6 +118,7 @@ const useScrollProgress = () => {
             // Create new progress state with only the active section set to true
             const newProgress: ProgressState = {
                 hero: activeSection === 'hero',
+                metrics: activeSection === 'metrics',
                 benefits: activeSection === 'benefits',
                 howItWorks: activeSection === 'howItWorks',
                 tokenomics: activeSection === 'tokenomics',
@@ -144,6 +153,9 @@ const Home = () => {
 
             {/* Hero Section */}
             <Hero />
+
+            {/* Protocol Metrics Section */}
+            <ProtocolMetrics />
 
             {/* App Section */}
             <App />
