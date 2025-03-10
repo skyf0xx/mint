@@ -1,6 +1,5 @@
 // services/staking-service.ts
 
-import { sendMessage } from '@/lib/messages';
 import { StakingPosition, TokenInfo, ILProtectionInfo } from '@/types/staking';
 import { withRetry } from '@/lib/utils';
 import { CACHE_EXPIRY } from '@/lib/cache';
@@ -9,6 +8,7 @@ import {
     MINT_PROCESS,
     sendAndGetResult,
 } from '@/lib/wallet-actions';
+import { createDataItemSigner } from '@permaweb/aoconnect';
 
 // Constants
 const MAX_VESTING_DAYS = 30;
@@ -302,7 +302,7 @@ function formatTimeStaked(stakedDate: Date, now: Date = new Date()): string {
 export async function stakeTokens(
     tokenAddress: string,
     amount: string
-): Promise<string> {
+): Promise<boolean> {
     try {
         // First, verify the token is supported
         const allowedTokens = await getAllowedTokens();
@@ -316,27 +316,45 @@ export async function stakeTokens(
 
         // Format the amount according to token decimals
         const token = allowedTokens.find((t) => t.address === tokenAddress);
-        const decimals = token?.decimals || 8;
+        const decimals = token?.decimals;
+
+        if (!decimals) {
+            throw new Error('Token decimals not found');
+        }
 
         // Remove decimal point and format for blockchain
         const formattedAmount = amount.replace('.', '').padEnd(decimals, '0');
 
-        // Send staking transaction
-        const messageId = await sendMessage(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const signer = createDataItemSigner((globalThis as any).arweaveWallet);
+        const result = await sendAndGetResult(
             tokenAddress,
             [
                 { name: 'Action', value: 'Credit-Notice' },
                 { name: 'X-User-Request', value: 'Stake' },
                 { name: 'Qty', value: formattedAmount },
             ],
-            true // Use real signer
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            signer as any,
+            false
         );
 
-        if (!messageId) {
-            throw new Error('Failed to initiate staking transaction');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((result as any).Error) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            throw new Error((result as any).Error);
         }
 
-        return messageId;
+        if (result.Messages && result.Messages.length > 0) {
+            const errorTag = result.Messages[0].Tags.find(
+                (tag) => tag.name === 'Error'
+            );
+            if (errorTag) {
+                throw new Error(errorTag.value);
+            }
+            return true;
+        }
+        return false;
     } catch (error) {
         console.error('Error staking tokens:', error);
         throw error;
