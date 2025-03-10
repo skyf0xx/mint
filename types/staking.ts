@@ -177,11 +177,8 @@ export interface ApiRequest {
 /**
  * Dashboard metrics data
  */
-// Add to types/staking.ts
+// types/staking.ts (update to DashboardMetrics interface)
 export interface DashboardMetrics {
-    /** Total value staked across all positions */
-    totalStaked: string;
-
     /** Total tokens staked by symbol */
     totalTokens: string;
 
