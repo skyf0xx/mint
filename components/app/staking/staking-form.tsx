@@ -124,11 +124,6 @@ const StakingForm = ({
         balance: token.balance || '0',
     }));
 
-    // Calculate estimated values for position summary
-    // These would come from an API in a real implementation
-    const estimatedMintAmount = (parseFloat(amount || '0') * 0.473).toFixed(2);
-    const estimatedApr = '12.4';
-
     // Check if form is valid
     const isFormValid =
         selectedToken &&
@@ -193,8 +188,6 @@ const StakingForm = ({
                     <PositionSummary
                         tokenAmount={amount}
                         tokenSymbol={selectedToken}
-                        mintAmount={estimatedMintAmount}
-                        estimatedApr={estimatedApr}
                     />
                 )}
 
