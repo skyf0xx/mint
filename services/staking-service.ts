@@ -117,6 +117,7 @@ export async function getTokenBalance(
  * @param userAddress User's wallet address
  * @returns Array of staking positions
  */
+// services/staking-service.ts
 export async function getUserPositions(
     userAddress: string
 ): Promise<StakingPosition[]> {
@@ -131,57 +132,68 @@ export async function getUserPositions(
             CACHE_EXPIRY.MINUTE * 5,
             userAddress
         );
+
         if (!response?.Messages?.[0]?.Data) {
             return []; // No positions or invalid response
         }
 
         const positionsData = JSON.parse(response.Messages[0].Data);
+        const positions: StakingPosition[] = [];
 
-        // Map API response to our StakingPosition interface
-        return positionsData.map(
-            (pos: {
-                stakedDate: string | number | Date;
-                id: string;
-                token: string;
-                tokenAddress: string;
-                initialAmount: string;
-                currentValue: string;
+        // The contract returns positions as an object with token addresses as keys
+        for (const [tokenAddress, posData] of Object.entries(positionsData)) {
+            const position = posData as {
+                name: string;
+                amount: string;
+                formattedAmount: string;
                 lpTokens: string;
-                estimatedRewards: string;
-                initialPriceRatio: string;
-                finalPriceRatio: string;
-            }) => {
-                // Calculate IL protection percentage based on staking date
-                const stakedDate = new Date(pos.stakedDate);
-                const now = new Date();
-                const daysStaked = Math.floor(
-                    (now.getTime() - stakedDate.getTime()) /
-                        (1000 * 60 * 60 * 24)
-                );
-                const ilProtectionPercentage = Math.min(
-                    (daysStaked / MAX_VESTING_DAYS) * MAX_COVERAGE_PERCENTAGE,
-                    MAX_COVERAGE_PERCENTAGE
-                );
+                formattedLpTokens: string;
+                mintAmount: string;
+                timeStaked: string;
+                amm: string;
+            };
 
-                return {
-                    id: pos.id,
-                    token: pos.token,
-                    tokenAddress: pos.tokenAddress,
-                    initialAmount: pos.initialAmount,
-                    currentValue: pos.currentValue,
-                    stakedDate,
-                    ilProtectionPercentage,
-                    lpTokens: pos.lpTokens,
-                    estimatedRewards: pos.estimatedRewards || '0',
-                    initialPriceRatio: pos.initialPriceRatio,
-                    finalPriceRatio: pos.finalPriceRatio,
-                };
-            }
-        );
+            // Calculate IL protection percentage based on staking duration
+            const daysStaked = calculateDaysFromTimeStaked(position.timeStaked);
+            const ilProtectionPercentage = Math.min(
+                (daysStaked / MAX_VESTING_DAYS) * MAX_COVERAGE_PERCENTAGE,
+                MAX_COVERAGE_PERCENTAGE
+            );
+
+            positions.push({
+                id: `${tokenAddress}-${Date.now()}`, // Generate unique ID
+                token: position.name,
+                tokenAddress: tokenAddress,
+                initialAmount: position.formattedAmount,
+                currentValue: position.formattedAmount, // Will need price adjustment in production
+                stakedDate: calculateStakedDate(position.timeStaked),
+                ilProtectionPercentage,
+                lpTokens: position.formattedLpTokens,
+                estimatedRewards: '0', // Needs calculation in production
+                timeStaked: position.timeStaked,
+            });
+        }
+
+        return positions;
     } catch (error) {
         console.error('Error fetching user positions:', error);
         return [];
     }
+}
+
+// Helper function to calculate days from timeStaked string
+function calculateDaysFromTimeStaked(timeStaked: string): number {
+    // Parse timeStaked format (e.g., "14d 6h")
+    const dayMatch = timeStaked.match(/(\d+)d/);
+    return dayMatch ? parseInt(dayMatch[1]) : 0;
+}
+
+// Helper function to calculate staked date from timeStaked string
+function calculateStakedDate(timeStaked: string): Date {
+    const days = calculateDaysFromTimeStaked(timeStaked);
+    const date = new Date();
+    date.setDate(date.getDate() - days);
+    return date;
 }
 
 /**
@@ -224,6 +236,9 @@ export async function getPositionDetails(
             MAX_COVERAGE_PERCENTAGE
         );
 
+        // Format timeStaked string
+        const timeStaked = formatTimeStaked(stakedDate, now);
+
         return {
             id: positionData.id,
             token: positionData.token,
@@ -236,6 +251,7 @@ export async function getPositionDetails(
             estimatedRewards: positionData.estimatedRewards || '0',
             initialPriceRatio: positionData.initialPriceRatio,
             finalPriceRatio: positionData.finalPriceRatio,
+            timeStaked: timeStaked, // Add the timeStaked property
         };
     } catch (error) {
         console.error(
@@ -243,6 +259,21 @@ export async function getPositionDetails(
             error
         );
         return null;
+    }
+}
+
+// Helper function to format time staked
+function formatTimeStaked(stakedDate: Date, now: Date = new Date()): string {
+    const diffMs = now.getTime() - stakedDate.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const diffHours = Math.floor(
+        (diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+
+    if (diffDays > 0) {
+        return `${diffDays}d ${diffHours}h`;
+    } else {
+        return `${diffHours}h`;
     }
 }
 
@@ -443,6 +474,7 @@ export async function getCurrentPriceRatio(
  * @param userAddress User's wallet address
  * @returns Dashboard metrics or default values if unavailable
  */
+// services/staking-service.ts
 export async function getDashboardMetrics(userAddress: string) {
     try {
         const positions = await getUserPositions(userAddress);
@@ -450,39 +482,67 @@ export async function getDashboardMetrics(userAddress: string) {
         if (positions.length === 0) {
             return {
                 totalStaked: '0',
+                totalTokens: '0',
                 averageILProtection: 0,
-                totalEarned: '0',
+                positionsCount: 0,
+                oldestPosition: '0d',
             };
         }
 
-        // Calculate total staked value
+        // Calculate total staked value (sum of formatted amounts)
         const totalStaked = positions
-            .reduce((sum, pos) => sum + parseFloat(pos.currentValue), 0)
+            .reduce((sum, pos) => sum + parseFloat(pos.initialAmount), 0)
             .toFixed(2);
 
-        // Calculate average IL protection
+        // Group tokens by symbol for better display
+        const tokenGroups = positions.reduce((groups, pos) => {
+            if (!groups[pos.token]) {
+                groups[pos.token] = 0;
+            }
+            groups[pos.token] += parseFloat(pos.initialAmount);
+            return groups;
+        }, {} as Record<string, number>);
+
+        // Format token totals for display
+        const totalTokens = Object.entries(tokenGroups)
+            .map(([token, amount]) => `${amount.toFixed(2)} ${token}`)
+            .join(', ');
+
+        // Calculate average IL protection percentage
         const averageILProtection =
             positions.reduce(
                 (sum, pos) => sum + pos.ilProtectionPercentage,
                 0
             ) / positions.length;
 
-        // Calculate total estimated rewards
-        const totalEarned = positions
-            .reduce((sum, pos) => sum + parseFloat(pos.estimatedRewards), 0)
-            .toFixed(2);
+        // Count positions
+        const positionsCount = positions.length;
+
+        // Find the oldest position (for IL vesting context)
+        const oldestPosition =
+            positions
+                .map((pos) => pos.timeStaked)
+                .sort((a, b) => {
+                    const daysA = calculateDaysFromTimeStaked(a);
+                    const daysB = calculateDaysFromTimeStaked(b);
+                    return daysB - daysA; // Descending order
+                })[0] || '0d';
 
         return {
             totalStaked,
+            totalTokens,
             averageILProtection,
-            totalEarned,
+            positionsCount,
+            oldestPosition,
         };
     } catch (error) {
         console.error('Error calculating dashboard metrics:', error);
         return {
             totalStaked: '0',
+            totalTokens: '0',
             averageILProtection: 0,
-            totalEarned: '0',
+            positionsCount: 0,
+            oldestPosition: '0d',
         };
     }
 }
