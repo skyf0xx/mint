@@ -42,7 +42,7 @@ const TokenSelector = ({
                     {tokens.map((token) => (
                         <SelectItem key={token.value} value={token.value}>
                             {token.label}
-                            {token.balance && (
+                            {token.balance && token.balance != '0' && (
                                 <span className="ml-2 text-gray-500 text-sm">
                                     ({token.balance})
                                 </span>

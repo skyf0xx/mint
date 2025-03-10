@@ -66,15 +66,7 @@ const StakingForm = ({
                     });
             }
         }
-    }, [address, selectedToken, availableTokens]);
-
-    // Set initial selected token when available tokens are loaded
-    useEffect(() => {
-        if (availableTokens.length > 0 && !selectedToken) {
-            setSelectedToken(availableTokens[0].symbol);
-            setSelectedTokenAddress(availableTokens[0].address);
-        }
-    }, [availableTokens, selectedToken]);
+    }, [address, selectedToken]);
 
     // Handle max button click
     const handleMaxClick = () => {
