@@ -12,6 +12,11 @@ const MAX_COVERAGE_PERCENTAGE = 50;
 const MAX_COMPENSATION_CAP = 50000; // 50,000 MINT tokens maximum compensation
 
 function symbolFromName(name: string): string {
+    const match = name.match(/\(([^)]+)\)/);
+    return match ? match[1] : '';
+}
+
+function extractName(name: string): string {
     return name.split('(')[0].trim();
 }
 
@@ -44,7 +49,7 @@ export async function getAllowedTokens(): Promise<TokenInfo[]> {
                     amm: string;
                 }) => ({
                     address: token.address,
-                    name: token.name || token.symbol,
+                    name: extractName(token.name),
                     symbol: symbolFromName(token.name),
                     decimals: token.decimals || 8,
                     ammAddress: token.amm,
