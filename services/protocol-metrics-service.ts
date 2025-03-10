@@ -1,9 +1,12 @@
 // services/protocol-metrics-service.ts
-import { MINT_PROCESS, sendAndGetResult } from '@/lib/wallet-actions';
+import {
+    getBalance,
+    MINT_PROCESS,
+    sendAndGetResult,
+} from '@/lib/wallet-actions';
 import { withRetry } from '@/lib/utils';
 import { CACHE_EXPIRY } from '@/lib/cache';
 import { ProtocolMetricsData } from '@/hooks/use-protocol-metrics';
-import { adjustDecimalString } from '@/lib/utils';
 
 // Constants
 const MINT_TOKEN = 'SWQx44W-1iMwGFBSHlC3lStCq3Z7O2WZrx9quLeZOu0';
@@ -52,50 +55,18 @@ export async function getTreasuryBalance(): Promise<{
     formattedBalance: string;
 } | null> {
     try {
-        const tags = [
-            { name: 'Action', value: 'Balance' },
-            { name: 'Target', value: MINT_PROCESS },
-        ];
-
-        return await withRetry(async () => {
-            const response = await sendAndGetResult(
-                MINT_TOKEN,
-                tags,
-                false,
-                CACHE_EXPIRY.HOUR
-            );
-
-            if (!response?.Messages?.[0]?.Tags) {
-                throw new Error('No treasury balance data in response');
-            }
-
-            // Extract balance from tags
-            const balanceTag = response.Messages[0].Tags.find(
-                (tag: { name: string; value: string }) => tag.name === 'Balance'
-            );
-
-            const denominationTag = response.Messages[0].Tags.find(
-                (tag: { name: string; value: string }) =>
-                    tag.name === 'Denomination'
-            );
-
-            if (!balanceTag) {
-                throw new Error('Balance tag not found in response');
-            }
-
-            const balance = balanceTag.value;
-            const denomination = denominationTag
-                ? parseInt(denominationTag.value)
-                : 8;
-
-            // Adjust balance with proper decimal places
-            const formattedBalance = adjustDecimalString(balance, denomination);
-
+        const balance = (await getBalance(MINT_PROCESS, MINT_TOKEN, 8)) || null;
+        if (balance) {
             return {
-                balance,
-                formattedBalance,
+                balance: balance.balance.padEnd(
+                    balance.balance.length + 8,
+                    '0'
+                ),
+                formattedBalance: balance.balance,
             };
-        });
+        } else {
+            return null;
+        }
     } catch (error) {
         console.error('Error fetching treasury balance:', error);
         return null;

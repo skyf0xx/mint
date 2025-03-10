@@ -2,9 +2,13 @@
 
 import { sendMessage } from '@/lib/messages';
 import { StakingPosition, TokenInfo, ILProtectionInfo } from '@/types/staking';
-import { adjustDecimalString, withRetry } from '@/lib/utils';
+import { withRetry } from '@/lib/utils';
 import { CACHE_EXPIRY } from '@/lib/cache';
-import { MINT_PROCESS, sendAndGetResult } from '@/lib/wallet-actions';
+import {
+    getBalance,
+    MINT_PROCESS,
+    sendAndGetResult,
+} from '@/lib/wallet-actions';
 
 // Constants
 const MAX_VESTING_DAYS = 30;
@@ -68,55 +72,58 @@ export async function getAllowedTokens(): Promise<TokenInfo[]> {
  * @param userAddress User's wallet address
  * @returns Token balance and symbol information
  */
+const tokenInfo = [
+    {
+        tokenAddress: 'NG-0lVX882MG5nhARrSzyprEK6ejonHpdUmaaMPsHE8',
+        symbol: 'qAR',
+        decimals: 12,
+    },
+    {
+        tokenAddress: 'xU9zFkq3X2ZQ6olwNVvr1vUWIjc3kXTWr7xKQD6dh10',
+        symbol: 'wAR',
+        decimals: 12,
+    },
+    {
+        tokenAddress: 'OsK9Vgjxo0ypX_HLz2iJJuh4hp3I80yA9KArsJjIloU',
+        symbol: 'NAB',
+        decimals: 8,
+    },
+    {
+        tokenAddress: '0syT13r0s0tgPmIed95bJnuSqaD29HQNN8D3ElLSrsc',
+        symbol: 'AO',
+        decimals: 12,
+    },
+    {
+        tokenAddress: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
+        symbol: 'USDC',
+        decimals: 6,
+    },
+];
+
 export async function getTokenBalance(
     tokenAddress: string,
     userAddress: string
 ): Promise<{ balance: string; symbol: string; decimals: number } | null> {
     try {
-        const response = await sendAndGetResult(
+        const token = tokenInfo.find((t) => t.tokenAddress === tokenAddress);
+        if (!token) {
+            throw new Error('Token not found in staking service');
+        }
+
+        const balanceData = await getBalance(
+            userAddress,
             tokenAddress,
-            [
-                { name: 'Action', value: 'Balance' },
-                { name: 'Target', value: userAddress },
-            ],
-            false,
-            false // Don't cache balance as it changes frequently
+            token.decimals
         );
-
-        if (!response?.Messages?.[0]?.Tags) {
-            throw new Error('Invalid response format for token balance');
-        }
-
-        // Extract data from tags
-        const tags = response.Messages[0].Tags;
-        const balance = tags.find(
-            (tag: { name: string }) => tag.name === 'Balance'
-        )?.value;
-        const symbol = tags.find(
-            (tag: { name: string }) => tag.name === 'Ticker'
-        )?.value;
-        const decimals = Number(
-            tags.find((tag: { name: string }) => tag.name === 'Denomination')
-                ?.value || '8'
-        );
-
-        if (!balance || !symbol) {
-            throw new Error('Missing balance or symbol in response');
-        }
-
-        // Adjust balance with proper decimal places
-        const adjustedBalance = adjustDecimalString(balance, decimals);
+        if (!balanceData) return null;
 
         return {
-            balance: adjustedBalance,
-            symbol,
-            decimals,
+            balance: balanceData.balance,
+            symbol: token.symbol,
+            decimals: token.decimals,
         };
     } catch (error) {
-        console.error(
-            `Error fetching balance for token ${tokenAddress}:`,
-            error
-        );
+        console.error('Error fetching token balance:', error);
         return null;
     }
 }
