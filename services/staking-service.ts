@@ -41,13 +41,13 @@ export async function getAllowedTokens(): Promise<TokenInfo[]> {
                     name: string;
                     symbol: string;
                     decimals: string;
-                    ammAddress: string;
+                    amm: string;
                 }) => ({
                     address: token.address,
                     name: token.name || token.symbol,
                     symbol: symbolFromName(token.name),
                     decimals: token.decimals || 8,
-                    ammAddress: token.ammAddress,
+                    ammAddress: token.amm,
                 })
             );
         });
