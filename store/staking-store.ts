@@ -282,11 +282,7 @@ export const useStakingStore = create<StakingState>()(
                     }
 
                     // Perform unstaking
-                    await unstakeTokens(
-                        positionId,
-                        position.tokenAddress,
-                        amount
-                    );
+                    await unstakeTokens(position.tokenAddress, amount);
 
                     toast({
                         title: 'Unstaking Initiated',
