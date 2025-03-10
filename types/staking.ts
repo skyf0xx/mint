@@ -4,6 +4,7 @@ import { JWK } from '@/lib/wallet-actions';
 /**
  * Represents a user's staking position in a liquidity pool
  */
+// types/staking.ts (update to the existing interface)
 export interface StakingPosition {
     /** Unique identifier for the position */
     id: string;
@@ -31,6 +32,9 @@ export interface StakingPosition {
 
     /** Estimated rewards accrued */
     estimatedRewards: string;
+
+    /** Time staked as formatted string (e.g., "14d 6h") */
+    timeStaked: string;
 
     /** Final price ratio at the time of unstaking (token/MINT) */
     finalPriceRatio?: number;
@@ -173,15 +177,22 @@ export interface ApiRequest {
 /**
  * Dashboard metrics data
  */
+// Add to types/staking.ts
 export interface DashboardMetrics {
     /** Total value staked across all positions */
     totalStaked: string;
 
+    /** Total tokens staked by symbol */
+    totalTokens: string;
+
     /** Average IL protection percentage */
     averageILProtection: number;
 
-    /** Total earnings from staking */
-    totalEarned: string;
+    /** Number of active staking positions */
+    positionsCount: number;
+
+    /** Age of oldest staking position */
+    oldestPosition: string;
 }
 
 /**
