@@ -11,6 +11,10 @@ const MAX_VESTING_DAYS = 30;
 const MAX_COVERAGE_PERCENTAGE = 50;
 const MAX_COMPENSATION_CAP = 50000; // 50,000 MINT tokens maximum compensation
 
+function symbolFromName(name: string): string {
+    return name.split('(')[0].trim();
+}
+
 /**
  * Fetches all tokens supported by the staking protocol
  * @returns Array of token information
@@ -41,7 +45,7 @@ export async function getAllowedTokens(): Promise<TokenInfo[]> {
                 }) => ({
                     address: token.address,
                     name: token.name || token.symbol,
-                    symbol: token.symbol,
+                    symbol: symbolFromName(token.name),
                     decimals: token.decimals || 8,
                     ammAddress: token.ammAddress,
                 })
