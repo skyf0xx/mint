@@ -7,7 +7,7 @@ import {
     CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Info } from 'lucide-react';
+import { Info, Loader2 } from 'lucide-react';
 import TokenSelector from './token-selector';
 import AmountInput from './amount-input';
 import PositionSummary from './position-summary';
@@ -36,6 +36,7 @@ const StakingForm = ({
     const [selectedTokenAddress, setSelectedTokenAddress] = useState('');
     const [amount, setAmount] = useState('');
     const [balance, setBalance] = useState('0');
+    const [fetchingBalance, setFetchingBalance] = useState(false);
     const [txStatus, setTxStatus] = useState<{
         status: 'pending' | 'success' | 'error' | null;
         message: string;
@@ -51,6 +52,9 @@ const StakingForm = ({
             if (token) {
                 setSelectedTokenAddress(token.address);
 
+                // Set loading state to true
+                setFetchingBalance(true);
+
                 // Fetch balance for the selected token
                 fetchTokenBalance(token.address, address)
                     .then((balanceData) => {
@@ -63,6 +67,10 @@ const StakingForm = ({
                     .catch((err) => {
                         console.error('Error fetching balance:', err);
                         setBalance('0');
+                    })
+                    .finally(() => {
+                        // Set loading state to false when done
+                        setFetchingBalance(false);
                     });
             }
         }
@@ -165,6 +173,22 @@ const StakingForm = ({
                     tokenSymbol={selectedToken}
                 />
 
+                {selectedToken && (
+                    <div className="flex items-center text-sm px-1 text-gray-600">
+                        <span>Balance: </span>
+                        {fetchingBalance ? (
+                            <span className="flex items-center ml-2">
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Loading...
+                            </span>
+                        ) : (
+                            <span className="ml-2 font-medium">
+                                {balance} {selectedToken}
+                            </span>
+                        )}
+                    </div>
+                )}
+
                 {amount && parseFloat(amount) > 0 && (
                     <PositionSummary
                         tokenAmount={amount}
@@ -207,7 +231,8 @@ const StakingForm = ({
                     disabled={
                         !isFormValid ||
                         isStaking ||
-                        txStatus.status === 'pending'
+                        txStatus.status === 'pending' ||
+                        fetchingBalance
                     }
                 >
                     {isStaking || txStatus.status === 'pending'
