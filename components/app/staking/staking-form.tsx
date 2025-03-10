@@ -66,7 +66,7 @@ const StakingForm = ({
                     });
             }
         }
-    }, [address, selectedToken, availableTokens, fetchTokenBalance]);
+    }, [address, selectedToken, availableTokens]);
 
     // Set initial selected token when available tokens are loaded
     useEffect(() => {

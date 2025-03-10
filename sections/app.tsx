@@ -45,7 +45,7 @@ const App = () => {
         if (connected && address && selectedPositionId) {
             fetchPositionDetails(selectedPositionId, address);
         }
-    }, [connected, address, selectedPositionId, fetchPositionDetails]);
+    }, [connected, address, selectedPositionId]);
 
     // Event handlers
     const handleStartStaking = () => {

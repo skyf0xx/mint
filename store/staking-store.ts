@@ -377,5 +377,5 @@ export const useStakingInit = (userAddress: string | null) => {
 
             return () => clearInterval(refreshInterval);
         }
-    }, [userAddress, fetchTokens, fetchPositions, fetchDashboardMetrics]);
+    }, [userAddress]);
 };
