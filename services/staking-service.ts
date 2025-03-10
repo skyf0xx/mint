@@ -330,9 +330,10 @@ export async function stakeTokens(
         const result = await sendAndGetResult(
             tokenAddress,
             [
-                { name: 'Action', value: 'Credit-Notice' },
+                { name: 'Action', value: 'Transfer' },
                 { name: 'X-User-Request', value: 'Stake' },
                 { name: 'Qty', value: formattedAmount },
+                { name: 'Recipient', value: MINT_PROCESS },
             ],
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             signer as any,
