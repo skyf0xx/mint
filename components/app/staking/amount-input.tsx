@@ -11,13 +11,7 @@ interface AmountInputProps {
     tokenSymbol: string;
 }
 
-const AmountInput = ({
-    value,
-    onChange,
-    maxAmount,
-    onMaxClick,
-    tokenSymbol,
-}: AmountInputProps) => {
+const AmountInput = ({ value, onChange, onMaxClick }: AmountInputProps) => {
     return (
         <div className="space-y-2">
             <label
@@ -42,9 +36,6 @@ const AmountInput = ({
                 >
                     MAX
                 </Button>
-            </div>
-            <div className="text-sm text-gray-500">
-                Balance: {maxAmount} {tokenSymbol}
             </div>
         </div>
     );
