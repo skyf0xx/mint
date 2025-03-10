@@ -2,9 +2,9 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Loader2, Coins } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-
+import CountUp from 'react-countup';
+import { useInView } from 'react-intersection-observer';
 import { useProtocolMetrics } from '@/hooks/use-protocol-metrics';
-import { formatNumber } from '@/lib/utils';
 import Image from 'next/image';
 
 // Utility function to strip the bracket part from token names
@@ -26,7 +26,56 @@ interface TokenCardProps {
     delay: number;
     loading: boolean;
     iconUrl?: string;
+    inView: boolean;
 }
+
+const FormattedCountUp = ({
+    end,
+    decimals = 2,
+    duration = 2.5,
+    delay = 0,
+    inView = false,
+}: {
+    end: number;
+    decimals?: number;
+    duration?: number;
+    delay?: number;
+    inView?: boolean;
+}) => {
+    // Use state to track if animation has completed
+    const [hasAnimated, setHasAnimated] = React.useState(false);
+
+    // Only animate if in view and hasn't animated yet
+    const shouldAnimate = inView && !hasAnimated;
+
+    React.useEffect(() => {
+        if (inView && !hasAnimated) {
+            // Set a timeout slightly longer than animation duration to mark as completed
+            const timer = setTimeout(() => {
+                setHasAnimated(true);
+            }, (duration + delay) * 1000 + 500);
+
+            return () => clearTimeout(timer);
+        }
+    }, [inView, hasAnimated, duration, delay]);
+
+    return (
+        <CountUp
+            end={end}
+            decimals={decimals}
+            duration={duration}
+            delay={delay}
+            separator=","
+            decimal="."
+            prefix=""
+            suffix=""
+            useEasing={true}
+            startOnMount={false}
+            start={shouldAnimate ? 0 : end}
+            preserveValue={true}
+        />
+    );
+};
 
 const TokenCard = ({
     name,
@@ -38,11 +87,16 @@ const TokenCard = ({
     loading,
     iconUrl,
 }: TokenCardProps) => {
-    // Format amount with commas
-    const formattedAmount = formatNumber(parseFloat(amount), decimals);
+    // Parse amount to number for CountUp
+    const amountValue = parseFloat(amount);
+    const [cardRef, cardInView] = useInView({
+        triggerOnce: true,
+        threshold: 0.3,
+    });
 
     return (
         <motion.div
+            ref={cardRef}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay }}
@@ -51,14 +105,15 @@ const TokenCard = ({
             <Card className="h-full hover:shadow-md transition-all duration-300">
                 <CardContent className="p-4">
                     <div className="flex items-center gap-3 mb-3">
-                        {' '}
-                        <Image
-                            src={iconUrl as string}
-                            alt={symbol}
-                            className="w-8 h-8 rounded-full"
-                            width={32}
-                            height={32}
-                        />
+                        {iconUrl && (
+                            <Image
+                                src={iconUrl}
+                                alt={symbol}
+                                className="w-8 h-8 rounded-full"
+                                width={32}
+                                height={32}
+                            />
+                        )}
                         <div>
                             <h3 className="font-medium text-gray-900">
                                 {name}
@@ -79,7 +134,12 @@ const TokenCard = ({
                                     Total Staked
                                 </p>
                                 <p className="text-2xl font-bold text-gray-900">
-                                    {formattedAmount}{' '}
+                                    <FormattedCountUp
+                                        end={amountValue}
+                                        decimals={decimals}
+                                        delay={delay * 0.5}
+                                        inView={cardInView}
+                                    />{' '}
                                     <span className="text-sm font-normal">
                                         {symbol}
                                     </span>
@@ -91,7 +151,12 @@ const TokenCard = ({
                                     Active Positions
                                 </p>
                                 <p className="text-lg font-semibold">
-                                    {activePositions}
+                                    <FormattedCountUp
+                                        end={activePositions}
+                                        decimals={0}
+                                        delay={delay * 0.5}
+                                        inView={cardInView}
+                                    />
                                 </p>
                             </div>
                         </div>
@@ -104,6 +169,17 @@ const TokenCard = ({
 
 const ProtocolMetrics = () => {
     const { metrics, loading } = useProtocolMetrics();
+    // Main section ref for overall visibility with triggerOnce
+    const [sectionRef, sectionInView] = useInView({
+        triggerOnce: true,
+        threshold: 0.1,
+    });
+
+    // Treasury counter with triggerOnce
+    const [treasuryRef, treasuryInView] = useInView({
+        triggerOnce: true,
+        threshold: 0.5,
+    });
 
     // Get array of token metrics - always sorted by positions
     const getTokenMetrics = () => {
@@ -128,6 +204,7 @@ const ProtocolMetrics = () => {
 
     const tokenMetrics = getTokenMetrics();
     const treasuryBalance = metrics?.formattedTreasuryBalance || '0';
+    const treasuryBalanceNumber = parseFloat(treasuryBalance.replace(/,/g, ''));
 
     // Get token icons map - in a real app, you would have a proper mapping
     const tokenIcons: Record<string, string> = {
@@ -176,6 +253,7 @@ const ProtocolMetrics = () => {
     return (
         <section
             id="metrics"
+            ref={sectionRef}
             className="container mx-auto px-4 py-24 relative bg-gradient-to-b from-transparent to-gray-50/30"
         >
             {/* Centered section header - matches other sections */}
@@ -201,6 +279,7 @@ const ProtocolMetrics = () => {
                 <CardContent className="pt-6">
                     {/* Main metrics summary - prominence and spacing adjusted */}
                     <motion.div
+                        ref={treasuryRef}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="mb-10"
@@ -233,7 +312,11 @@ const ProtocolMetrics = () => {
                             ) : (
                                 <div className="flex flex-col items-center">
                                     <div className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
-                                        {treasuryBalance}
+                                        <FormattedCountUp
+                                            end={treasuryBalanceNumber}
+                                            duration={3}
+                                            inView={treasuryInView}
+                                        />
                                         <span className="text-xl font-semibold ml-2">
                                             MINT
                                         </span>
@@ -283,6 +366,7 @@ const ProtocolMetrics = () => {
                                         iconUrl={getIconFromAddress(
                                             token.tokenAddress
                                         )}
+                                        inView={sectionInView}
                                     />
                                 ))}
                             </div>
