@@ -1,13 +1,21 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, SlidersHorizontal } from 'lucide-react';
+import { Loader2, Coins } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 import { useProtocolMetrics } from '@/hooks/use-protocol-metrics';
 import { formatNumber } from '@/lib/utils';
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+
+// Utility function to strip the bracket part from token names
+const formatTokenName = (name: string): string => {
+    // Match any text followed by a space and then text in brackets at the end of the string
+    const bracketRegex = /^(.*?)\s+\([^)]+\)$/;
+    const match = name.match(bracketRegex);
+
+    // If there's a match, return the part before the brackets, otherwise return the original name
+    return match ? match[1] : name;
+};
 
 interface TokenCardProps {
     name: string;
@@ -43,19 +51,14 @@ const TokenCard = ({
             <Card className="h-full hover:shadow-md transition-all duration-300">
                 <CardContent className="p-4">
                     <div className="flex items-center gap-3 mb-3">
-                        {iconUrl ? (
-                            <Image
-                                src={iconUrl}
-                                alt={symbol}
-                                className="w-8 h-8 rounded-full"
-                                width={32}
-                                height={32}
-                            />
-                        ) : (
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                                {symbol.charAt(0)}
-                            </div>
-                        )}
+                        {' '}
+                        <Image
+                            src={iconUrl as string}
+                            alt={symbol}
+                            className="w-8 h-8 rounded-full"
+                            width={32}
+                            height={32}
+                        />
                         <div>
                             <h3 className="font-medium text-gray-900">
                                 {name}
@@ -101,9 +104,8 @@ const TokenCard = ({
 
 const ProtocolMetrics = () => {
     const { metrics, loading } = useProtocolMetrics();
-    const [sortBy, setSortBy] = useState<'amount' | 'positions'>('amount');
 
-    // Get array of token metrics
+    // Get array of token metrics - always sorted by positions
     const getTokenMetrics = () => {
         if (!metrics || !metrics.tokenMetrics) return [];
 
@@ -118,16 +120,10 @@ const ProtocolMetrics = () => {
             })
         );
 
-        // Sort based on selected criteria
-        if (sortBy === 'amount') {
-            return tokenMetricsArray.sort(
-                (a, b) => b.amountNumber - a.amountNumber
-            );
-        } else {
-            return tokenMetricsArray.sort(
-                (a, b) => b.activePositions - a.activePositions
-            );
-        }
+        // Always sort by positions
+        return tokenMetricsArray.sort(
+            (a, b) => b.activePositions - a.activePositions
+        );
     };
 
     const tokenMetrics = getTokenMetrics();
@@ -135,13 +131,47 @@ const ProtocolMetrics = () => {
 
     // Get token icons map - in a real app, you would have a proper mapping
     const tokenIcons: Record<string, string> = {
-        qAR: '/icons/qar.svg',
-        wAR: '/icons/war.svg',
-        NAB: '/icons/nab.svg',
-        AO: '/icons/ao.svg',
-        USDC: '/icons/usdc.svg',
-        MINT: '/icons/mint.svg',
+        qAR: '/images/currencies/qar.png',
+        wAR: '/images/currencies/war.png',
+        NAB: '/images/currencies/nab.jpeg',
+        AO: '/images/currencies/ao.png',
+        USDC: '/images/currencies/usdc.svg',
+        MINT: '/images/currencies/mint.png',
     };
+
+    function getIconFromAddress(tokenAddress: string) {
+        switch (tokenAddress) {
+            case 'NG-0lVX882MG5nhARrSzyprEK6ejonHpdUmaaMPsHE8':
+                return tokenIcons['qAR'];
+            case 'OsK9Vgjxo0ypX_HLz2iJJuh4hp3I80yA9KArsJjIloU':
+                return tokenIcons['NAB'];
+            case '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ':
+                return tokenIcons['USDC'];
+            case 'xU9zFkq3X2ZQ6olwNVvr1vUWIjc3kXTWr7xKQD6dh10':
+                return tokenIcons['wAR'];
+            case '0syT13r0s0tgPmIed95bJnuSqaD29HQNN8D3ElLSrsc':
+                return tokenIcons['AO'];
+            default:
+                return '';
+        }
+    }
+
+    function getSymbolFromAddress(tokenAddress: string) {
+        switch (tokenAddress) {
+            case 'NG-0lVX882MG5nhARrSzyprEK6ejonHpdUmaaMPsHE8':
+                return 'qAR';
+            case 'OsK9Vgjxo0ypX_HLz2iJJuh4hp3I80yA9KArsJjIloU':
+                return 'NAB';
+            case '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ':
+                return 'USDC';
+            case 'xU9zFkq3X2ZQ6olwNVvr1vUWIjc3kXTWr7xKQD6dh10':
+                return 'wAR';
+            case '0syT13r0s0tgPmIed95bJnuSqaD29HQNN8D3ElLSrsc':
+                return 'AO';
+            default:
+                return '';
+        }
+    }
 
     return (
         <section
@@ -179,9 +209,7 @@ const ProtocolMetrics = () => {
                             {/* Treasury Title Section - centered */}
                             <div className="flex items-center">
                                 <Image
-                                    src={
-                                        tokenIcons['MINT'] || '/icons/mint.svg'
-                                    }
+                                    src={tokenIcons['MINT']}
                                     alt="MINT Token"
                                     className="w-6 h-6 mr-2"
                                     width={24}
@@ -222,54 +250,11 @@ const ProtocolMetrics = () => {
 
                     {/* Token breakdown section - centered header */}
                     <div className="mb-6">
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 border-b pb-4">
-                            <div className="flex items-center mx-auto sm:mx-0 mb-4 sm:mb-0">
-                                <SlidersHorizontal className="w-5 h-5 mr-2 text-primary" />
-                                <h4 className="text-xl font-bold text-gray-800">
-                                    Currently Staked Tokens
-                                </h4>
-                            </div>
-
-                            {/* Sorting controls - improved visual design */}
-                            <div className="flex items-center rounded-lg border bg-gray-50 p-1 mx-auto sm:mx-0">
-                                <span className="text-sm text-gray-500 mr-2 pl-2">
-                                    Sort by:
-                                </span>
-                                <div className="flex rounded-md overflow-hidden">
-                                    <Button
-                                        variant={
-                                            sortBy === 'amount'
-                                                ? 'default'
-                                                : 'ghost'
-                                        }
-                                        size="sm"
-                                        onClick={() => setSortBy('amount')}
-                                        className={`text-xs py-1 px-3 h-8 ${
-                                            sortBy === 'amount'
-                                                ? 'bg-primary text-white'
-                                                : 'bg-transparent hover:bg-gray-100 text-gray-700'
-                                        }`}
-                                    >
-                                        Amount
-                                    </Button>
-                                    <Button
-                                        variant={
-                                            sortBy === 'positions'
-                                                ? 'default'
-                                                : 'ghost'
-                                        }
-                                        size="sm"
-                                        onClick={() => setSortBy('positions')}
-                                        className={`text-xs py-1 px-3 h-8 ${
-                                            sortBy === 'positions'
-                                                ? 'bg-primary text-white'
-                                                : 'bg-transparent hover:bg-gray-100 text-gray-700'
-                                        }`}
-                                    >
-                                        Positions
-                                    </Button>
-                                </div>
-                            </div>
+                        <div className="flex items-center justify-center sm:justify-start mb-6 border-b pb-4">
+                            <Coins className="w-5 h-5 mr-2 text-primary" />
+                            <h4 className="text-xl font-bold text-gray-800">
+                                Currently Staked Tokens
+                            </h4>
                         </div>
 
                         {tokenMetrics.length === 0 && !loading ? (
@@ -283,12 +268,10 @@ const ProtocolMetrics = () => {
                                 {tokenMetrics.map((token, index) => (
                                     <TokenCard
                                         key={token.tokenAddress}
-                                        name={token.name}
-                                        symbol={
-                                            token.name.includes(' ')
-                                                ? token.name.split(' ')[0]
-                                                : token.name
-                                        }
+                                        name={formatTokenName(token.name)}
+                                        symbol={getSymbolFromAddress(
+                                            token.tokenAddress
+                                        )}
                                         amount={(
                                             parseFloat(token.totalStaked) /
                                             Math.pow(10, token.decimals || 8)
@@ -297,11 +280,9 @@ const ProtocolMetrics = () => {
                                         decimals={2}
                                         delay={0.1 + index * 0.05}
                                         loading={loading}
-                                        iconUrl={
-                                            tokenIcons[
-                                                token.name.split(' ')[0]
-                                            ] || undefined
-                                        }
+                                        iconUrl={getIconFromAddress(
+                                            token.tokenAddress
+                                        )}
                                     />
                                 ))}
                             </div>
