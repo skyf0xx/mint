@@ -123,7 +123,8 @@ export interface TokenBalance {
 // New getBalance function
 export async function getBalance(
     address: string,
-    token: string
+    token: string,
+    tokenDenomination: number | false = false
 ): Promise<TokenBalance | null> {
     const tags = [
         { name: 'Action', value: 'Balance' },
@@ -142,7 +143,8 @@ export async function getBalance(
             return null;
         }
 
-        const denomination = await getTokenDenomination(token);
+        const denomination =
+            tokenDenomination || (await getTokenDenomination(token));
         const adjustedBalance = adjustDecimalString(balance, denomination);
 
         return {
