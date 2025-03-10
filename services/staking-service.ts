@@ -369,36 +369,56 @@ export async function stakeTokens(
  * @returns Transaction ID if successful
  */
 export async function unstakeTokens(
-    positionId: string,
     tokenAddress: string,
     amount: string
-): Promise<string> {
+): Promise<boolean> {
     try {
         // Format the amount according to token decimals
         const allowedTokens = await getAllowedTokens();
         const token = allowedTokens.find((t) => t.address === tokenAddress);
-        const decimals = token?.decimals || 8;
+        const decimals = token?.decimals;
+        if (!decimals) {
+            throw new Error('Token decimals not found');
+        }
 
         // Remove decimal point and format for blockchain
         const formattedAmount = amount.replace('.', '').padEnd(decimals, '0');
 
-        // Send unstaking transaction
-        const messageId = await sendMessage(
+        // Create signer using the wallet
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const signer = createDataItemSigner((globalThis as any).arweaveWallet);
+
+        // Send unstaking transaction with proper signer
+        const result = await sendAndGetResult(
             MINT_PROCESS,
             [
                 { name: 'Action', value: 'Unstake' },
                 { name: 'Token', value: tokenAddress },
-                { name: 'Position-ID', value: positionId },
                 { name: 'Amount', value: formattedAmount },
             ],
-            true // Use real signer
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            signer as any,
+            false
         );
 
-        if (!messageId) {
-            throw new Error('Failed to initiate unstaking transaction');
+        // Handle error in result
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((result as any).Error) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            throw new Error((result as any).Error);
         }
 
-        return messageId;
+        // Check for error tags in the response
+        if (result.Messages && result.Messages.length > 0) {
+            const errorTag = result.Messages[0].Tags.find(
+                (tag) => tag.name === 'Error'
+            );
+            if (errorTag) {
+                throw new Error(errorTag.value);
+            }
+            return true;
+        }
+        return false;
     } catch (error) {
         console.error('Error unstaking tokens:', error);
         throw error;
