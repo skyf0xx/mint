@@ -475,24 +475,19 @@ export async function getCurrentPriceRatio(
  * @returns Dashboard metrics or default values if unavailable
  */
 // services/staking-service.ts
+// services/staking-service.ts (updated getDashboardMetrics function)
 export async function getDashboardMetrics(userAddress: string) {
     try {
         const positions = await getUserPositions(userAddress);
 
         if (positions.length === 0) {
             return {
-                totalStaked: '0',
                 totalTokens: '0',
                 averageILProtection: 0,
                 positionsCount: 0,
                 oldestPosition: '0d',
             };
         }
-
-        // Calculate total staked value (sum of formatted amounts)
-        const totalStaked = positions
-            .reduce((sum, pos) => sum + parseFloat(pos.initialAmount), 0)
-            .toFixed(2);
 
         // Group tokens by symbol for better display
         const tokenGroups = positions.reduce((groups, pos) => {
@@ -529,7 +524,6 @@ export async function getDashboardMetrics(userAddress: string) {
                 })[0] || '0d';
 
         return {
-            totalStaked,
             totalTokens,
             averageILProtection,
             positionsCount,
@@ -538,7 +532,6 @@ export async function getDashboardMetrics(userAddress: string) {
     } catch (error) {
         console.error('Error calculating dashboard metrics:', error);
         return {
-            totalStaked: '0',
             totalTokens: '0',
             averageILProtection: 0,
             positionsCount: 0,

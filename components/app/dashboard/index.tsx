@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import DashboardHeader from './header';
-import DashboardMetrics from './metrics';
 import EmptyState from './empty-state';
 import PositionsList from './positions-list';
 import LoadingState from '@/components/app/shared/loading-state';
@@ -21,7 +20,6 @@ interface DashboardProps {
 }
 
 const Dashboard = ({
-    address,
     positions,
     onStartStaking,
     onViewPosition,
@@ -41,8 +39,6 @@ const Dashboard = ({
                     <DashboardHeader title="Your Staking Dashboard" />
                 </CardHeader>
                 <CardContent className="p-6">
-                    <DashboardMetrics address={address} />
-
                     <div className="flex justify-between items-center mb-4">
                         <div className="text-lg font-semibold">
                             Your Staking Positions
