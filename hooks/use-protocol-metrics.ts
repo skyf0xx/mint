@@ -16,7 +16,6 @@ export interface TokenMetric {
 export interface ProtocolSettings {
     maxVestingDays: number;
     maxCoveragePercentage: string;
-    slippageTolerance: string;
     protocolFeePercentage: string;
     userSharePercentage: string;
 }
