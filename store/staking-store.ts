@@ -50,7 +50,7 @@ interface StakingState {
     setView: (view: AppView) => void;
 
     stakeToken: (tokenAddress: string, amount: string) => Promise<boolean>;
-    unstakePosition: (positionId: string, amount: string) => Promise<boolean>;
+    unstakePosition: (tokenAddress: string) => Promise<boolean>;
 
     checkBalance: (
         tokenAddress: string,
@@ -269,7 +269,7 @@ export const useStakingStore = create<StakingState>()(
                 }
             },
 
-            unstakePosition: async (positionId: string, amount: string) => {
+            unstakePosition: async (positionId: string) => {
                 try {
                     set({ isUnstaking: true });
 
@@ -282,7 +282,7 @@ export const useStakingStore = create<StakingState>()(
                     }
 
                     // Perform unstaking
-                    await unstakeTokens(position.tokenAddress, amount);
+                    await unstakeTokens(position.tokenAddress);
 
                     toast({
                         title: 'Unstaking Initiated',

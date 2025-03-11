@@ -61,8 +61,8 @@ const App = () => {
         return await stakeToken(tokenAddress, amount);
     };
 
-    const handleUnstakeSubmit = async (positionId: string, amount: string) => {
-        return await unstakePosition(positionId, amount);
+    const handleUnstakeSubmit = async (positionId: string) => {
+        return await unstakePosition(positionId);
     };
 
     const handleShowILInfo = () => {
