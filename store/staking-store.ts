@@ -1,6 +1,7 @@
 // store/staking-store.ts
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
+import { toast } from 'react-toastify'; // Import toast from react-toastify
 import {
     StakingPosition,
     TokenInfo,
@@ -17,8 +18,7 @@ import {
     getTokenBalance,
     checkSufficientBalance,
 } from '@/services/staking-service';
-import { toast } from '@/hooks/use-toast';
-import React from 'react';
+import { useEffect } from 'react';
 
 interface StakingState {
     // Data states
@@ -88,12 +88,12 @@ export const useStakingStore = create<StakingState>()(
                     return tokens;
                 } catch (error) {
                     console.error('Error fetching tokens:', error);
-                    toast({
-                        title: 'Failed to Load Tokens',
-                        description:
-                            'Could not retrieve available tokens for staking',
-                        variant: 'destructive',
-                    });
+                    toast.error(
+                        'Could not retrieve available tokens for staking',
+                        {
+                            autoClose: 5000,
+                        }
+                    );
                     return [];
                 } finally {
                     set({ isLoading: false });
@@ -108,11 +108,8 @@ export const useStakingStore = create<StakingState>()(
                     return positions;
                 } catch (error) {
                     console.error('Error fetching positions:', error);
-                    toast({
-                        title: 'Failed to Load Positions',
-                        description:
-                            'Could not retrieve your staking positions',
-                        variant: 'destructive',
+                    toast.error('Could not retrieve your staking positions', {
+                        autoClose: 5000,
                     });
                     return [];
                 } finally {
@@ -158,12 +155,12 @@ export const useStakingStore = create<StakingState>()(
                     return position;
                 } catch (error) {
                     console.error('Error fetching position details:', error);
-                    toast({
-                        title: 'Position Details Error',
-                        description:
-                            'Failed to load detailed position information',
-                        variant: 'destructive',
-                    });
+                    toast.error(
+                        'Failed to load detailed position information',
+                        {
+                            autoClose: 5000,
+                        }
+                    );
                     return null;
                 } finally {
                     set({ isLoading: false });
@@ -226,23 +223,24 @@ export const useStakingStore = create<StakingState>()(
                     );
 
                     if (!hasBalance) {
-                        toast({
-                            title: 'Insufficient Balance',
-                            description:
-                                'You do not have enough tokens to complete this transaction',
-                            variant: 'destructive',
-                        });
+                        toast.error(
+                            'You do not have enough tokens to complete this transaction',
+                            {
+                                autoClose: 5000,
+                            }
+                        );
                         return false;
                     }
 
                     // Proceed with staking
                     await stakeTokens(tokenAddress, amount);
 
-                    toast({
-                        title: 'Staking Initiated',
-                        description:
-                            'Your tokens are being staked. This may take a few minutes to complete.',
-                    });
+                    toast.success(
+                        'Your tokens are being staked. This may take a few minutes to complete.',
+                        {
+                            autoClose: 5000,
+                        }
+                    );
 
                     // Wait a moment before refreshing positions to allow blockchain to process
                     setTimeout(async () => {
@@ -257,12 +255,12 @@ export const useStakingStore = create<StakingState>()(
                     return true;
                 } catch (error) {
                     console.error('Staking error:', error);
-                    toast({
-                        title: 'Staking Failed',
-                        description:
-                            'There was an error processing your staking transaction',
-                        variant: 'destructive',
-                    });
+                    toast.error(
+                        'There was an error processing your staking transaction',
+                        {
+                            autoClose: 5000,
+                        }
+                    );
                     return false;
                 } finally {
                     set({ isStaking: false });
@@ -284,11 +282,12 @@ export const useStakingStore = create<StakingState>()(
                     // Perform unstaking
                     await unstakeTokens(position.tokenAddress);
 
-                    toast({
-                        title: 'Unstaking Initiated',
-                        description:
-                            'Your tokens are being unstaked. This may take a few minutes to complete.',
-                    });
+                    toast.success(
+                        'Your tokens are being unstaked. This may take a few minutes to complete.',
+                        {
+                            autoClose: 5000,
+                        }
+                    );
 
                     // Wait a moment and refresh user data
                     const userAddress =
@@ -309,12 +308,12 @@ export const useStakingStore = create<StakingState>()(
                     return true;
                 } catch (error) {
                     console.error('Unstaking error:', error);
-                    toast({
-                        title: 'Unstaking Failed',
-                        description:
-                            'There was an error processing your unstaking transaction',
-                        variant: 'destructive',
-                    });
+                    toast.error(
+                        'There was an error processing your unstaking transaction',
+                        {
+                            autoClose: 5000,
+                        }
+                    );
                     return false;
                 } finally {
                     set({ isUnstaking: false });
@@ -356,7 +355,7 @@ export const useStakingInit = (userAddress: string | null) => {
     const { fetchTokens, fetchPositions, fetchDashboardMetrics } =
         useStakingStore();
 
-    React.useEffect(() => {
+    useEffect(() => {
         // Load data when wallet is connected
         if (userAddress) {
             fetchTokens();
@@ -373,5 +372,5 @@ export const useStakingInit = (userAddress: string | null) => {
 
             return () => clearInterval(refreshInterval);
         }
-    }, [userAddress]);
+    }, [userAddress, fetchTokens, fetchPositions, fetchDashboardMetrics]);
 };

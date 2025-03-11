@@ -1,9 +1,8 @@
 // hooks/useWallet.ts
-import React from 'react';
-import { useState, useCallback } from 'react';
-import { toast } from '@/hooks/use-toast';
+import { useState, useCallback, useEffect } from 'react';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
+import { toast } from 'react-toastify'; // Import toast from react-toastify
 
 export const useWallet = () => {
     const [address, setAddress] = useState<string | null>(null);
@@ -14,10 +13,8 @@ export const useWallet = () => {
             setConnecting(true);
 
             if (!window.arweaveWallet) {
-                toast({
-                    title: 'ArConnect Not Found',
-                    description: 'Please install ArConnect to continue',
-                    variant: 'destructive',
+                toast.error('Please install ArConnect to continue', {
+                    autoClose: 5000,
                 });
                 window.open('https://arconnect.io', '_blank');
                 return null;
@@ -32,10 +29,8 @@ export const useWallet = () => {
             return addr;
         } catch (error) {
             console.error('Error connecting:', error);
-            toast({
-                title: 'Connection Failed',
-                description: 'Failed to connect to ArConnect',
-                variant: 'destructive',
+            toast.error('Failed to connect to ArConnect', {
+                autoClose: 5000,
             });
             return null;
         } finally {
@@ -92,10 +87,8 @@ export const useArweaveWalletStore = create<ArweaveWalletState>()(
 
                     // Check if ArConnect is installed
                     if (!window.arweaveWallet) {
-                        toast({
-                            title: 'Wallet Not Found',
-                            description: 'Please install ArConnect to continue',
-                            variant: 'destructive',
+                        toast.error('Please install ArConnect to continue', {
+                            autoClose: 5000,
                         });
                         window.open('https://arconnect.io', '_blank');
                         return;
@@ -120,16 +113,13 @@ export const useArweaveWalletStore = create<ArweaveWalletState>()(
                     // Scroll to staking dashboard after successful connection
                     get().scrollToStakingDashboard();
 
-                    toast({
-                        title: 'Wallet Connected',
-                        description: 'Successfully connected to Arweave wallet',
+                    toast.success('Successfully connected to Arweave wallet', {
+                        autoClose: 3000,
                     });
                 } catch (error) {
                     console.error('Error connecting wallet:', error);
-                    toast({
-                        title: 'Connection Failed',
-                        description: 'Failed to connect to Arweave wallet',
-                        variant: 'destructive',
+                    toast.error('Failed to connect to Arweave wallet', {
+                        autoClose: 5000,
                     });
                 } finally {
                     set({ connecting: false });
@@ -145,17 +135,16 @@ export const useArweaveWalletStore = create<ArweaveWalletState>()(
                         connected: false,
                     });
 
-                    toast({
-                        title: 'Wallet Disconnected',
-                        description:
-                            'Successfully disconnected from Arweave wallet',
-                    });
+                    toast.info(
+                        'Successfully disconnected from Arweave wallet',
+                        {
+                            autoClose: 3000,
+                        }
+                    );
                 } catch (error) {
                     console.error('Error disconnecting wallet:', error);
-                    toast({
-                        title: 'Disconnection Failed',
-                        description: 'Failed to disconnect from Arweave wallet',
-                        variant: 'destructive',
+                    toast.error('Failed to disconnect from Arweave wallet', {
+                        autoClose: 5000,
                     });
                 }
             },
@@ -170,7 +159,7 @@ export const useArweaveWalletInit = () => {
         (state) => state.checkConnection
     );
 
-    React.useEffect(() => {
+    useEffect(() => {
         checkConnection();
 
         // Listen for wallet events
@@ -181,5 +170,5 @@ export const useArweaveWalletInit = () => {
             window.removeEventListener('arweaveWalletLoaded', checkConnection);
             window.removeEventListener('walletSwitch', checkConnection);
         };
-    }, []);
+    }, [checkConnection]);
 };
