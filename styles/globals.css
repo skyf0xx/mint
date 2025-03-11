@@ -103,3 +103,7 @@ html {
 body {
     @apply antialiased text-foreground bg-background;
 }
+
+nextjs-portal {
+    display: none;
+}
