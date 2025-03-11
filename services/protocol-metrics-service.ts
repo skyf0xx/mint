@@ -2,14 +2,12 @@
 import {
     getBalance,
     MINT_PROCESS,
+    MINT_TOKEN,
     sendAndGetResult,
 } from '@/lib/wallet-actions';
 import { withRetry } from '@/lib/utils';
 import { CACHE_EXPIRY } from '@/lib/cache';
 import { ProtocolMetricsData } from '@/hooks/use-protocol-metrics';
-
-// Constants
-const MINT_TOKEN = 'SWQx44W-1iMwGFBSHlC3lStCq3Z7O2WZrx9quLeZOu0';
 
 /**
  * Fetches protocol metrics data from the blockchain

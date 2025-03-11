@@ -9,6 +9,7 @@ import {
 } from './cache';
 
 export const MINT_PROCESS = 'lNtrei6YLQiWS8cyFFHDrOBvRzICQPTvrjZBP8fz-ZI';
+export const MINT_TOKEN = 'SWQx44W-1iMwGFBSHlC3lStCq3Z7O2WZrx9quLeZOu0';
 
 interface StakedBalance {
     address: never;
