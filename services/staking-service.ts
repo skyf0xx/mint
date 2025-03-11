@@ -9,6 +9,7 @@ import {
     sendAndGetResult,
 } from '@/lib/wallet-actions';
 import { createDataItemSigner } from '@permaweb/aoconnect';
+import BigNumber from 'bignumber.js';
 
 // Constants
 const MAX_VESTING_DAYS = 30;
@@ -22,6 +23,18 @@ function symbolFromName(name: string): string {
 
 function extractName(name: string): string {
     return name.split('(')[0].trim();
+}
+
+function convertForBlockchain(numberStr: string, exponent: number): string {
+    try {
+        const num = new BigNumber(numberStr);
+        const multiplier = new BigNumber(10).pow(exponent);
+        return num.times(multiplier).toString();
+    } catch (error) {
+        // Handle invalid input
+        console.error('Invalid number format:', error);
+        return '0';
+    }
 }
 
 /**
@@ -322,8 +335,7 @@ export async function stakeTokens(
             throw new Error('Token decimals not found');
         }
 
-        // Remove decimal point and format for blockchain
-        const formattedAmount = amount.replace('.', '').padEnd(decimals, '0');
+        const formattedAmount = convertForBlockchain(amount, decimals);
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const signer = createDataItemSigner((globalThis as any).arweaveWallet);
