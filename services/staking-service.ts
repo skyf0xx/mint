@@ -344,7 +344,7 @@ export async function stakeTokens(
             [
                 { name: 'Action', value: 'Transfer' },
                 { name: 'X-User-Request', value: 'Stake' },
-                { name: 'Qty', value: formattedAmount },
+                { name: 'Quantity', value: formattedAmount },
                 { name: 'Recipient', value: MINT_PROCESS },
             ],
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
