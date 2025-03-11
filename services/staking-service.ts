@@ -381,10 +381,7 @@ export async function stakeTokens(
  * @param amount Amount to unstake
  * @returns Transaction ID if successful
  */
-export async function unstakeTokens(
-    tokenAddress: string,
-    amount: string
-): Promise<boolean> {
+export async function unstakeTokens(tokenAddress: string): Promise<boolean> {
     try {
         // Format the amount according to token decimals
         const allowedTokens = await getAllowedTokens();
@@ -393,9 +390,6 @@ export async function unstakeTokens(
         if (!decimals) {
             throw new Error('Token decimals not found');
         }
-
-        // Remove decimal point and format for blockchain
-        const formattedAmount = amount.replace('.', '').padEnd(decimals, '0');
 
         // Create signer using the wallet
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -407,7 +401,6 @@ export async function unstakeTokens(
             [
                 { name: 'Action', value: 'Unstake' },
                 { name: 'Token', value: tokenAddress },
-                { name: 'Amount', value: formattedAmount },
             ],
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             signer as any,
