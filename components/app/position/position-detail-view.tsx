@@ -8,10 +8,9 @@ import {
     CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, MinusCircle, Info, Plus } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { ArrowLeft, MinusCircle, Info, Shield, Clock } from 'lucide-react';
 import { StakingPosition } from '@/types/staking';
-import ILProtectionIndicator from '@/components/app/shared/il-protection-indicator';
-import PositionDetails from './position-detail';
 
 interface PositionDetailViewProps {
     position: StakingPosition;
@@ -32,8 +31,23 @@ const PositionDetailView = ({
             (1000 * 60 * 60 * 24)
     );
 
+    // Calculate remaining days until full vesting (30 days total)
+    const remainingDays = Math.max(0, 30 - daysStaked);
+
+    // Format the remaining time
+    const formatRemainingTime = () => {
+        if (remainingDays === 0) {
+            return 'Fully vested';
+        } else if (remainingDays === 1) {
+            return '1 day remaining';
+        } else {
+            return `${remainingDays} days remaining`;
+        }
+    };
+
     return (
         <Card className="max-w-xl mx-auto border-2 border-primary/10 shadow-lg">
+            {/* Header with title and IL info button */}
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center">
@@ -60,155 +74,104 @@ const PositionDetailView = ({
                     </Button>
                 </div>
             </CardHeader>
+
             <CardContent className="space-y-6">
-                {/* Position Summary Cards */}
-                <div className="grid grid-cols-3 gap-4">
-                    <div className="bg-gray-50 p-3 rounded-lg text-center">
-                        <div className="text-sm text-gray-600">Staked</div>
-                        <div className="font-medium">
+                {/* Key Position Information */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                        <div className="text-sm text-gray-600 mb-1">
+                            Staked Amount
+                        </div>
+                        <div className="font-medium text-lg">
                             {position.formattedTokenAmount}{' '}
                             {position.tokenSymbol}
                         </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                            LP Tokens: {position.formattedLpTokens}
+                        </div>
                     </div>
-                    <div className="bg-gray-50 p-3 rounded-lg text-center">
-                        <div className="text-sm text-gray-600">Time Staked</div>
-                        <div className="font-medium">{position.timeStaked}</div>
-                    </div>
-                    <div className="bg-gray-50 p-3 rounded-lg text-center">
-                        <div className="text-sm text-gray-600">IL Cover</div>
-                        <div className="font-medium">
-                            {position.ilProtectionPercentage}% vested
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                        <div className="text-sm text-gray-600 mb-1">
+                            Staking Duration
+                        </div>
+                        <div className="font-medium text-lg">
+                            {daysStaked} days
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                            Since{' '}
+                            {new Date(position.stakedDate).toLocaleDateString()}
                         </div>
                     </div>
                 </div>
 
                 {/* IL Protection Progress */}
-                <div>
-                    <h3 className="text-sm font-medium text-gray-700 mb-2">
-                        Impermanent Loss Protection Progress
-                    </h3>
-                    <ILProtectionIndicator
-                        percentage={position.ilProtectionPercentage}
-                        daysStaked={daysStaked}
-                        maxDays={30}
-                    />
-                </div>
-
-                {/* Price Change Chart */}
-                <PositionDetails position={position} />
-
-                {/* Position Details */}
-                <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                    <h3 className="font-medium text-gray-700">
-                        Position Details
-                    </h3>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <ul className="space-y-2 text-sm">
-                                <li className="flex justify-between">
-                                    <span className="text-gray-600">
-                                        Created:
-                                    </span>
-                                    <span className="font-medium">
-                                        {new Date(
-                                            position.stakedDate
-                                        ).toLocaleDateString()}
-                                    </span>
-                                </li>
-                                <li className="flex justify-between">
-                                    <span className="text-gray-600">
-                                        Days staked:
-                                    </span>
-                                    <span className="font-medium">
-                                        {daysStaked} days
-                                    </span>
-                                </li>
-                                <li className="flex justify-between">
-                                    <span className="text-gray-600">
-                                        Token:
-                                    </span>
-                                    <span className="font-medium">
-                                        {position.tokenName} (
-                                        {position.tokenSymbol})
-                                    </span>
-                                </li>
-                            </ul>
-                        </div>
-                        <div>
-                            <ul className="space-y-2 text-sm">
-                                <li className="flex justify-between">
-                                    <span className="text-gray-600">
-                                        Token Amount:
-                                    </span>
-                                    <span className="font-medium">
-                                        {position.formattedTokenAmount}{' '}
-                                        {position.tokenSymbol}
-                                    </span>
-                                </li>
-                                <li className="flex justify-between">
-                                    <span className="text-gray-600">
-                                        LP Tokens:
-                                    </span>
-                                    <span className="font-medium">
-                                        {position.formattedLpTokens}
-                                    </span>
-                                </li>
-                                <li className="flex justify-between">
-                                    <span className="text-gray-600">
-                                        MINT Amount:
-                                    </span>
-                                    <span className="font-medium">
-                                        {position.mintAmount}
-                                    </span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                {/* AMM Information */}
-                <div className="bg-primary/5 p-4 rounded-lg">
-                    <div className="flex items-center text-primary mb-2">
-                        <Info className="h-4 w-4 mr-2" />
-                        <h3 className="font-medium">
-                            Liquidity Pool Information
+                <div className="bg-slate-50 p-4 rounded-lg border border-primary/10">
+                    <div className="flex justify-between items-center mb-2">
+                        <h3 className="text-sm font-medium flex items-center">
+                            <Shield className="w-4 h-4 mr-2 text-primary" />
+                            IL Protection Progress
                         </h3>
+                        <span className="text-primary font-medium">
+                            {position.ilProtectionPercentage}% protected
+                        </span>
                     </div>
-                    <div className="grid grid-cols-1 gap-4 text-sm">
-                        <div className="flex justify-between">
-                            <span className="text-gray-600">AMM Address:</span>
-                            <span className="font-medium text-xs truncate max-w-[200px]">
-                                {position.amm}
-                            </span>
+
+                    <Progress
+                        value={(daysStaked / 30) * 100}
+                        max={100}
+                        className="h-2 bg-gray-100"
+                    />
+
+                    <div className="flex justify-between items-center text-xs text-gray-500 mt-2">
+                        <div className="flex items-center">
+                            <Clock className="w-3 h-3 mr-1" />
+                            <span>{formatRemainingTime()}</span>
                         </div>
-                        <div className="flex justify-between">
-                            <span className="text-gray-600">
-                                Protection Status:
-                            </span>
-                            <span className="font-medium">
-                                {position.ilProtectionPercentage}% of 50% max
-                                coverage
-                            </span>
+                        <div>Maximum: 50% coverage</div>
+                    </div>
+
+                    <p className="text-xs text-gray-600 mt-3 bg-primary/5 p-2 rounded">
+                        Your impermanent loss protection vests linearly over 30
+                        days. If you unstake now, you&apos;ll be protected
+                        against {position.ilProtectionPercentage}% of any
+                        impermanent loss incurred.
+                    </p>
+                </div>
+
+                {/* Pool Details */}
+                <div className="bg-slate-50 p-4 rounded-lg border border-primary/10">
+                    <h3 className="text-sm font-medium flex items-center mb-3">
+                        <Info className="w-4 h-4 mr-2 text-primary" />
+                        Pool Information
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <div className="text-xs text-gray-500 mb-1">
+                                AMM Address
+                            </div>
+                            <div className="font-medium text-xs truncate">
+                                {position.amm}
+                            </div>
+                        </div>
+                        <div>
+                            <div className="text-xs text-gray-500 mb-1">
+                                MINT supplied
+                            </div>
+                            <div className="font-medium">
+                                {position.mintAmount}
+                            </div>
                         </div>
                     </div>
                 </div>
             </CardContent>
+
             <CardFooter className="flex justify-end space-x-3 pt-2">
-                <Button
-                    variant="outline"
-                    className="flex items-center"
-                    onClick={onBack}
-                >
+                <Button variant="outline" onClick={onBack}>
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
+
                 <Button
-                    variant="outline"
-                    className="flex items-center text-primary border-primary/30"
-                >
-                    <Plus className="mr-2 h-4 w-4" /> Add More
-                </Button>
-                <Button
-                    className="bg-gradient-to-r from-primary to-primary-600 hover:to-primary transition-all duration-300 flex items-center"
+                    className="bg-gradient-to-r from-primary to-primary-600 hover:to-primary transition-all duration-300"
                     onClick={onUnstake}
                 >
                     <MinusCircle className="mr-2 h-4 w-4" /> Unstake
