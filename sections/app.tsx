@@ -34,6 +34,12 @@ const App = () => {
         fetchPositionDetails,
     } = useStakingStore();
 
+    useEffect(() => {
+        // Force browser to recalculate layout which can help with scrollbar issues
+        document.documentElement.style.overflow = 'auto';
+        document.body.style.overflow = 'auto';
+    }, [currentView]);
+
     // Initialize staking data
     useStakingInit(address);
 
@@ -146,7 +152,7 @@ const App = () => {
             id="app"
             className="py-24 bg-gradient-to-b from-white to-gray-50"
         >
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-4 overflow-x-auto overflow-y-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}

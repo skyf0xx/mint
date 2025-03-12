@@ -46,7 +46,7 @@ const PositionDetailView = ({
     };
 
     return (
-        <Card className="max-w-xl mx-auto border-2 border-primary/10 shadow-lg">
+        <Card className="max-w-3xl mx-auto border-2 border-primary/10 shadow-lg">
             {/* Header with title and IL info button */}
             <CardHeader>
                 <div className="flex items-center justify-between">
