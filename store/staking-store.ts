@@ -69,8 +69,10 @@ export const useStakingStore = create<StakingState>()(
             selectedPositionId: null,
             dashboardMetrics: {
                 totalStaked: '0',
-                averageILProtection: 0,
                 totalEarned: '0',
+                totalTokens: '0',
+                positionsCount: 0,
+                oldestPosition: '0d',
             },
 
             // Initial UI states
@@ -103,7 +105,25 @@ export const useStakingStore = create<StakingState>()(
             fetchPositions: async (userAddress: string) => {
                 try {
                     set({ isLoading: true });
-                    const positions = await getUserPositions(userAddress);
+                    let positions = await getUserPositions(userAddress);
+
+                    // Enhance positions with additional data needed by the updated interface
+                    positions = await Promise.all(
+                        positions.map(async (position) => {
+                            // Calculate estimated rewards (mock data until actual API is available)
+                            const estimatedRewards = (
+                                parseFloat(position.formattedTokenAmount) * 0.05
+                            ).toFixed(2);
+
+                            return {
+                                ...position,
+                                initialAmount: position.formattedTokenAmount,
+                                estimatedRewards: estimatedRewards,
+                                token: position.tokenSymbol, // Needed for components that use position.token
+                            } as StakingPosition;
+                        })
+                    );
+
                     set({ userPositions: positions });
                     return positions;
                 } catch (error) {
@@ -141,18 +161,26 @@ export const useStakingStore = create<StakingState>()(
 
                     // Update the position in the positions array if it exists
                     if (position) {
+                        const enhancedPosition = {
+                            ...position,
+                            initialAmount: position.formattedTokenAmount,
+                            token: position.tokenSymbol,
+                        } as StakingPosition;
+
                         const positions = [...get().userPositions];
                         const index = positions.findIndex(
                             (p) => p.id === positionId
                         );
 
                         if (index >= 0) {
-                            positions[index] = position;
+                            positions[index] = enhancedPosition;
                             set({ userPositions: positions });
                         }
+
+                        return enhancedPosition;
                     }
 
-                    return position;
+                    return null;
                 } catch (error) {
                     console.error('Error fetching position details:', error);
                     toast.error(

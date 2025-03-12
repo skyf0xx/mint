@@ -1,6 +1,6 @@
 // components/app/dashboard/positions-list.tsx
 import React from 'react';
-import { ExternalLink, MinusCircle } from 'lucide-react';
+import { MinusCircle, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import TokenBadge from '@/components/app/shared/token-badge';
 import { StakingPosition } from '@/types/staking';
@@ -21,10 +21,11 @@ const PositionsList = ({
     const groupedPositions: Record<string, StakingPosition[]> = {};
 
     positions.forEach((position) => {
-        if (!groupedPositions[position.token]) {
-            groupedPositions[position.token] = [];
+        const token = position.tokenSymbol;
+        if (!groupedPositions[token]) {
+            groupedPositions[token] = [];
         }
-        groupedPositions[position.token].push(position);
+        groupedPositions[token].push(position);
     });
 
     // Calculate days staked for a position
@@ -64,10 +65,14 @@ const PositionsList = ({
                                 position.stakedDate
                             );
 
+                            // Use formattedTokenAmount as initialAmount if initialAmount is not available
+                            const initialAmount = position.formattedTokenAmount;
+
                             return (
                                 <div
                                     key={position.id}
-                                    className="p-4 hover:bg-gray-50 transition-colors"
+                                    className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                                    onClick={() => onViewPosition(position.id)}
                                 >
                                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                         <div>
@@ -75,11 +80,7 @@ const PositionsList = ({
                                                 Amount
                                             </div>
                                             <div className="font-medium">
-                                                {position.initialAmount} {token}
-                                            </div>
-                                            <div className="text-xs text-gray-500 mt-1">
-                                                Current: {position.currentValue}{' '}
-                                                {token}
+                                                {initialAmount} {token}
                                             </div>
                                         </div>
 
@@ -115,9 +116,10 @@ const PositionsList = ({
                                                 variant="outline"
                                                 size="sm"
                                                 className="h-9 text-primary border-primary/30"
-                                                onClick={() =>
-                                                    onUnstake(position.id)
-                                                }
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onUnstake(position.id);
+                                                }}
                                             >
                                                 <MinusCircle className="h-4 w-4 mr-1" />
                                                 <span className="hidden sm:inline">
@@ -125,30 +127,21 @@ const PositionsList = ({
                                                 </span>
                                             </Button>
                                             <Button
-                                                variant="outline"
+                                                variant="ghost"
                                                 size="sm"
-                                                className="h-9"
-                                                onClick={() =>
-                                                    onViewPosition(position.id)
-                                                }
+                                                className="h-9 text-gray-500"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onViewPosition(position.id);
+                                                }}
                                             >
-                                                <ExternalLink className="h-4 w-4 mr-1" />
-                                                <span className="hidden sm:inline">
-                                                    Details
+                                                <ExternalLink className="h-4 w-4" />
+                                                <span className="sr-only">
+                                                    View
                                                 </span>
                                             </Button>
                                         </div>
                                     </div>
-
-                                    {position.estimatedRewards &&
-                                        parseFloat(position.estimatedRewards) >
-                                            0 && (
-                                            <div className="mt-2 text-xs text-green-600">
-                                                Estimated rewards:{' '}
-                                                {position.estimatedRewards}{' '}
-                                                {token}
-                                            </div>
-                                        )}
                                 </div>
                             );
                         })}

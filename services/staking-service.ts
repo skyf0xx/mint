@@ -25,6 +25,14 @@ function extractName(name: string): string {
     return name.split('(')[0].trim();
 }
 
+function protectionPercentage(timeStaked: string): number {
+    const daysStaked = calculateDaysFromTimeStaked(timeStaked);
+    return Math.min(
+        (daysStaked / MAX_VESTING_DAYS) * MAX_COVERAGE_PERCENTAGE,
+        MAX_COVERAGE_PERCENTAGE
+    );
+}
+
 function convertForBlockchain(numberStr: string, exponent: number): string {
     try {
         const num = new BigNumber(numberStr);
@@ -146,7 +154,6 @@ export async function getTokenBalance(
  * @param userAddress User's wallet address
  * @returns Array of staking positions
  */
-// services/staking-service.ts
 export async function getUserPositions(
     userAddress: string
 ): Promise<StakingPosition[]> {
@@ -182,24 +189,22 @@ export async function getUserPositions(
                 amm: string;
             };
 
-            // Calculate IL protection percentage based on staking duration
-            const daysStaked = calculateDaysFromTimeStaked(position.timeStaked);
-            const ilProtectionPercentage = Math.min(
-                (daysStaked / MAX_VESTING_DAYS) * MAX_COVERAGE_PERCENTAGE,
-                MAX_COVERAGE_PERCENTAGE
-            );
-
             positions.push({
                 id: `${tokenAddress}-${Date.now()}`, // Generate unique ID
-                token: position.name,
+                tokenName: extractName(position.name),
+                tokenSymbol: symbolFromName(position.name),
                 tokenAddress: tokenAddress,
-                initialAmount: position.formattedAmount,
-                currentValue: position.formattedAmount, // Will need price adjustment in production
-                stakedDate: calculateStakedDate(position.timeStaked),
-                ilProtectionPercentage,
-                lpTokens: position.formattedLpTokens,
-                estimatedRewards: '0', // Needs calculation in production
+                tokenAmount: position.amount,
+                formattedTokenAmount: position.formattedAmount,
+                lpTokens: position.lpTokens,
+                formattedLpTokens: position.formattedLpTokens,
+                mintAmount: position.mintAmount,
                 timeStaked: position.timeStaked,
+                stakedDate: calculateStakedDate(position.timeStaked),
+                amm: position.amm,
+                ilProtectionPercentage: protectionPercentage(
+                    position.timeStaked
+                ),
             });
         }
 
@@ -257,30 +262,34 @@ export async function getPositionDetails(
         // Calculate IL protection percentage
         const stakedDate = new Date(positionData.stakedDate);
         const now = new Date();
-        const daysStaked = Math.floor(
-            (now.getTime() - stakedDate.getTime()) / (1000 * 60 * 60 * 24)
-        );
-        const ilProtectionPercentage = Math.min(
-            (daysStaked / MAX_VESTING_DAYS) * MAX_COVERAGE_PERCENTAGE,
-            MAX_COVERAGE_PERCENTAGE
-        );
 
         // Format timeStaked string
         const timeStaked = formatTimeStaked(stakedDate, now);
 
+        // Extract token details
+        const tokenSymbol =
+            positionData.tokenSymbol || symbolFromName(positionData.token);
+        const tokenName =
+            positionData.tokenName || extractName(positionData.token);
+
         return {
             id: positionData.id,
-            token: positionData.token,
+            tokenName: tokenName,
+            tokenSymbol: tokenSymbol,
             tokenAddress: positionData.tokenAddress,
-            initialAmount: positionData.initialAmount,
-            currentValue: positionData.currentValue,
-            stakedDate,
-            ilProtectionPercentage,
+            tokenAmount: positionData.tokenAmount || positionData.initialAmount,
+            formattedTokenAmount:
+                positionData.formattedTokenAmount || positionData.initialAmount,
             lpTokens: positionData.lpTokens,
-            estimatedRewards: positionData.estimatedRewards || '0',
-            initialPriceRatio: positionData.initialPriceRatio,
-            finalPriceRatio: positionData.finalPriceRatio,
-            timeStaked: timeStaked, // Add the timeStaked property
+            formattedLpTokens:
+                positionData.formattedLpTokens || positionData.lpTokens,
+            mintAmount: positionData.mintAmount,
+            stakedDate,
+            timeStaked,
+            amm: positionData.amm,
+            ilProtectionPercentage: protectionPercentage(
+                positionData.timeStaked
+            ),
         };
     } catch (error) {
         console.error(
@@ -298,11 +307,15 @@ function formatTimeStaked(stakedDate: Date, now: Date = new Date()): string {
     const diffHours = Math.floor(
         (diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
     );
+    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
 
     if (diffDays > 0) {
-        return `${diffDays}d ${diffHours}h`;
+        return `${diffDays}d ${diffHours}h ${diffMinutes}m ${diffSeconds}s`;
+    } else if (diffHours > 0) {
+        return `${diffHours}h ${diffMinutes}m ${diffSeconds}s`;
     } else {
-        return `${diffHours}h`;
+        return `${diffMinutes}m ${diffSeconds}s`;
     }
 }
 
@@ -376,9 +389,7 @@ export async function stakeTokens(
 
 /**
  * Unstakes tokens from a position
- * @param positionId ID of the position to unstake from
  * @param tokenAddress Address of the token being unstaked
- * @param amount Amount to unstake
  * @returns Transaction ID if successful
  */
 export async function unstakeTokens(tokenAddress: string): Promise<boolean> {
@@ -497,45 +508,10 @@ export async function getInsuranceInfo() {
 }
 
 /**
- * Fetches the current price ratio for a token/MINT pair
- * @param tokenAddress Address of the token
- * @returns Current price ratio or null if unavailable
- */
-export async function getCurrentPriceRatio(
-    tokenAddress: string
-): Promise<number | null> {
-    try {
-        const response = await sendAndGetResult(
-            MINT_PROCESS,
-            [
-                { name: 'Action', value: 'Get-Price-Ratio' },
-                { name: 'Token', value: tokenAddress },
-            ],
-            false,
-            CACHE_EXPIRY.MINUTE * 5 // Cache for 5 minutes as prices change
-        );
-
-        if (!response?.Messages?.[0]?.Data) {
-            throw new Error('Invalid response format for price ratio');
-        }
-
-        return parseFloat(response.Messages[0].Data);
-    } catch (error) {
-        console.error(
-            `Error fetching price ratio for token ${tokenAddress}:`,
-            error
-        );
-        return null;
-    }
-}
-
-/**
  * Fetches dashboard metrics for a user
  * @param userAddress User's wallet address
  * @returns Dashboard metrics or default values if unavailable
  */
-// services/staking-service.ts
-// services/staking-service.ts (updated getDashboardMetrics function)
 export async function getDashboardMetrics(userAddress: string) {
     try {
         const positions = await getUserPositions(userAddress);
@@ -543,7 +519,6 @@ export async function getDashboardMetrics(userAddress: string) {
         if (positions.length === 0) {
             return {
                 totalTokens: '0',
-                averageILProtection: 0,
                 positionsCount: 0,
                 oldestPosition: '0d',
             };
@@ -551,10 +526,10 @@ export async function getDashboardMetrics(userAddress: string) {
 
         // Group tokens by symbol for better display
         const tokenGroups = positions.reduce((groups, pos) => {
-            if (!groups[pos.token]) {
-                groups[pos.token] = 0;
+            if (!groups[pos.tokenSymbol]) {
+                groups[pos.tokenSymbol] = 0;
             }
-            groups[pos.token] += parseFloat(pos.initialAmount);
+            groups[pos.tokenSymbol] += parseFloat(pos.formattedTokenAmount);
             return groups;
         }, {} as Record<string, number>);
 
@@ -562,13 +537,6 @@ export async function getDashboardMetrics(userAddress: string) {
         const totalTokens = Object.entries(tokenGroups)
             .map(([token, amount]) => `${amount.toFixed(2)} ${token}`)
             .join(', ');
-
-        // Calculate average IL protection percentage
-        const averageILProtection =
-            positions.reduce(
-                (sum, pos) => sum + pos.ilProtectionPercentage,
-                0
-            ) / positions.length;
 
         // Count positions
         const positionsCount = positions.length;
@@ -585,7 +553,6 @@ export async function getDashboardMetrics(userAddress: string) {
 
         return {
             totalTokens,
-            averageILProtection,
             positionsCount,
             oldestPosition,
         };
@@ -593,7 +560,6 @@ export async function getDashboardMetrics(userAddress: string) {
         console.error('Error calculating dashboard metrics:', error);
         return {
             totalTokens: '0',
-            averageILProtection: 0,
             positionsCount: 0,
             oldestPosition: '0d',
         };

@@ -8,10 +8,10 @@ import {
     CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, PlusCircle, MinusCircle, Info } from 'lucide-react';
-import ILProtectionIndicator from '@/components/app/shared/il-protection-indicator';
-import PositionChart from './position-chart';
+import { ArrowLeft, MinusCircle, Info, Plus } from 'lucide-react';
 import { StakingPosition } from '@/types/staking';
+import ILProtectionIndicator from '@/components/app/shared/il-protection-indicator';
+import PositionDetails from './position-detail';
 
 interface PositionDetailViewProps {
     position: StakingPosition;
@@ -32,15 +32,6 @@ const PositionDetailView = ({
             (1000 * 60 * 60 * 24)
     );
 
-    // Calculate impermanent loss
-    const initialValue = parseFloat(position.initialAmount);
-    const currentValue = parseFloat(position.currentValue);
-    const impermanentLoss = initialValue - currentValue;
-    const impermanentLossPercent =
-        initialValue > 0
-            ? ((impermanentLoss / initialValue) * 100).toFixed(2)
-            : '0.00';
-
     return (
         <Card className="max-w-xl mx-auto border-2 border-primary/10 shadow-lg">
             <CardHeader>
@@ -55,7 +46,7 @@ const PositionDetailView = ({
                             <ArrowLeft className="h-4 w-4" />
                         </Button>
                         <CardTitle className="text-2xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
-                            {position.token} Position Details
+                            {position.tokenSymbol} Position Details
                         </CardTitle>
                     </div>
                     <Button
@@ -70,18 +61,18 @@ const PositionDetailView = ({
                 </div>
             </CardHeader>
             <CardContent className="space-y-6">
+                {/* Position Summary Cards */}
                 <div className="grid grid-cols-3 gap-4">
                     <div className="bg-gray-50 p-3 rounded-lg text-center">
                         <div className="text-sm text-gray-600">Staked</div>
                         <div className="font-medium">
-                            {position.initialAmount} {position.token}
+                            {position.formattedTokenAmount}{' '}
+                            {position.tokenSymbol}
                         </div>
                     </div>
                     <div className="bg-gray-50 p-3 rounded-lg text-center">
-                        <div className="text-sm text-gray-600">Current</div>
-                        <div className="font-medium">
-                            {position.currentValue} {position.token}
-                        </div>
+                        <div className="text-sm text-gray-600">Time Staked</div>
+                        <div className="font-medium">{position.timeStaked}</div>
                     </div>
                     <div className="bg-gray-50 p-3 rounded-lg text-center">
                         <div className="text-sm text-gray-600">IL Cover</div>
@@ -91,14 +82,22 @@ const PositionDetailView = ({
                     </div>
                 </div>
 
-                <ILProtectionIndicator
-                    percentage={position.ilProtectionPercentage}
-                    daysStaked={daysStaked}
-                    maxDays={30}
-                />
+                {/* IL Protection Progress */}
+                <div>
+                    <h3 className="text-sm font-medium text-gray-700 mb-2">
+                        Impermanent Loss Protection Progress
+                    </h3>
+                    <ILProtectionIndicator
+                        percentage={position.ilProtectionPercentage}
+                        daysStaked={daysStaked}
+                        maxDays={30}
+                    />
+                </div>
 
-                <PositionChart position={position} />
+                {/* Price Change Chart */}
+                <PositionDetails position={position} />
 
+                {/* Position Details */}
                 <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                     <h3 className="font-medium text-gray-700">
                         Position Details
@@ -126,10 +125,11 @@ const PositionDetailView = ({
                                 </li>
                                 <li className="flex justify-between">
                                     <span className="text-gray-600">
-                                        LP tokens:
+                                        Token:
                                     </span>
                                     <span className="font-medium">
-                                        {position.lpTokens}
+                                        {position.tokenName} (
+                                        {position.tokenSymbol})
                                     </span>
                                 </li>
                             </ul>
@@ -138,38 +138,27 @@ const PositionDetailView = ({
                             <ul className="space-y-2 text-sm">
                                 <li className="flex justify-between">
                                     <span className="text-gray-600">
-                                        Impermanent loss:
-                                    </span>
-                                    <span
-                                        className={`font-medium ${
-                                            impermanentLoss > 0
-                                                ? 'text-red-500'
-                                                : 'text-green-500'
-                                        }`}
-                                    >
-                                        {impermanentLossPercent}%
-                                    </span>
-                                </li>
-                                <li className="flex justify-between">
-                                    <span className="text-gray-600">
-                                        Protected amount:
+                                        Token Amount:
                                     </span>
                                     <span className="font-medium">
-                                        {(
-                                            (impermanentLoss *
-                                                position.ilProtectionPercentage) /
-                                            100
-                                        ).toFixed(4)}{' '}
-                                        {position.token}
+                                        {position.formattedTokenAmount}{' '}
+                                        {position.tokenSymbol}
                                     </span>
                                 </li>
                                 <li className="flex justify-between">
                                     <span className="text-gray-600">
-                                        Rewards earned:
+                                        LP Tokens:
                                     </span>
-                                    <span className="font-medium text-green-500">
-                                        {position.estimatedRewards}{' '}
-                                        {position.token}
+                                    <span className="font-medium">
+                                        {position.formattedLpTokens}
+                                    </span>
+                                </li>
+                                <li className="flex justify-between">
+                                    <span className="text-gray-600">
+                                        MINT Amount:
+                                    </span>
+                                    <span className="font-medium">
+                                        {position.mintAmount}
                                     </span>
                                 </li>
                             </ul>
@@ -177,28 +166,28 @@ const PositionDetailView = ({
                     </div>
                 </div>
 
+                {/* AMM Information */}
                 <div className="bg-primary/5 p-4 rounded-lg">
                     <div className="flex items-center text-primary mb-2">
                         <Info className="h-4 w-4 mr-2" />
-                        <h3 className="font-medium">Price Ratio Information</h3>
+                        <h3 className="font-medium">
+                            Liquidity Pool Information
+                        </h3>
                     </div>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-1 gap-4 text-sm">
                         <div className="flex justify-between">
-                            <span className="text-gray-600">
-                                Initial ratio:
-                            </span>
-                            <span className="font-medium">
-                                1 {position.token} ={' '}
-                                {position.initialPriceRatio || '0.473'} MINT
+                            <span className="text-gray-600">AMM Address:</span>
+                            <span className="font-medium text-xs truncate max-w-[200px]">
+                                {position.amm}
                             </span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600">
-                                Current ratio:
+                                Protection Status:
                             </span>
                             <span className="font-medium">
-                                1 {position.token} ={' '}
-                                {position.finalPriceRatio || '0.512'} MINT
+                                {position.ilProtectionPercentage}% of 50% max
+                                coverage
                             </span>
                         </div>
                     </div>
@@ -216,7 +205,7 @@ const PositionDetailView = ({
                     variant="outline"
                     className="flex items-center text-primary border-primary/30"
                 >
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add More
+                    <Plus className="mr-2 h-4 w-4" /> Add More
                 </Button>
                 <Button
                     className="bg-gradient-to-r from-primary to-primary-600 hover:to-primary transition-all duration-300 flex items-center"

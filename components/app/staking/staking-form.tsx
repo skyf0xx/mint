@@ -101,7 +101,7 @@ const StakingForm = ({
                 setTimeout(() => {
                     setAmount('');
                     setTxStatus({ status: null, message: '' });
-                }, 3000);
+                }, 10000);
             } else {
                 setTxStatus({
                     status: 'error',
