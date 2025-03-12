@@ -8,39 +8,30 @@ import { JWK } from '@/lib/wallet-actions';
 export interface StakingPosition {
     /** Unique identifier for the position */
     id: string;
-
     /** Token symbol (e.g., qAR, wAR, NAB) */
-    token: string;
-
+    tokenSymbol: string;
     /** Contract address of the token */
     tokenAddress: string;
-
-    /** Initial amount of tokens staked */
-    initialAmount: string;
-
-    /** Current value of the position in token terms */
-    currentValue: string;
-
-    /** Date when the position was created */
-    stakedDate: Date;
-
-    /** Current IL protection percentage (0-50%) */
-    ilProtectionPercentage: number;
-
-    /** LP tokens received when staking */
+    /** Token name from config.AllowedTokensNames */
+    tokenName: string;
+    /** Amount of tokens staked (raw value) */
+    tokenAmount: string;
+    /** Formatted amount of tokens staked (for display) */
+    formattedTokenAmount: string;
+    /** LP tokens received when staking (raw value) */
     lpTokens: string;
-
-    /** Estimated rewards accrued */
-    estimatedRewards: string;
-
+    /** Formatted LP tokens (for display) */
+    formattedLpTokens: string;
+    /** Amount of MINT tokens */
+    mintAmount: string;
     /** Time staked as formatted string (e.g., "14d 6h") */
     timeStaked: string;
-
-    /** Final price ratio at the time of unstaking (token/MINT) */
-    finalPriceRatio?: number;
-
-    /** Initial price ratio at the time of staking (token/MINT) */
-    initialPriceRatio?: number;
+    /** AMM identifier */
+    amm: string;
+    /** Date when the position was created (keeping this from original) */
+    stakedDate: Date;
+    /** Calculated protection percentage (calculated on client side) */
+    ilProtectionPercentage: number;
 }
 
 /**
@@ -181,9 +172,6 @@ export interface ApiRequest {
 export interface DashboardMetrics {
     /** Total tokens staked by symbol */
     totalTokens: string;
-
-    /** Average IL protection percentage */
-    averageILProtection: number;
 
     /** Number of active staking positions */
     positionsCount: number;
