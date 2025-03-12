@@ -13,7 +13,6 @@ import { Info } from 'lucide-react';
 import TransactionStatus from '../shared/transaction-status';
 import { StakingPosition } from '@/types/staking';
 import { useStakingStore } from '@/store/staking-store';
-import { calculateILProtection } from '@/services/staking-service';
 
 interface UnstakeFormProps {
     position: StakingPosition;
@@ -84,32 +83,6 @@ const UnstakeForm = ({
             });
         }
     };
-
-    // Calculate estimated impermanent loss (using a simple approximation as placeholder)
-    const initialValue = parseFloat(position.formattedTokenAmount);
-
-    // Since we don't have current value, we use the initial value for display
-    // In a real implementation, this would come from backend data
-    const currentValue = initialValue;
-
-    // For display purposes, set estimated impermanent loss (could be 0 or a small amount)
-    const estimatedIL = Math.max(0, initialValue * 0.05); // Assume 5% IL for demonstration
-    const impermanentLossStr = estimatedIL.toFixed(2);
-
-    // Calculate IL protection using service function
-    // Use default price ratio of 1 if not available
-    const finalPriceRatio = 1;
-
-    const ilProtection = calculateILProtection(
-        daysStaked,
-        impermanentLossStr,
-        finalPriceRatio
-    );
-
-    // Calculate what user will receive
-    const receiveAmount = (
-        currentValue + parseFloat(ilProtection.compensationAmount)
-    ).toFixed(2);
 
     // Form validation - only allow valid amounts up to the max available
     const isAmountValid =
@@ -217,31 +190,6 @@ const UnstakeForm = ({
                             <span>
                                 {position.formattedTokenAmount}{' '}
                                 {position.tokenSymbol}
-                            </span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-gray-600">
-                                Estimated impermanent loss:
-                            </span>
-                            <span>
-                                {impermanentLossStr} {position.tokenSymbol}
-                            </span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-gray-600">
-                                IL protection ({position.ilProtectionPercentage}
-                                %):
-                            </span>
-                            <span>
-                                {ilProtection.compensationAmount}{' '}
-                                {position.tokenSymbol}
-                            </span>
-                        </div>
-                        <div className="h-px bg-gray-200 my-2"></div>
-                        <div className="flex justify-between font-medium">
-                            <span>You will receive:</span>
-                            <span>
-                                {receiveAmount} {position.tokenSymbol}
                             </span>
                         </div>
                     </div>
