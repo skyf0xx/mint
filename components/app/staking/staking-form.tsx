@@ -117,14 +117,12 @@ const StakingForm = ({
         }
     };
 
-    // Prepare token options for selector
     const tokenOptions: TokenOption[] = availableTokens.map((token) => ({
         value: token.symbol,
         label: token.symbol,
         balance: token.balance || '0',
     }));
 
-    // Check if form is valid
     const isFormValid =
         selectedToken &&
         amount &&
