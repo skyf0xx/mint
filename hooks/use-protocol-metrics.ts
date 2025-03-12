@@ -68,12 +68,6 @@ export const useProtocolMetrics = () => {
     // Fetch on mount
     useEffect(() => {
         fetchMetrics();
-
-        // Refresh every 5 minutes
-        const refreshInterval = 5 * 60 * 1000;
-        const timer = setInterval(fetchMetrics, refreshInterval);
-
-        return () => clearInterval(timer);
     }, []);
 
     return {

@@ -389,16 +389,6 @@ export const useStakingInit = (userAddress: string | null) => {
             fetchTokens();
             fetchPositions(userAddress);
             fetchDashboardMetrics(userAddress);
-
-            // Set up periodic refresh
-            const refreshInterval = setInterval(() => {
-                if (userAddress) {
-                    fetchPositions(userAddress);
-                    fetchDashboardMetrics(userAddress);
-                }
-            }, 60000); // Refresh every minute
-
-            return () => clearInterval(refreshInterval);
         }
     }, [userAddress, fetchTokens, fetchPositions, fetchDashboardMetrics]);
 };
