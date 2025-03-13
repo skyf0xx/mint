@@ -53,6 +53,11 @@ const faqItems = [
         question: 'How do governance rights work?',
         answer: 'Staked MINT tokens grant proportional voting power in the NAB ecosystem. As the total supply decreases through burns while your staked amount remains constant, your governance influence naturally increases over time. This allows you to participate in crucial protocol decisions and shape the future of the ecosystem.',
     },
+    {
+        question:
+            'What happens to my impermanent loss insurance if I add more tokens to an existing staked position?',
+        answer: "When you add tokens to an existing staked position, the staking duration timer resets for your entire position. This is to prevent gaming of the system. This means if you've already staked for 30 days and reached the maximum 50% impermanent loss coverage, adding more tokens will reset your entire position (both original and new tokens) back to 0% coverage. Your position will then need to vest for another 30 days to regain full protection. For this reason, if you have a position with significant vested protection, consider withdrawing and creating a new position rather than adding to your existing one.",
+    },
 ];
 
 interface FAQItemProps {
