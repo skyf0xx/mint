@@ -56,10 +56,7 @@ interface StakingState {
     fetchTokens: () => Promise<TokenInfo[]>;
     fetchPositions: (userAddress: string) => Promise<StakingPosition[]>;
     fetchDashboardMetrics: (userAddress: string) => Promise<DashboardMetrics>;
-    fetchPositionDetails: (
-        positionId: string,
-        userAddress: string
-    ) => Promise<StakingPosition | null>;
+
     fetchTokenBalance: (
         tokenAddress: string,
         userAddress: string
@@ -333,53 +330,6 @@ export const useStakingStore = create<StakingState>()(
                 } catch (error) {
                     console.error('Error fetching dashboard metrics:', error);
                     return get().dashboardMetrics;
-                }
-            },
-
-            fetchPositionDetails: async (
-                positionId: string,
-                userAddress: string
-            ) => {
-                try {
-                    set({ isLoading: true });
-                    const position = await getPositionDetails(
-                        positionId,
-                        userAddress
-                    );
-
-                    // Update the position in the positions array if it exists
-                    if (position) {
-                        const enhancedPosition = {
-                            ...position,
-                            initialAmount: position.formattedTokenAmount,
-                            token: position.tokenSymbol,
-                        } as StakingPosition;
-
-                        const positions = [...get().userPositions];
-                        const index = positions.findIndex(
-                            (p) => p.id === positionId
-                        );
-
-                        if (index >= 0) {
-                            positions[index] = enhancedPosition;
-                            set({ userPositions: positions });
-                        }
-
-                        return enhancedPosition;
-                    }
-
-                    return null;
-                } catch (error) {
-                    console.error('Error fetching position details:', error);
-                    toast.error(
-                        'Failed to load detailed position information',
-                        {
-                            autoClose: 5000,
-                        }
-                    );
-                    return null;
-                } finally {
-                    set({ isLoading: false });
                 }
             },
 
