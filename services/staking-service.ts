@@ -14,7 +14,7 @@ import BigNumber from 'bignumber.js';
 // Constants
 const MAX_VESTING_DAYS = 30;
 const MAX_COVERAGE_PERCENTAGE = 50;
-const MAX_COMPENSATION_CAP = 50000; // 50,000 MINT tokens maximum compensation
+const MAX_COMPENSATION_CAP = 50000; // TODO: get these constants from the protocol
 
 function symbolFromName(name: string): string {
     const match = name.match(/\(([^)]+)\)/);
@@ -94,6 +94,7 @@ export async function getAllowedTokens(): Promise<TokenInfo[]> {
  * @returns Token balance and symbol information
  */
 const tokenInfo = [
+    //TODO: get token info from protocol in the future
     {
         tokenAddress: 'NG-0lVX882MG5nhARrSzyprEK6ejonHpdUmaaMPsHE8',
         symbol: 'qAR',
