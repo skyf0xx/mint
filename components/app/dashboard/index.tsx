@@ -1,7 +1,7 @@
 // components/app/dashboard/index.tsx
 import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import DashboardHeader from './header';
@@ -9,6 +9,8 @@ import EmptyState from './empty-state';
 import PositionsList from './positions-list';
 import LoadingState from '@/components/app/shared/loading-state';
 import { StakingPosition } from '@/types/staking';
+import { useStakingStore } from '@/store/staking-store';
+import PendingOperations from './pending-operations';
 
 interface DashboardProps {
     address: string | null;
@@ -20,6 +22,7 @@ interface DashboardProps {
 }
 
 const Dashboard = ({
+    address,
     positions,
     onStartStaking,
     onViewPosition,
@@ -27,6 +30,19 @@ const Dashboard = ({
     isLoading,
 }: DashboardProps) => {
     const hasPositions = positions.length > 0;
+    const { availableTokens } = useStakingStore();
+
+    // Check if there are any pending operations
+    const hasPendingOperations = () => {
+        if (!address) return false;
+
+        const pendingItems = JSON.parse(
+            localStorage.getItem('pendingStakes') || '[]'
+        );
+        return pendingItems.some(
+            (item: { userAddress: string }) => item.userAddress === address
+        );
+    };
 
     return (
         <motion.div
@@ -34,6 +50,23 @@ const Dashboard = ({
             animate={{ opacity: 1 }}
             className="max-w-4xl mx-auto"
         >
+            {/* Add the pending operations component with animation */}
+            <AnimatePresence>
+                {address && hasPendingOperations() && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <PendingOperations
+                            userAddress={address}
+                            tokens={availableTokens}
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <Card className="border-2 border-primary/10 shadow-lg">
                 <CardHeader className="border-b border-gray-100">
                     <DashboardHeader title="Your Staking Dashboard" />

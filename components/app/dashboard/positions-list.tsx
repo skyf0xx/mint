@@ -1,10 +1,16 @@
 // components/app/dashboard/positions-list.tsx
 import React from 'react';
-import { MinusCircle, ExternalLink } from 'lucide-react';
+import { MinusCircle, ExternalLink, Loader2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import TokenBadge from '@/components/app/shared/token-badge';
 import { StakingPosition } from '@/types/staking';
 import ILProtectionIndicator from '@/components/app/shared/il-protection-indicator';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface PositionsListProps {
     positions: StakingPosition[];
@@ -34,6 +40,42 @@ const PositionsList = ({
             (new Date().getTime() - new Date(stakedDate).getTime()) /
                 (1000 * 60 * 60 * 24)
         );
+    };
+
+    // Check if a position is currently being unstaked
+    const isBeingUnstaked = (positionId: string): boolean => {
+        const pendingItems = JSON.parse(
+            localStorage.getItem('pendingStakes') || '[]'
+        );
+        return pendingItems.some(
+            (item: { type: string; positionId: string }) =>
+                item.type === 'unstake' && item.positionId === positionId
+        );
+    };
+
+    // Get unstaking time for a position
+    const getUnstakingTime = (positionId: string): number => {
+        const pendingItems = JSON.parse(
+            localStorage.getItem('pendingStakes') || '[]'
+        );
+        const item = pendingItems.find(
+            (item: { type: string; positionId: string; timestamp: number }) =>
+                item.type === 'unstake' && item.positionId === positionId
+        );
+        return item ? Date.now() - item.timestamp : 0;
+    };
+
+    // Get formatted unstaking time
+    const getFormattedUnstakingTime = (positionId: string): string => {
+        const timeElapsed = getUnstakingTime(positionId);
+        const seconds = Math.floor(timeElapsed / 1000);
+
+        if (seconds < 60) return `${seconds}s`;
+        if (seconds < 3600)
+            return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+        return `${Math.floor(seconds / 3600)}h ${Math.floor(
+            (seconds % 3600) / 60
+        )}m`;
     };
 
     return (
@@ -68,10 +110,15 @@ const PositionsList = ({
                             // Use formattedTokenAmount as initialAmount if initialAmount is not available
                             const initialAmount = position.formattedTokenAmount;
 
+                            // Check if this position is being unstaked
+                            const unstaking = isBeingUnstaked(position.id);
+
                             return (
                                 <div
                                     key={position.id}
-                                    className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                                    className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
+                                        unstaking ? 'bg-amber-50' : ''
+                                    }`}
                                     onClick={() => onViewPosition(position.id)}
                                 >
                                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -102,30 +149,67 @@ const PositionsList = ({
                                             <div className="text-xs text-gray-500 mb-1">
                                                 IL Protection
                                             </div>
-                                            <ILProtectionIndicator
-                                                percentage={
-                                                    position.ilProtectionPercentage
-                                                }
-                                                daysStaked={daysStaked}
-                                                maxDays={30}
-                                            />
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger className="w-full text-left">
+                                                        <ILProtectionIndicator
+                                                            percentage={
+                                                                position.ilProtectionPercentage
+                                                            }
+                                                            daysStaked={
+                                                                daysStaked
+                                                            }
+                                                            maxDays={30}
+                                                        />
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>
+                                                            Current IL
+                                                            protection:{' '}
+                                                            {
+                                                                position.ilProtectionPercentage
+                                                            }
+                                                            %
+                                                        </p>
+                                                        <p>
+                                                            Full protection
+                                                            after 30 days
+                                                        </p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
                                         </div>
 
                                         <div className="flex justify-end items-center space-x-2 md:col-span-1">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="h-9 text-primary border-primary/30"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    onUnstake(position.id);
-                                                }}
-                                            >
-                                                <MinusCircle className="h-4 w-4 mr-1" />
-                                                <span className="hidden sm:inline">
-                                                    Unstake
-                                                </span>
-                                            </Button>
+                                            {unstaking ? (
+                                                <div className="flex items-center text-amber-600 px-2 bg-amber-50 border border-amber-200 rounded-md py-1">
+                                                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                                    <span className="text-sm mr-1">
+                                                        Unstaking
+                                                    </span>
+                                                    <Clock className="h-3 w-3 mr-1" />
+                                                    <span className="text-xs">
+                                                        {getFormattedUnstakingTime(
+                                                            position.id
+                                                        )}
+                                                    </span>
+                                                </div>
+                                            ) : (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-9 text-primary border-primary/30"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onUnstake(position.id);
+                                                    }}
+                                                >
+                                                    <MinusCircle className="h-4 w-4 mr-1" />
+                                                    <span className="hidden sm:inline">
+                                                        Unstake
+                                                    </span>
+                                                </Button>
+                                            )}
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
