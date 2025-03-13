@@ -33,7 +33,26 @@ interface StakingState {
     isUnstaking: boolean;
     currentView: AppView;
 
+    pollingInterval: NodeJS.Timeout | null;
+
+    pollingNextTime: number | null;
+    pendingOperations: {
+        id: string;
+        type: 'stake' | 'unstake';
+        tokenAddress: string;
+        amount?: string;
+        timestamp: number;
+        userAddress: string;
+        positionId?: string;
+    }[];
+
     // Actions
+    getPendingOperations: (userAddress: string) => void;
+    triggerManualCheck: (userAddress: string) => Promise<void>;
+    startPolling: (userAddress: string) => void;
+    stopPolling: () => void;
+    checkPendingStakes: (userAddress: string) => Promise<void>;
+
     fetchTokens: () => Promise<TokenInfo[]>;
     fetchPositions: (userAddress: string) => Promise<StakingPosition[]>;
     fetchDashboardMetrics: (userAddress: string) => Promise<DashboardMetrics>;
@@ -80,6 +99,175 @@ export const useStakingStore = create<StakingState>()(
             isStaking: false,
             isUnstaking: false,
             currentView: 'dashboard',
+
+            pollingInterval: null,
+
+            pollingNextTime: null,
+            pendingOperations: [],
+
+            startPolling: (userAddress: string) => {
+                const { pollingInterval } = get();
+
+                // Don't create a new interval if one is already running
+                if (pollingInterval) return;
+
+                // Set the next poll time
+                set({ pollingNextTime: Date.now() + 30000 });
+
+                // Load pending operations initially
+                get().getPendingOperations(userAddress);
+
+                const interval = setInterval(async () => {
+                    try {
+                        // Refresh positions first
+                        await get().fetchPositions(userAddress);
+                        await get().fetchDashboardMetrics(userAddress);
+
+                        // Then check if any pending stakes are complete
+                        await get().checkPendingStakes(userAddress);
+
+                        // Update next poll time and pending operations
+                        set({ pollingNextTime: Date.now() + 30000 });
+                        get().getPendingOperations(userAddress);
+
+                        // Dispatch a custom event to notify UI components
+                        const event = new CustomEvent(
+                            'pendingOperationsUpdated'
+                        );
+                        window.dispatchEvent(event);
+                    } catch (error) {
+                        console.error('Error during polling:', error);
+                        // Don't stop polling on error - just continue trying
+                    }
+                }, 30000); // 30 second interval
+
+                set({ pollingInterval: interval as unknown as NodeJS.Timeout });
+            },
+
+            // Get pending operations for a specific user
+            getPendingOperations: (userAddress: string) => {
+                const pendingItems = JSON.parse(
+                    localStorage.getItem('pendingStakes') || '[]'
+                ).filter(
+                    (item: { userAddress: string }) =>
+                        item.userAddress === userAddress
+                );
+
+                set({ pendingOperations: pendingItems });
+            },
+
+            // Allow UI to trigger an immediate check
+            triggerManualCheck: async (userAddress: string) => {
+                try {
+                    // Reset timer
+                    set({ pollingNextTime: Date.now() + 30000 });
+
+                    // Run all the checks
+                    await get().fetchPositions(userAddress);
+                    await get().fetchDashboardMetrics(userAddress);
+                    await get().checkPendingStakes(userAddress);
+                    get().getPendingOperations(userAddress);
+
+                    // Notify UI with toast
+                    toast.info('Checking for completed transactions...', {
+                        autoClose: 2000,
+                    });
+                } catch (error) {
+                    console.error('Error during manual check:', error);
+                    toast.error('Failed to check transaction status', {
+                        autoClose: 3000,
+                    });
+                }
+            },
+
+            stopPolling: () => {
+                const { pollingInterval } = get();
+
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                    set({ pollingInterval: null });
+                }
+            },
+
+            checkPendingStakes: async (userAddress: string) => {
+                // Get pending stakes from localStorage
+                const pendingItems = JSON.parse(
+                    localStorage.getItem('pendingStakes') || '[]'
+                );
+
+                // If no pending items, stop polling
+                if (pendingItems.length === 0) {
+                    get().stopPolling();
+                    return;
+                }
+
+                // Get current positions
+                const positions = get().userPositions;
+
+                // The current time to check for stale operations
+                const currentTime = Date.now();
+                const maxAgeMs = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+                // Filter out completed items and stale items
+                const updatedPendingItems = pendingItems.filter(
+                    (item: {
+                        type: string;
+                        positionId: string;
+                        tokenAddress: string;
+                        amount: string;
+                        timestamp: number;
+                        userAddress: string;
+                    }) => {
+                        // Check if item is stale (older than 24 hours)
+                        if (currentTime - item.timestamp > maxAgeMs) {
+                            console.log(
+                                `Removing stale ${item.type} operation from pending list`
+                            );
+                            return false;
+                        }
+
+                        // Only process items for the current user
+                        if (item.userAddress !== userAddress) {
+                            return true; // Keep items for other users
+                        }
+
+                        if (item.type === 'unstake') {
+                            // For unstakes, check if the position with that ID is no longer in the list
+                            return positions.some(
+                                (position) => position.id === item.positionId
+                            );
+                        } else {
+                            // For stakes, check if there's a matching position with the same token address
+                            const matchingPosition = positions.find(
+                                (position) =>
+                                    position.tokenAddress ===
+                                        item.tokenAddress &&
+                                    // Approximate amount matching (within 1% tolerance)
+                                    Math.abs(
+                                        parseFloat(
+                                            position.formattedTokenAmount
+                                        ) - parseFloat(item.amount)
+                                    ) /
+                                        parseFloat(item.amount) <
+                                        0.01
+                            );
+
+                            return !matchingPosition;
+                        }
+                    }
+                );
+
+                // Update localStorage with remaining pending items
+                localStorage.setItem(
+                    'pendingStakes',
+                    JSON.stringify(updatedPendingItems)
+                );
+
+                // If all items are processed, stop polling
+                if (updatedPendingItems.length === 0) {
+                    get().stopPolling();
+                }
+            },
 
             // Data fetching actions
             fetchTokens: async () => {
@@ -263,6 +451,34 @@ export const useStakingStore = create<StakingState>()(
                     // Proceed with staking
                     await stakeTokens(tokenAddress, amount);
 
+                    // Store pending stake in localStorage
+                    const token = get().availableTokens.find(
+                        (t) => t.address === tokenAddress
+                    );
+                    const pendingStake = {
+                        id: `stake-${tokenAddress}-${userAddress}-${Date.now()}`,
+                        type: 'stake',
+                        tokenAddress,
+                        amount,
+                        timestamp: Date.now(),
+                        userAddress: userAddress as string,
+                        tokenSymbol: token?.symbol || 'Unknown Token',
+                    };
+
+                    // Get existing pending stakes
+                    const existingPendingStakes = JSON.parse(
+                        localStorage.getItem('pendingStakes') || '[]'
+                    );
+
+                    // Add new pending stake
+                    existingPendingStakes.push(pendingStake);
+
+                    // Save back to localStorage
+                    localStorage.setItem(
+                        'pendingStakes',
+                        JSON.stringify(existingPendingStakes)
+                    );
+
                     toast.success(
                         'Your tokens are being staked. This may take a few minutes to complete.',
                         {
@@ -270,16 +486,13 @@ export const useStakingStore = create<StakingState>()(
                         }
                     );
 
-                    // Wait a moment before refreshing positions to allow blockchain to process
-                    setTimeout(async () => {
-                        await get().fetchPositions(userAddress as string);
-                        await get().fetchDashboardMetrics(
-                            userAddress as string
-                        );
-                    }, 10000); // 10 second delay
+                    get().startPolling(userAddress as string);
 
                     // Return to dashboard
                     set({ currentView: 'dashboard' });
+
+                    const event = new CustomEvent('pendingOperationsUpdated');
+                    window.dispatchEvent(event);
                     return true;
                 } catch (error) {
                     console.error('Staking error:', error);
@@ -307,8 +520,37 @@ export const useStakingStore = create<StakingState>()(
                         throw new Error('Position not found');
                     }
 
-                    // Perform unstaking
+                    // Perform unstaking (removed duplicate call)
                     await unstakeTokens(position.tokenAddress);
+
+                    // Store pending unstake in localStorage
+                    const userAddress =
+                        await window.arweaveWallet?.getActiveAddress();
+                    const pendingUnstake = {
+                        id: `unstake-${positionId}-${Date.now()}`,
+                        type: 'unstake',
+                        positionId,
+                        tokenAddress: position.tokenAddress,
+                        timestamp: Date.now(),
+                        userAddress: userAddress as string,
+                    };
+
+                    // Get existing pending items
+                    const existingPendingItems = JSON.parse(
+                        localStorage.getItem('pendingStakes') || '[]'
+                    );
+
+                    // Add new pending unstake
+                    existingPendingItems.push(pendingUnstake);
+
+                    // Save back to localStorage
+                    localStorage.setItem(
+                        'pendingStakes',
+                        JSON.stringify(existingPendingItems)
+                    );
+
+                    // Start polling for completion
+                    get().startPolling(userAddress as string);
 
                     toast.success(
                         'Your tokens are being unstaked. This may take a few minutes to complete.',
@@ -316,20 +558,6 @@ export const useStakingStore = create<StakingState>()(
                             autoClose: 5000,
                         }
                     );
-
-                    // Wait a moment and refresh user data
-                    const userAddress =
-                        await window.arweaveWallet?.getActiveAddress();
-                    setTimeout(async () => {
-                        await get().fetchPositions(userAddress as string);
-                        await get().fetchDashboardMetrics(
-                            userAddress as string
-                        );
-                        await get().fetchTokenBalance(
-                            position.tokenAddress,
-                            userAddress as string
-                        );
-                    }, 10000); // 10 second delay
 
                     // Return to dashboard
                     set({ currentView: 'dashboard' });
@@ -380,7 +608,7 @@ export const useStakingStore = create<StakingState>()(
 
 // Hook for initializing and auto-refreshing staking data
 export const useStakingInit = (userAddress: string | null) => {
-    const { fetchTokens, fetchPositions, fetchDashboardMetrics } =
+    const { fetchTokens, fetchPositions, fetchDashboardMetrics, startPolling } =
         useStakingStore();
 
     useEffect(() => {
@@ -389,6 +617,20 @@ export const useStakingInit = (userAddress: string | null) => {
             fetchTokens();
             fetchPositions(userAddress);
             fetchDashboardMetrics(userAddress);
+
+            // Check for pending stakes and start polling if needed
+            const pendingStakes = JSON.parse(
+                localStorage.getItem('pendingStakes') || '[]'
+            );
+            if (pendingStakes.length > 0) {
+                startPolling(userAddress);
+            }
         }
-    }, [userAddress, fetchTokens, fetchPositions, fetchDashboardMetrics]);
+    }, [
+        userAddress,
+        fetchTokens,
+        fetchPositions,
+        fetchDashboardMetrics,
+        startPolling,
+    ]);
 };
