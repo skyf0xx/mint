@@ -31,7 +31,6 @@ const App = () => {
         isLoading,
         stakeToken,
         unstakePosition,
-        fetchPositionDetails,
     } = useStakingStore();
 
     useEffect(() => {
@@ -45,13 +44,6 @@ const App = () => {
 
     // Local state for educational modal
     const [showILModal, setShowILModal] = React.useState(false);
-
-    // Load position details when a position is selected
-    useEffect(() => {
-        if (connected && address && selectedPositionId) {
-            fetchPositionDetails(selectedPositionId, address);
-        }
-    }, [connected, address, selectedPositionId]);
 
     // Event handlers
     const handleStartStaking = () => {
