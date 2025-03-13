@@ -13,10 +13,10 @@ import {
     getUserPositions,
     stakeTokens,
     unstakeTokens,
-    getPositionDetails,
     getDashboardMetrics,
     getTokenBalance,
     checkSufficientBalance,
+    deleteUserPositionsCache,
 } from '@/services/staking-service';
 import { useEffect } from 'react';
 
@@ -50,7 +50,7 @@ interface StakingState {
     getPendingOperations: (userAddress: string) => void;
     triggerManualCheck: (userAddress: string) => Promise<void>;
     startPolling: (userAddress: string) => void;
-    stopPolling: () => void;
+    stopPolling: (userAddress: string) => void;
     checkPendingStakes: (userAddress: string) => Promise<void>;
 
     fetchTokens: () => Promise<TokenInfo[]>;
@@ -103,6 +103,7 @@ export const useStakingStore = create<StakingState>()(
             pendingOperations: [],
 
             startPolling: (userAddress: string) => {
+                deleteUserPositionsCache(userAddress);
                 const { pollingInterval } = get();
 
                 // Don't create a new interval if one is already running
@@ -177,7 +178,8 @@ export const useStakingStore = create<StakingState>()(
                 }
             },
 
-            stopPolling: () => {
+            stopPolling: (userAddress) => {
+                deleteUserPositionsCache(userAddress);
                 const { pollingInterval } = get();
 
                 if (pollingInterval) {
@@ -194,7 +196,7 @@ export const useStakingStore = create<StakingState>()(
 
                 // If no pending items, stop polling
                 if (pendingItems.length === 0) {
-                    get().stopPolling();
+                    get().stopPolling(userAddress);
                     return;
                 }
 
@@ -262,7 +264,7 @@ export const useStakingStore = create<StakingState>()(
 
                 // If all items are processed, stop polling
                 if (updatedPendingItems.length === 0) {
-                    get().stopPolling();
+                    get().stopPolling(userAddress);
                 }
             },
 
