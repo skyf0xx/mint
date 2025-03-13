@@ -2,7 +2,7 @@
 
 import { StakingPosition, TokenInfo, ILProtectionInfo } from '@/types/staking';
 import { withRetry } from '@/lib/utils';
-import { CACHE_EXPIRY } from '@/lib/cache';
+import { CACHE_EXPIRY, deleteFromCache, generateCacheKey } from '@/lib/cache';
 import {
     getBalance,
     MINT_PROCESS,
@@ -149,6 +149,21 @@ export async function getTokenBalance(
     }
 }
 
+function getPostionTags(userAddress: string) {
+    return [
+        { name: 'Action', value: 'Get-All-Positions' },
+        { name: 'User', value: userAddress },
+    ];
+}
+
+export async function deleteUserPositionsCache(userAddress: string) {
+    const tags = getPostionTags(userAddress);
+    const cacheKey =
+        generateCacheKey(MINT_PROCESS, tags) +
+        (userAddress ? '-' + userAddress : '');
+    deleteFromCache(cacheKey);
+}
+
 /**
  * Retrieves all staking positions for a user
  * @param userAddress User's wallet address
@@ -160,10 +175,7 @@ export async function getUserPositions(
     try {
         const response = await sendAndGetResult(
             MINT_PROCESS,
-            [
-                { name: 'Action', value: 'Get-All-Positions' },
-                { name: 'User', value: userAddress },
-            ],
+            getPostionTags(userAddress),
             false,
             CACHE_EXPIRY.MINUTE * 5,
             userAddress
