@@ -1,6 +1,6 @@
 // components/app/dashboard/positions-list.tsx
 import React from 'react';
-import { MinusCircle, ExternalLink, Loader2, Clock } from 'lucide-react';
+import { MinusCircle, Loader2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import TokenBadge from '@/components/app/shared/token-badge';
 import { StakingPosition } from '@/types/staking';
@@ -196,9 +196,8 @@ const PositionsList = ({
                                                 </div>
                                             ) : (
                                                 <Button
-                                                    variant="outline"
                                                     size="sm"
-                                                    className="h-9 text-primary border-primary/30"
+                                                    className="bg-gradient-to-r from-primary to-primary-600 hover:to-primary transition-all duration-300"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         onUnstake(position.id);
@@ -213,15 +212,15 @@ const PositionsList = ({
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                className="h-9 text-gray-500"
+                                                className="h-9 text-primary border-primary/30"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     onViewPosition(position.id);
                                                 }}
                                             >
-                                                <ExternalLink className="h-4 w-4" />
-                                                <span className="sr-only">
-                                                    View
+                                                <MinusCircle className="h-4 w-4 mr-1" />
+                                                <span className="hidden sm:inline">
+                                                    Details
                                                 </span>
                                             </Button>
                                         </div>
