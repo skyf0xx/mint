@@ -9,7 +9,14 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, MinusCircle, Info, Shield, Clock } from 'lucide-react';
+import {
+    ArrowLeft,
+    MinusCircle,
+    Info,
+    Shield,
+    Clock,
+    ExternalLink,
+} from 'lucide-react';
 import { StakingPosition } from '@/types/staking';
 
 interface PositionDetailViewProps {
@@ -149,9 +156,18 @@ const PositionDetailView = ({
                             <div className="text-xs text-gray-500 mb-1">
                                 AMM Address
                             </div>
-                            <div className="font-medium text-xs truncate">
-                                {position.amm}
-                            </div>
+                            <a
+                                href={`https://www.ao.link/#/entity/${position.amm}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-medium text-xs text-primary hover:underline flex items-center"
+                            >
+                                {position.amm.substring(0, 6)}...
+                                {position.amm.substring(
+                                    position.amm.length - 4
+                                )}
+                                <ExternalLink className="ml-1 h-3 w-3" />
+                            </a>
                         </div>
                         <div>
                             <div className="text-xs text-gray-500 mb-1">
