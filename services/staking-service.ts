@@ -198,6 +198,7 @@ export async function getUserPositions(
                 lpTokens: string;
                 formattedLpTokens: string;
                 mintAmount: string;
+                formattedMintAmount: string;
                 timeStaked: string;
                 amm: string;
             };
@@ -212,6 +213,7 @@ export async function getUserPositions(
                 lpTokens: position.lpTokens,
                 formattedLpTokens: position.formattedLpTokens,
                 mintAmount: position.mintAmount,
+                formattedMintAmount: position.formattedMintAmount,
                 timeStaked: position.timeStaked,
                 stakedDate: calculateStakedDate(position.timeStaked),
                 amm: position.amm,

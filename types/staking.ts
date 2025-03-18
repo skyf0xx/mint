@@ -25,6 +25,8 @@ export interface StakingPosition {
     /** Amount of MINT tokens */
     mintAmount: string;
     /** Time staked as formatted string (e.g., "14d 6h") */
+    formattedMintAmount: string;
+    /** Time staked as formatted string (e.g., "14d 6h") */
     timeStaked: string;
     /** AMM identifier */
     amm: string;
