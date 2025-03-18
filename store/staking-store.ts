@@ -235,17 +235,27 @@ export const useStakingStore = create<StakingState>()(
                         } else {
                             // For stakes, check if there's a matching position with the same token address
                             const matchingPosition = positions.find(
-                                (position) =>
-                                    position.tokenAddress ===
-                                        item.tokenAddress &&
-                                    // Approximate amount matching (within 1% tolerance)
-                                    Math.abs(
-                                        parseFloat(
-                                            position.formattedTokenAmount
-                                        ) - parseFloat(item.amount)
-                                    ) /
-                                        parseFloat(item.amount) <
-                                        0.01
+                                (position) => {
+                                    const fetchedPosition = parseFloat(
+                                        position.formattedTokenAmount
+                                    );
+                                    const localPosition = parseFloat(
+                                        item.amount
+                                    );
+
+                                    return (
+                                        position.tokenAddress ===
+                                            item.tokenAddress && //same token
+                                        // Approximate amount matching (within 1% tolerance)
+                                        (Math.abs(
+                                            fetchedPosition - localPosition
+                                        ) /
+                                            localPosition <
+                                            0.01 ||
+                                            fetchedPosition - localPosition >= //staked amount is greater than the original local (when user adds to stake)
+                                                0)
+                                    );
+                                }
                             );
 
                             return !matchingPosition;
