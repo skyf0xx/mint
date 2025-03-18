@@ -10,7 +10,12 @@ import {
     Tooltip,
     ResponsiveContainer,
     ReferenceLine,
+    TooltipProps,
 } from 'recharts';
+import {
+    NameType,
+    ValueType,
+} from 'recharts/types/component/DefaultTooltipContent';
 
 const ILExplainer = () => {
     // Generate data showing impermanent loss curve
@@ -72,11 +77,16 @@ const ILExplainer = () => {
     ];
 
     // Custom tooltip for the chart
-    const CustomTooltip = ({ active, payload }: any) => {
+    const CustomTooltip: React.FC<TooltipProps<ValueType, NameType>> = ({
+        active,
+        payload,
+    }) => {
         if (active && payload && payload.length) {
-            const priceRatio = payload[0].payload.priceRatio.toFixed(1);
-            const il = Math.abs(parseFloat(payload[0].value));
-            const protectedAmount = Math.abs(parseFloat(payload[1].value));
+            const priceRatio = Number(payload[0].payload.priceRatio).toFixed(1);
+            const il = Math.abs(parseFloat(payload[0].value as string));
+            const protectedAmount = Math.abs(
+                parseFloat(payload[1].value as string)
+            );
 
             return (
                 <div className="bg-white p-3 border border-gray-200 shadow-sm rounded-md">
