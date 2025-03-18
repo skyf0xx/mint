@@ -219,9 +219,6 @@ export const useStakingStore = create<StakingState>()(
                     }) => {
                         // Check if item is stale (older than 24 hours)
                         if (currentTime - item.timestamp > maxAgeMs) {
-                            console.log(
-                                `Removing stale ${item.type} operation from pending list`
-                            );
                             return false;
                         }
 
