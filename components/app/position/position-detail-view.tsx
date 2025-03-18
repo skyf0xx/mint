@@ -107,7 +107,7 @@ const PositionDetailView = ({
                                     MINT Supplied
                                 </div>
                                 <div className="font-medium text-lg">
-                                    {position.mintAmount} MINT
+                                    {position.formattedMintAmount} MINT
                                 </div>
                             </div>
                             <div>
