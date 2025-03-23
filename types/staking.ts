@@ -190,6 +190,8 @@ export interface TokenOption {
     label: string;
     icon?: string;
     balance?: string;
+    isTestToken?: boolean;
+    disabled?: boolean;
     note?: {
         text: string;
         link?: {

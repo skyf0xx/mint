@@ -117,44 +117,44 @@ const StakingForm = ({
         }
     };
 
-    const tokenOptions: TokenOption[] = availableTokens
-        .filter((token) => token.symbol !== 'MATRIX')
-        .map((token) => {
-            const option: TokenOption = {
-                value: token.symbol,
-                label: token.symbol,
-                balance: token.balance || '0',
+    const tokenOptions: TokenOption[] = availableTokens.map((token) => {
+        const option: TokenOption = {
+            value: token.symbol,
+            label: token.symbol,
+            balance: token.balance || '0',
+            isTestToken: ['MATRIX', 'TTT'].includes(token.symbol),
+            disabled: token.symbol === 'MATRIX',
+        };
+
+        // Add token-specific notes
+        if (token.symbol === 'TTT') {
+            option.note = {
+                text: 'These are Test Net Tokens. Testnet users will be rewarded - you can get them from',
+                link: {
+                    url: 'https://7ergimovvt6djnozunspgq5faks6am2tlab5axyyv3avom5yus5q.arweave.net/-SJkMdWs_DS12aNk80OlAqXgM1NYA9BfGK7BVzO4pLs',
+                    text: 'Test Tokens',
+                },
             };
+        } else if (token.symbol === 'MINT') {
+            option.note = {
+                text: 'MINT is the native token of MINT Protocol',
+            };
+        } else if (token.symbol === 'MATRIX') {
+            option.note = {
+                text: 'MATRIX token is for testing purposes only and is currently disabled.',
+            };
+        } else if (token.symbol === 'NAB') {
+            option.note = {
+                text: 'Number Always Bigger',
+                link: {
+                    url: 'https://number-always-bigger.ar.io/',
+                    text: 'Get NAB',
+                },
+            };
+        }
 
-            // Add token-specific notes
-            if (token.symbol === 'TTT') {
-                option.note = {
-                    text: 'These are Test Net Tokens. Testnet users will be rewarded - you can get them from',
-                    link: {
-                        url: 'https://7ergimovvt6djnozunspgq5faks6am2tlab5axyyv3avom5yus5q.arweave.net/-SJkMdWs_DS12aNk80OlAqXgM1NYA9BfGK7BVzO4pLs',
-                        text: 'Test Tokens',
-                    },
-                };
-            } else if (token.symbol === 'MINT') {
-                option.note = {
-                    text: 'MINT is the native token of MINT Protocol',
-                };
-            } else if (token.symbol === 'MATRIX') {
-                option.note = {
-                    text: 'MATRIX token compensation. Test with Matrix to be compensated',
-                };
-            } else if (token.symbol === 'NAB') {
-                option.note = {
-                    text: 'Number Always Bigger',
-                    link: {
-                        url: 'https://number-always-bigger.ar.io/',
-                        text: 'Get NAB',
-                    },
-                };
-            }
-
-            return option;
-        });
+        return option;
+    });
 
     const isFormValid =
         selectedToken &&
