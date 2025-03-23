@@ -7,12 +7,20 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { ExternalLink } from 'lucide-react';
 
 interface TokenOption {
     value: string;
     label: string;
     icon?: string;
     balance?: string;
+    note?: {
+        text: string;
+        link?: {
+            url: string;
+            text: string;
+        };
+    };
 }
 
 interface TokenSelectorProps {
@@ -26,6 +34,11 @@ const TokenSelector = ({
     selectedToken,
     onSelectToken,
 }: TokenSelectorProps) => {
+    // Find the selected token object
+    const selectedTokenObj = tokens.find(
+        (token) => token.value === selectedToken
+    );
+
     return (
         <div className="space-y-2">
             <label
@@ -51,6 +64,24 @@ const TokenSelector = ({
                     ))}
                 </SelectContent>
             </Select>
+
+            {/* Display note if the selected token has one */}
+            {selectedTokenObj?.note && (
+                <div className="mt-2 text-sm text-gray-600 p-3 bg-blue-50 rounded-md border border-blue-100">
+                    {selectedTokenObj.note.text}
+                    {selectedTokenObj.note.link && (
+                        <a
+                            href={selectedTokenObj.note.link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ml-1 text-primary hover:underline inline-flex items-center"
+                        >
+                            {selectedTokenObj.note.link.text}
+                            <ExternalLink className="h-3 w-3 ml-1" />
+                        </a>
+                    )}
+                </div>
+            )}
         </div>
     );
 };

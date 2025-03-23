@@ -186,17 +186,17 @@ export interface DashboardMetrics {
  * Options for a token selector
  */
 export interface TokenOption {
-    /** Token symbol */
     value: string;
-
-    /** Display label */
     label: string;
-
-    /** Token icon URL */
     icon?: string;
-
-    /** User's balance of this token */
     balance?: string;
+    note?: {
+        text: string;
+        link?: {
+            url: string;
+            text: string;
+        };
+    };
 }
 
 /**
