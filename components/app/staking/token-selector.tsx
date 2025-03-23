@@ -39,6 +39,11 @@ const TokenSelector = ({
         (token) => token.value === selectedToken
     );
 
+    // Sort tokens alphabetically by label
+    const sortedTokens = [...tokens].sort((a, b) =>
+        a.label.localeCompare(b.label)
+    );
+
     return (
         <div className="space-y-2">
             <label
@@ -52,7 +57,7 @@ const TokenSelector = ({
                     <SelectValue placeholder="Select a token" />
                 </SelectTrigger>
                 <SelectContent>
-                    {tokens.map((token) => (
+                    {sortedTokens.map((token) => (
                         <SelectItem key={token.value} value={token.value}>
                             {token.label}
                             {token.balance && token.balance != '0' && (
