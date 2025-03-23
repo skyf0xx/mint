@@ -214,6 +214,8 @@ const ProtocolMetrics = () => {
         AO: '/images/currencies/ao.png',
         USDC: '/images/currencies/usdc.svg',
         MINT: '/images/currencies/mint.png',
+        TTT: '/images/currencies/ttt.svg',
+        MATRIX: '/images/currencies/matrix.png',
     };
 
     function getIconFromAddress(tokenAddress: string) {
@@ -228,6 +230,10 @@ const ProtocolMetrics = () => {
                 return tokenIcons['wAR'];
             case '0syT13r0s0tgPmIed95bJnuSqaD29HQNN8D3ElLSrsc':
                 return tokenIcons['AO'];
+            case 'U09Pg31Wlasc8ox5uTDm9sjFQT8XKcCR2Ru5lmFMe2A':
+                return tokenIcons['TTT'];
+            case 'XQhUXernOkcwzrNq5U1KlAhHsqLnT3kA4ccAxfQR7XM':
+                return tokenIcons['MATRIX'];
             default:
                 return '';
         }
@@ -245,6 +251,10 @@ const ProtocolMetrics = () => {
                 return 'wAR';
             case '0syT13r0s0tgPmIed95bJnuSqaD29HQNN8D3ElLSrsc':
                 return 'AO';
+            case 'U09Pg31Wlasc8ox5uTDm9sjFQT8XKcCR2Ru5lmFMe2A':
+                return 'TTT';
+            case 'XQhUXernOkcwzrNq5U1KlAhHsqLnT3kA4ccAxfQR7XM':
+                return 'MATRIX';
             default:
                 return '';
         }
