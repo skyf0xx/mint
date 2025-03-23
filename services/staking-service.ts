@@ -120,6 +120,16 @@ const tokenInfo = [
         symbol: 'USDC',
         decimals: 6,
     },
+    {
+        tokenAddress: 'U09Pg31Wlasc8ox5uTDm9sjFQT8XKcCR2Ru5lmFMe2A',
+        symbol: 'TTT',
+        decimals: 12,
+    },
+    {
+        tokenAddress: 'XQhUXernOkcwzrNq5U1KlAhHsqLnT3kA4ccAxfQR7XM',
+        symbol: 'MATRIX',
+        decimals: 18,
+    },
 ];
 
 export async function getTokenBalance(
