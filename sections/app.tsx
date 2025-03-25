@@ -166,8 +166,10 @@ const App = () => {
                         </span>
                     </h2>
                     <p className="text-xl text-gray-600 leading-relaxed">
-                        Provide liquidity with just one token and get protection
-                        against impermanent loss
+                        Provide{' '}
+                        <span className="font-bold">liquidity on Botega</span>{' '}
+                        with just one token and get protection against
+                        impermanent loss
                     </p>
                 </motion.div>
 

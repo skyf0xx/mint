@@ -37,8 +37,10 @@ const ILEducationSection = ({
                         Single-Sided Staking
                     </h3>
                     <p className="text-gray-600">
-                        Provide liquidity with just one token - no need to split
-                        your holdings or manage token pairs
+                        Provide{' '}
+                        <span className="font-bold">liquidity on Botega</span>{' '}
+                        with just one token - no need to split your holdings or
+                        manage token pairs
                     </p>
                 </div>
 

@@ -223,7 +223,10 @@ const ILFaq = () => {
                             </p>
                             <ul className="list-disc pl-5 text-gray-700 space-y-1">
                                 <li>
-                                    Only need one token to provide liquidity
+                                    Only need one token to provide{' '}
+                                    <span className="font-bold">
+                                        liquidity on Botega
+                                    </span>
                                     (vs. balanced pairs)
                                 </li>
                                 <li>
