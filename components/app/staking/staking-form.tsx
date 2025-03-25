@@ -141,7 +141,11 @@ const StakingForm = ({
             };
         } else if (token.symbol === 'MATRIX') {
             option.note = {
-                text: 'MATRIX token is for testing purposes only and is currently disabled.',
+                text: 'MATRIX token is for testing purposes. MATRIX testers will be compensated by MINT Protocol',
+                link: {
+                    url: 'https://x.com/AlwaysBigger/status/1904321788152267019',
+                    text: 'See details',
+                },
             };
         } else if (token.symbol === 'NAB') {
             option.note = {
