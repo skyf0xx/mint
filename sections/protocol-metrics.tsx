@@ -208,14 +208,14 @@ const ProtocolMetrics = () => {
 
     // Get token icons map - in a real app, you would have a proper mapping
     const tokenIcons: Record<string, string> = {
-        qAR: '/images/currencies/qar.png',
-        wAR: '/images/currencies/war.png',
-        NAB: '/images/currencies/nab.jpeg',
-        AO: '/images/currencies/ao.png',
-        USDC: '/images/currencies/usdc.svg',
-        MINT: '/images/currencies/mint.png',
-        TTT: '/images/currencies/ttt.svg',
-        MATRIX: '/images/currencies/matrix.png',
+        qAR: './images/currencies/qar.png',
+        wAR: './images/currencies/war.png',
+        NAB: './images/currencies/nab.jpeg',
+        AO: './images/currencies/ao.png',
+        USDC: './images/currencies/usdc.svg',
+        MINT: './images/currencies/mint.png',
+        TTT: './images/currencies/ttt.svg',
+        MATRIX: './images/currencies/matrix.png',
     };
 
     function getIconFromAddress(tokenAddress: string) {
