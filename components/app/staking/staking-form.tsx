@@ -123,7 +123,7 @@ const StakingForm = ({
             label: token.symbol,
             balance: token.balance || '0',
             isTestToken: ['MATRIX', 'TTT'].includes(token.symbol),
-            disabled: token.symbol === 'MATRIX',
+            disabled: false, //token.symbol === 'MATRIX',
         };
 
         // Add token-specific notes
