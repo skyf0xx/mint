@@ -83,3 +83,28 @@ export async function withRetry<T>(
     // This should never be reached due to the throw above, but TypeScript needs it
     throw lastError;
 }
+
+/**
+ * Formats a number with thousands separators and specific decimal places
+ * @param value - The number to format
+ * @param decimals - Number of decimal places to show (default: 2)
+ * @returns Formatted number string
+ */
+export const formatNumber = (
+    value: number | string | undefined,
+    decimals = 2
+): string => {
+    // Handle undefined, null, or NaN
+    if (value === undefined || value === null || isNaN(Number(value))) {
+        return '0';
+    }
+
+    // Convert to number if it's a string
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+
+    // Format with commas and specified decimal places
+    return num.toLocaleString(undefined, {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+    });
+};

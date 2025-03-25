@@ -3,6 +3,10 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import { useRef } from 'react';
 import { InfinityLogo } from './logo';
+import {
+    useArweaveWalletStore,
+    useArweaveWalletInit,
+} from '@/hooks/use-wallet';
 
 const FloatingDecoration = ({ className }: { className?: string }) => (
     <motion.div
@@ -26,6 +30,24 @@ const CTA = () => {
         target: containerRef,
         offset: ['start end', 'end start'],
     });
+
+    // Initialize wallet
+    useArweaveWalletInit();
+    const { connected, connect } = useArweaveWalletStore();
+
+    // Handle app launch click
+    const handleLaunchAppClick = () => {
+        if (connected) {
+            // If already connected, scroll to app section
+            const appSection = document.getElementById('app');
+            if (appSection) {
+                appSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        } else {
+            // If not connected, connect to wallet
+            connect();
+        }
+    };
 
     // Parallax effects for background elements
     const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '20%']);
@@ -185,7 +207,7 @@ const CTA = () => {
                         Ready to Start{' '}
                         <span className="relative inline-block">
                             <span className="relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-accent">
-                                Earning Forever
+                                Earning Now
                             </span>
                             <motion.span
                                 className="absolute inset-x-0 bottom-0 h-3 bg-accent/10 -rotate-1"
@@ -231,13 +253,12 @@ const CTA = () => {
                             <Button
                                 size="lg"
                                 className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 group relative overflow-hidden bg-gradient-to-r from-primary to-primary-600 hover:to-primary transition-all duration-500 w-full sm:w-auto"
-                                onClick={() =>
-                                    (window.location.href =
-                                        '/get-started/index.html')
-                                }
+                                onClick={handleLaunchAppClick}
                             >
                                 <span className="relative z-10 flex items-center">
-                                    Get MINT Now
+                                    {connected
+                                        ? 'Open Dashboard'
+                                        : 'Launch App'}
                                     <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                                 </span>
                                 <span className="absolute inset-0 bg-gradient-to-r from-accent to-accent-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

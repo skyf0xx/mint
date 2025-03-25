@@ -1,25 +1,12 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { scrollToSection } from '@/lib/helpers';
-import { ChevronRight, ArrowDown, Loader2 } from 'lucide-react';
+import { ChevronRight, ArrowDown } from 'lucide-react';
 import { InfinityLogo } from './logo';
 import { motion } from 'framer-motion';
-import NABReference from './nab-reference';
-import CountUp from 'react-countup';
-import { getTotalSupply } from '@/lib/wallet-actions';
-import { useState, useEffect } from 'react';
-
-interface MetricProps {
-    title: string;
-    value: string | number;
-    subtitle: string;
-    delay?: number;
-    featured?: boolean;
-    loading?: boolean;
-    animate?: boolean;
-    suffix: string;
-    decimals: number;
-}
+import {
+    useArweaveWalletInit,
+    useArweaveWalletStore,
+} from '@/hooks/use-wallet';
 
 const FloatingDecoration = ({ className }: { className?: string }) => (
     <motion.div
@@ -37,102 +24,21 @@ const FloatingDecoration = ({ className }: { className?: string }) => (
     />
 );
 
-const MetricCard = ({
-    title,
-    value,
-    subtitle,
-    delay = 0,
-    featured = false,
-    loading = false,
-    animate = false,
-    suffix,
-    decimals,
-}: MetricProps) => (
-    <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay }}
-        className="h-full"
-    >
-        <Card
-            className={`h-full group transition-all duration-500 hover:shadow-lg ${
-                featured ? 'border-2 border-primary/20 bg-primary/5' : ''
-            }`}
-        >
-            <CardContent className="h-full p-4 sm:p-6 flex flex-col justify-between">
-                <dl className="flex flex-col h-full justify-between">
-                    <div className="space-y-2">
-                        <dt
-                            className={`text-sm font-medium ${
-                                featured ? 'text-primary-600' : 'text-gray-600'
-                            }`}
-                        >
-                            {title}
-                        </dt>
-                        <dd
-                            className={`text-2xl sm:text-3xl font-bold tracking-tight ${
-                                featured
-                                    ? 'bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600'
-                                    : 'text-gray-900'
-                            }`}
-                        >
-                            {loading ? (
-                                <div className="flex items-center space-x-2">
-                                    <Loader2 className="w-6 h-6 animate-spin text-primary/50" />
-                                    <span className="text-primary/50">
-                                        Loading...
-                                    </span>
-                                </div>
-                            ) : animate && typeof value === 'number' ? (
-                                <CountUp
-                                    end={value}
-                                    duration={2.5}
-                                    separator=","
-                                    decimal="."
-                                    decimals={decimals}
-                                    suffix={suffix}
-                                />
-                            ) : (
-                                value
-                            )}
-                        </dd>
-                    </div>
-                    <dd className="text-sm text-gray-500 mt-2">{subtitle}</dd>
-                </dl>
-            </CardContent>
-        </Card>
-    </motion.div>
-);
-
 const Hero = () => {
-    const [currentSupply, setCurrentSupply] = useState<string | null>(null);
-    const [loading, setLoading] = useState(true);
+    // Initialize wallet
+    useArweaveWalletInit();
+    const { connected, connect } = useArweaveWalletStore();
 
-    useEffect(() => {
-        const fetchSupply = async () => {
-            try {
-                const supply = await getTotalSupply();
-                setCurrentSupply(supply);
-            } catch (error) {
-                console.error('Failed to fetch supply:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchSupply();
-    }, []);
-
-    // Convert supply string to number for CountUp
-    const supplyNumber = currentSupply
-        ? parseFloat(currentSupply.replace(/,/g, '')) / 1000000 // Convert to millions
-        : 0;
+    const handleLaunchAppClick = () => {
+        if (connected) {
+            scrollToSection('app');
+        } else {
+            connect();
+        }
+    };
 
     return (
-        <section
-            id="hero"
-            className="relative min-h-[90vh] flex flex-col justify-center w-full overflow-x-hidden"
-        >
+        <section id="hero" className="relative w-full overflow-x-hidden">
             {/* Enhanced gradient background */}
             <div className="absolute inset-0">
                 <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-white to-transparent" />
@@ -140,13 +46,13 @@ const Hero = () => {
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[80px] opacity-20" />
             </div>
 
-            {/* Add floating decorations with adjusted positioning for mobile */}
+            {/* Add floating decorations */}
             <FloatingDecoration className="top-32 left-[8%] opacity-60 hidden sm:block" />
             <FloatingDecoration className="top-48 right-[12%] w-20 h-20 opacity-40 hidden sm:block" />
             <FloatingDecoration className="bottom-40 left-[15%] w-24 h-24 opacity-50 hidden sm:block" />
             <FloatingDecoration className="top-1/3 right-[18%] w-12 h-12 opacity-70 hidden sm:block" />
 
-            {/* Add accent squares with mobile visibility control */}
+            {/* Add accent squares */}
             <motion.div
                 className="absolute top-1/4 right-[25%] w-8 h-8 rounded-lg border-2 border-accent/20 hidden sm:block"
                 animate={{
@@ -175,15 +81,16 @@ const Hero = () => {
             />
 
             <div className="w-full max-w-[100vw] overflow-hidden">
-                <div className="container mx-auto px-4 pt-32 pb-24 relative">
+                {/* Main hero content - Now with more vertical space */}
+                <div className="container mx-auto px-4 pt-24 sm:pt-32 min-h-[90vh] flex flex-col justify-center relative">
                     <div className="max-w-4xl mx-auto">
                         <motion.div
-                            className="text-center space-y-8"
+                            className="text-center space-y-6 sm:space-y-8"
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6 }}
                         >
-                            {/* Enhanced MINT branding */}
+                            {/* Brand logo */}
                             <div className="relative">
                                 <motion.div
                                     initial={{ scale: 0.8, opacity: 0 }}
@@ -196,7 +103,7 @@ const Hero = () => {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.4 }}
-                                    className="mt-6"
+                                    className="mt-4 sm:mt-6"
                                 >
                                     <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-accent mb-4">
                                         MINT
@@ -205,32 +112,34 @@ const Hero = () => {
                                 </motion.div>
                             </div>
 
-                            {/* Value proposition with adjusted text sizes */}
+                            {/* Updated value proposition */}
                             <motion.div
-                                className="space-y-6 px-4 sm:px-0"
+                                className="space-y-4 sm:space-y-6 px-4 sm:px-0"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.6 }}
                             >
                                 <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
-                                    Stake Once,{' '}
                                     <span className="relative inline-block">
                                         <span className="relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-accent">
-                                            Earn Forever
+                                            Single Sided Liquidity Protocol
                                         </span>
                                         <span className="absolute inset-x-0 bottom-2 h-3 bg-accent/10 -rotate-1" />
                                     </span>
+                                    <p className="mt-4">
+                                        Safer Earnings for You.
+                                    </p>
                                 </h2>
                                 <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                                    Transform your crypto strategy with MINT —
-                                    the deflationary token that rewards you with{' '}
-                                    <NABReference /> tokens for life.
-                                </p>{' '}
+                                    Skip token pairing. Let MINT supply the
+                                    other side of your LP <strong>and</strong>{' '}
+                                    reduce your exposure to impermanent loss.
+                                </p>
                             </motion.div>
 
-                            {/* Call to Action with mobile-optimized buttons */}
+                            {/* Updated Call to Action buttons */}
                             <motion.div
-                                className="flex flex-col sm:flex-row justify-center gap-4 pt-8"
+                                className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 pt-6 sm:pt-8"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.8 }}
@@ -238,13 +147,12 @@ const Hero = () => {
                                 <Button
                                     size="lg"
                                     className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 group relative overflow-hidden bg-gradient-to-r from-primary to-primary-600 hover:to-primary transition-all duration-500 w-full sm:w-auto"
-                                    onClick={() =>
-                                        (window.location.href =
-                                            '/get-started/index.html')
-                                    }
+                                    onClick={handleLaunchAppClick}
                                 >
                                     <span className="relative z-10 flex items-center justify-center">
-                                        Get MINT Now
+                                        {connected
+                                            ? 'Open Dashboard'
+                                            : 'Launch App'}
                                         <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                                     </span>
                                     <span className="absolute inset-0 bg-gradient-to-r from-accent to-accent-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -254,46 +162,13 @@ const Hero = () => {
                                     variant="outline"
                                     size="lg"
                                     className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 group border-2 w-full sm:w-auto"
-                                    onClick={() => scrollToSection('benefits')}
+                                    onClick={() => scrollToSection('metrics')}
                                 >
-                                    Learn More
+                                    Explore Protection
                                     <ArrowDown className="ml-2 group-hover:translate-y-1 transition-transform" />
                                 </Button>
                             </motion.div>
                         </motion.div>
-
-                        {/* Metrics Display with mobile grid adjustments */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-16">
-                            <MetricCard
-                                title="Current Supply"
-                                value={loading ? 'Loading...' : supplyNumber}
-                                subtitle="MINT Tokens"
-                                delay={1.0}
-                                loading={loading}
-                                animate={!loading}
-                                suffix="M"
-                                decimals={3}
-                            />
-                            <MetricCard
-                                title="Target Supply"
-                                value={21}
-                                subtitle="MINT Tokens"
-                                delay={1.1}
-                                featured={true}
-                                animate={true}
-                                suffix="M"
-                                decimals={3}
-                            />
-                            <MetricCard
-                                title="Weekly Burn Rate"
-                                value={0.25}
-                                subtitle="of unstaked supply"
-                                delay={1.2}
-                                animate={true}
-                                suffix="%"
-                                decimals={2}
-                            />
-                        </div>
                     </div>
                 </div>
             </div>

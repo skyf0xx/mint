@@ -12,14 +12,36 @@ import MintSupplyGraph from '@/sections/graph';
 import BackToTop from '@/components/back-to-top';
 import FAQ from '@/sections/faq';
 import ScarcityMechanics from '@/sections/scarcity';
+import Tokenomics from '@/sections/tokenomics';
+import App from '@/sections/app';
+import ProtocolMetrics from '@/sections/protocol-metrics'; // Add this import
+import SectionDivider from '@/components/section-divider';
+
+// Define the progress state type
+type ProgressState = {
+    hero: boolean;
+    metrics: boolean;
+    benefits: boolean;
+    howItWorks: boolean;
+    tokenomics: boolean;
+    supply: boolean;
+    scarcity: boolean;
+    trust: boolean;
+    faq: boolean;
+};
 
 // Progress tracking hook
 const useScrollProgress = () => {
-    const [progress, setProgress] = useState({
+    const [progress, setProgress] = useState<ProgressState>({
         hero: true,
+        metrics: false,
         benefits: false,
         howItWorks: false,
+        tokenomics: false,
+        supply: false,
+        scarcity: false,
         trust: false,
+        faq: false,
     });
 
     useEffect(() => {
@@ -34,28 +56,85 @@ const useScrollProgress = () => {
         const updateProgress = () => {
             const sections = {
                 hero: document.getElementById('hero'),
+                metrics: document.getElementById('metrics'),
                 benefits: document.getElementById('benefits'),
                 howItWorks: document.getElementById('how-it-works'),
+                tokenomics: document.getElementById('tokenomics'),
+                supply: document.getElementById('supply-graph'),
+                scarcity: document.getElementById('scarcity'),
                 trust: document.getElementById('trust'),
+                faq: document.getElementById('faq'),
             };
 
             const viewportHeight = window.innerHeight;
             const scrollPosition = window.scrollY + viewportHeight * 0.3;
 
-            setProgress({
-                hero: scrollPosition < (sections.benefits?.offsetTop || 0),
-                benefits:
-                    scrollPosition >= (sections.benefits?.offsetTop || 0) &&
-                    scrollPosition < (sections.howItWorks?.offsetTop || 0),
-                howItWorks:
-                    scrollPosition >= (sections.howItWorks?.offsetTop || 0) &&
-                    scrollPosition < (sections.trust?.offsetTop || 0),
-                trust: scrollPosition >= (sections.trust?.offsetTop || 0),
-            });
+            // Get all section offsets
+            const sectionOffsets = [
+                { id: 'hero', offset: sections.hero?.offsetTop || 0 },
+                {
+                    id: 'metrics',
+                    offset: sections.metrics?.offsetTop || Infinity,
+                },
+                {
+                    id: 'benefits',
+                    offset: sections.benefits?.offsetTop || Infinity,
+                },
+                {
+                    id: 'howItWorks',
+                    offset: sections.howItWorks?.offsetTop || Infinity,
+                },
+                {
+                    id: 'tokenomics',
+                    offset: sections.tokenomics?.offsetTop || Infinity,
+                },
+                {
+                    id: 'supply',
+                    offset: sections.supply?.offsetTop || Infinity,
+                },
+                {
+                    id: 'scarcity',
+                    offset: sections.scarcity?.offsetTop || Infinity,
+                },
+                { id: 'trust', offset: sections.trust?.offsetTop || Infinity },
+                { id: 'faq', offset: sections.faq?.offsetTop || Infinity },
+                { id: 'end', offset: document.body.scrollHeight },
+            ].sort((a, b) => a.offset - b.offset);
+
+            // Find active section
+            let activeSection = 'hero';
+            for (let i = 0; i < sectionOffsets.length - 1; i++) {
+                const currentOffset = sectionOffsets[i].offset;
+                const nextOffset = sectionOffsets[i + 1].offset;
+
+                if (
+                    scrollPosition >= currentOffset &&
+                    scrollPosition < nextOffset
+                ) {
+                    activeSection = sectionOffsets[i].id;
+                    break;
+                }
+            }
+
+            // Create new progress state with only the active section set to true
+            const newProgress: ProgressState = {
+                hero: activeSection === 'hero',
+                metrics: activeSection === 'metrics',
+                benefits: activeSection === 'benefits',
+                howItWorks: activeSection === 'howItWorks',
+                tokenomics: activeSection === 'tokenomics',
+                supply: activeSection === 'supply',
+                scarcity: activeSection === 'scarcity',
+                trust: activeSection === 'trust',
+                faq: activeSection === 'faq',
+            };
+
+            setProgress(newProgress);
         };
 
         window.addEventListener('scroll', updateProgress);
-        updateProgress();
+        updateProgress(); // Initialize on mount
+
         return () => window.removeEventListener('scroll', updateProgress);
     }, []);
 
@@ -76,25 +155,45 @@ const Home = () => {
             {/* Hero Section */}
             <Hero />
 
-            {/* Benefits Section */}
-            <Benefits />
+            {/* Protocol Metrics Section */}
+            <ProtocolMetrics />
+
+            {/* App Section */}
+            <App />
 
             {/* How It Works Section */}
             <HowItWorks />
 
+            {/* Benefits Section */}
+            <Benefits />
+
+            <SectionDivider id="tokenomics-divider" label="TOKEN MECHANICS" />
+
+            {/* Tokenomics Section */}
+            <div id="tokenomics">
+                <Tokenomics />
+            </div>
+
             {/* Visual section */}
-            <MintSupplyGraph />
+            <div id="supply-graph">
+                <MintSupplyGraph />
+            </div>
 
             {/* Scarcity Mechanics Section */}
-            <ScarcityMechanics />
+            <div id="scarcity">
+                <ScarcityMechanics />
+            </div>
 
             {/* Trust Section */}
             <Trust />
 
+            {/* FAQ Section */}
+            <div id="faq">
+                <FAQ />
+            </div>
+
             {/* Final CTA */}
             <CTA />
-
-            <FAQ />
 
             {/* Footer */}
             <Footer />

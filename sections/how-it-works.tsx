@@ -1,31 +1,48 @@
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
-import NABReference from './nab-reference';
-import FeatureItem from '@/components/ui/feature-item';
+import {
+    ArrowDownUp,
+    Coins,
+    Workflow,
+    Shield,
+    Wallet,
+    LucideIcon,
+} from 'lucide-react';
 
-// Animation variants for staggered animations
+interface FloatingDecorationProps {
+    className?: string;
+}
+
+interface StepProps {
+    icon: LucideIcon;
+    title: string;
+    description: string;
+    delay: number;
+    index: number;
+}
+
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.1,
+            staggerChildren: 0.15,
             delayChildren: 0.2,
         },
     },
 };
 
 const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0 },
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
 };
 
-// Floating decoration component
-const FloatingDecoration = ({ className }: { className?: string }) => (
+const FloatingDecoration: React.FC<FloatingDecorationProps> = ({
+    className,
+}) => (
     <motion.div
-        className={`absolute w-12 h-12 rounded-xl border-2 border-primary/10 ${className}`}
+        className={`absolute w-16 h-16 rounded-2xl border-2 border-primary/10 ${className}`}
         animate={{
             y: [0, -20, 0],
             rotate: [0, 45, 0],
@@ -39,77 +56,112 @@ const FloatingDecoration = ({ className }: { className?: string }) => (
     />
 );
 
+const Step: React.FC<StepProps> = ({
+    icon: Icon,
+    title,
+    description,
+    delay,
+    index,
+}) => (
+    <motion.div variants={itemVariants} custom={delay} className="relative">
+        <div className="flex items-start gap-6">
+            {/* Enhanced icon container with gradient and animation */}
+            <motion.div
+                className="p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent flex-shrink-0"
+                whileHover={{ scale: 1.05 }}
+                initial={{ rotateY: 0 }}
+                whileInView={{
+                    rotateY: 360,
+                    transition: {
+                        duration: 1.5,
+                        ease: 'easeOut',
+                        delay: index * 0.2,
+                    },
+                }}
+                viewport={{ once: true }}
+            >
+                <Icon className="w-8 h-8 text-primary" />
+            </motion.div>
+
+            <div>
+                {/* Enhanced title with gradient text */}
+                <h3 className="text-xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
+                    {title}
+                </h3>
+                {/* Enhanced description with better typography */}
+                <p className="text-gray-600 text-lg leading-relaxed">
+                    {description}
+                </p>
+            </div>
+        </div>
+    </motion.div>
+);
+
+const ArrowConnector = ({ delay }: { delay: number }) => (
+    <motion.div
+        variants={itemVariants}
+        custom={delay}
+        className="flex justify-center py-4"
+    >
+        <motion.div
+            animate={{ y: [0, 5, 0] }}
+            transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: 'easeInOut',
+            }}
+        >
+            <ArrowDownUp className="w-8 h-8 text-primary/50" />
+        </motion.div>
+    </motion.div>
+);
+
 const HowItWorks = () => {
-    const directStakingFeatures = [
-        {
-            text: 'Permanent lock-up for maximum rewards',
-            tooltip:
-                'Once MINT tokens are staked, they cannot be unstaked. This permanent commitment ensures maximum NAB generation rates and complete protection from supply reduction burns. It also acts as a multiplier to your other staked tokens.',
-        },
-        {
-            text: 'Highest NAB generation rate',
-            tooltip:
-                'Direct staking provides the highest possible NAB token reward rate, significantly higher than LP staking rewards. Your rewards continue indefinitely without degradation.',
-        },
-        {
-            text: 'Complete protection from weekly burns',
-            tooltip:
-                'Staked MINT tokens are fully exempt from the weekly 0.25% burn mechanism, preserving your position while unstaked tokens decrease in supply.',
-        },
-        {
-            text: 'Full governance rights',
-            tooltip:
-                'Staked tokens grant proportional voting power in the NAB ecosystem. As supply decreases through burns, your governance influence naturally increases over time.',
-        },
-        {
-            text: 'Earn fees from NAB transactions (soon)',
-            tooltip:
-                'In an upcoming update, staked MINT holders will receive a portion of fees generated from NAB token transactions, creating an additional revenue stream.',
-        },
-    ];
-
-    const lpStakingFeatures = [
-        {
-            text: 'Flexible staking with withdrawal options',
-            tooltip:
-                'Unlike direct staking, LP staking allows you to withdraw your tokens at any time. This flexibility comes with a lower NAB generation rate compared to direct staking.',
-        },
-        {
-            text: 'Competitive reward rates',
-            tooltip:
-                'While lower than direct staking, LP staking still provides substantial NAB rewards plus additional earnings from trading fees in the MINT/NAB liquidity pool.',
-        },
-        {
-            text: 'Market liquidity benefits',
-            tooltip:
-                'By providing liquidity to the MINT/NAB trading pair, you help maintain market stability and earn a share of trading fees generated from all transactions.',
-        },
-        {
-            text: 'Earn from LP while earning NAB',
-            tooltip:
-                'Dual earning mechanism: receive NAB rewards from staking while simultaneously earning trading fees from your liquidity provision.',
-        },
-        {
-            text: 'Earn fees from NAB transactions (soon)',
-            tooltip:
-                'Future update will allow LP stakers to earn a portion of NAB transaction fees, adding a third revenue stream to LP staking rewards.',
-        },
-    ];
-
     return (
         <section id="how-it-works" className="relative py-32 overflow-hidden">
             {/* Enhanced background elements */}
-            <div className="absolute inset-0 bg-gradient-to-b from-gray-50/50 to-transparent" />
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] bg-primary/5 rounded-full blur-[120px] opacity-30" />
-            <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-accent/5 rounded-full blur-[100px] opacity-20" />
+            <div className="absolute inset-0">
+                <div className="absolute inset-0 bg-gradient-to-b from-gray-50/80 to-white" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] bg-primary/5 rounded-full blur-[120px] opacity-30" />
+                <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-accent/5 rounded-full blur-[100px] opacity-20" />
+            </div>
 
-            {/* Floating decorative elements */}
-            <FloatingDecoration className="top-20 left-[10%]" />
-            <FloatingDecoration className="bottom-40 right-[15%]" />
-            <FloatingDecoration className="top-60 right-[20%]" />
+            {/* Add floating decorations */}
+            <FloatingDecoration className="top-20 left-[8%] opacity-60" />
+            <FloatingDecoration className="top-48 right-[12%] w-20 h-20 opacity-40" />
+            <FloatingDecoration className="bottom-40 left-[15%] w-24 h-24 opacity-50" />
+            <FloatingDecoration className="top-1/3 right-[18%] w-12 h-12 opacity-70" />
+
+            {/* Add accent squares */}
+            <motion.div
+                className="absolute top-1/4 right-[25%] w-8 h-8 rounded-lg border-2 border-accent/20"
+                animate={{
+                    y: [0, -15, 0],
+                    rotate: [0, -45, 0],
+                    scale: [1, 1.2, 1],
+                }}
+                transition={{
+                    duration: 6,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                }}
+            />
+            <motion.div
+                className="absolute bottom-1/3 left-[20%] w-10 h-10 rounded-lg border-2 border-accent/20"
+                animate={{
+                    y: [0, 15, 0],
+                    rotate: [0, 45, 0],
+                    scale: [1, 1.1, 1],
+                }}
+                transition={{
+                    duration: 7,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                }}
+            />
 
             <div className="container mx-auto px-4 relative">
-                {/* Enhanced section header */}
+                {/* Enhanced section header with animated underline */}
                 <motion.div
                     className="max-w-3xl mx-auto text-center mb-16"
                     initial={{ opacity: 0, y: 20 }}
@@ -118,165 +170,100 @@ const HowItWorks = () => {
                     transition={{ duration: 0.5 }}
                 >
                     <h2 className="text-5xl font-bold mb-6">
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-primary-700">
-                            How It Works
+                        <span className="relative">
+                            <span className="relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-primary-700">
+                                How Single-Sided Liquidity Works
+                            </span>
+                            <motion.span
+                                className="absolute inset-x-0 bottom-0 h-3 bg-accent/10 -rotate-1"
+                                initial={{ scaleX: 0 }}
+                                whileInView={{ scaleX: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.5, duration: 0.8 }}
+                            />
                         </span>
                     </h2>
                     <p className="text-xl text-gray-600 leading-relaxed">
-                        Choose your preferred staking strategy and start earning{' '}
-                        <NABReference /> rewards
+                        Providing{' '}
+                        <span className="font-bold">liquidity on Botega</span>{' '}
+                        with just one token, simplified and protected
                     </p>
                 </motion.div>
 
-                <Tabs defaultValue="direct" className="max-w-4xl mx-auto">
-                    {/* Enhanced tab list with animations */}
-                    <TabsList className="w-full grid grid-cols-2 h-20 p-1.5 mb-12 bg-gradient-to-r from-gray-100/50 to-gray-50/50 backdrop-blur-sm rounded-2xl border border-gray-200/50">
-                        <TabsTrigger
-                            value="direct"
-                            className="h-full rounded-xl flex items-center justify-center gap-3 text-base font-medium transition-all duration-500
-                                     data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-600 
-                                     data-[state=active]:text-white data-[state=active]:shadow-lg relative group"
-                        >
-                            <Lock className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
-                            <span className="relative">
-                                Direct Staking
-                                <motion.div
-                                    className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary/20"
-                                    initial={false}
-                                    animate={{ scaleX: 1, opacity: 1 }}
-                                    exit={{ scaleX: 0, opacity: 0 }}
-                                />
-                            </span>
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="lp"
-                            className="h-full rounded-xl flex items-center justify-center gap-3 text-base font-medium transition-all duration-500
-                                     data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-600 
-                                     data-[state=active]:text-white data-[state=active]:shadow-lg relative group"
-                        >
-                            <BarChart3 className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
-                            <span className="relative">
-                                LP Staking
-                                <motion.div
-                                    className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary/20"
-                                    initial={false}
-                                    animate={{ scaleX: 1, opacity: 1 }}
-                                    exit={{ scaleX: 0, opacity: 0 }}
-                                />
-                            </span>
-                        </TabsTrigger>
-                    </TabsList>
-
-                    {/* Enhanced tab content with animations */}
-                    <TabsContent value="direct">
+                {/* Enhanced card with animations */}
+                <Card className="max-w-4xl mx-auto border-2 border-primary/10 overflow-hidden hover:shadow-xl transition-all duration-500">
+                    <CardContent className="p-8 sm:p-10">
                         <motion.div
+                            className="space-y-8"
                             variants={containerVariants}
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true }}
                         >
-                            <Card className="border-2 border-primary/10 overflow-hidden hover:shadow-xl transition-all duration-500">
-                                <CardContent className="p-8">
-                                    <div className="space-y-8">
-                                        {/* Enhanced header with animations */}
-                                        <div className="flex items-start space-x-6">
-                                            <motion.div
-                                                className="p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5"
-                                                whileHover={{ scale: 1.05 }}
-                                                transition={{
-                                                    type: 'spring',
-                                                    stiffness: 300,
-                                                }}
-                                            >
-                                                <Lock className="w-10 h-10 text-primary" />
-                                            </motion.div>
-                                            <div>
-                                                <h3 className="text-2xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
-                                                    Direct MINT Staking
-                                                </h3>
-                                                <p className="text-gray-600 text-lg">
-                                                    Maximum rewards through
-                                                    permanent token lock-up
-                                                </p>
-                                            </div>
-                                        </div>
+                            <Step
+                                icon={Wallet}
+                                title="You provide your token"
+                                description="Select and deposit any supported token (qAR, wAR, NAB, AO, USDC). You only need to provide one side of the pair."
+                                delay={0.1}
+                                index={0}
+                            />
 
-                                        {/* Enhanced feature list with animations */}
-                                        <ul className="space-y-6">
-                                            {directStakingFeatures.map(
-                                                (feature, index) => (
-                                                    <FeatureItem
-                                                        key={index}
-                                                        text={feature.text}
-                                                        tooltip={
-                                                            feature.tooltip
-                                                        }
-                                                        variants={itemVariants}
-                                                    />
-                                                )
-                                            )}
-                                        </ul>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                            <ArrowConnector delay={0.2} />
+
+                            <Step
+                                icon={Coins}
+                                title="We combine it with MINT"
+                                description="The protocol automatically matches your deposit with the required amount of MINT tokens from our reserves."
+                                delay={0.3}
+                                index={1}
+                            />
+
+                            <ArrowConnector delay={0.4} />
+
+                            <Step
+                                icon={Workflow}
+                                title="LP is created and staked automatically"
+                                description="A complete LP position is created on Botega and staked on our platform without any additional steps required from you."
+                                delay={0.5}
+                                index={2}
+                            />
+
+                            <ArrowConnector delay={0.6} />
+
+                            <Step
+                                icon={Shield}
+                                title="Unstake with protection"
+                                description="When you unstake, you receive your original tokens back plus any profits earned and IL compensation. We keep the MINT tokens from our side."
+                                delay={0.7}
+                                index={3}
+                            />
                         </motion.div>
-                    </TabsContent>
+                    </CardContent>
+                </Card>
 
-                    <TabsContent value="lp">
-                        <motion.div
-                            variants={containerVariants}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                        >
-                            <Card className="border-2 border-primary/10 overflow-hidden hover:shadow-xl transition-all duration-500">
-                                <CardContent className="p-8">
-                                    <div className="space-y-8">
-                                        {/* Enhanced header with animations */}
-                                        <div className="flex items-start space-x-6">
-                                            <motion.div
-                                                className="p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5"
-                                                whileHover={{ scale: 1.05 }}
-                                                transition={{
-                                                    type: 'spring',
-                                                    stiffness: 300,
-                                                }}
-                                            >
-                                                <BarChart3 className="w-10 h-10 text-primary" />
-                                            </motion.div>
-                                            <div>
-                                                <h3 className="text-2xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
-                                                    LP Staking (MINT/NAB)
-                                                </h3>
-                                                <p className="text-gray-600 text-lg">
-                                                    Flexible staking with
-                                                    additional liquidity
-                                                    benefits
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        {/* Enhanced feature list with animations */}
-                                        <ul className="space-y-6">
-                                            {lpStakingFeatures.map(
-                                                (feature, index) => (
-                                                    <FeatureItem
-                                                        key={index}
-                                                        text={feature.text}
-                                                        tooltip={
-                                                            feature.tooltip
-                                                        }
-                                                        variants={itemVariants}
-                                                    />
-                                                )
-                                            )}
-                                        </ul>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    </TabsContent>
-                </Tabs>
+                {/* Enhanced benefit callout with better styling */}
+                <motion.div
+                    className="max-w-2xl mx-auto mt-12 bg-primary/5 rounded-2xl p-6 border border-primary/10"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.8 }}
+                >
+                    <div className="flex items-center justify-center gap-4">
+                        <div className="p-3 rounded-xl bg-primary/10">
+                            <Coins className="w-6 h-6 text-primary" />
+                        </div>
+                        <p className="text-lg text-gray-700">
+                            While your position is active, you&apos;re earning
+                            trading fees from the Botega pool and building up to
+                            <span className="font-bold text-primary">
+                                {' '}
+                                50% protection{' '}
+                            </span>
+                            against impermanent loss.
+                        </p>
+                    </div>
+                </motion.div>
             </div>
         </section>
     );

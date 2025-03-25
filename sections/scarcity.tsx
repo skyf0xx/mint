@@ -5,7 +5,7 @@ import { Lock, Minus, Timer } from 'lucide-react';
 // Reusable floating decoration component
 const FloatingDecoration = ({ className }: { className?: string }) => (
     <motion.div
-        className={`absolute w-16 h-16 rounded-2xl border-2 border-primary/10 ${className}`}
+        className={`absolute w-16 h-16 rounded-2xl border-2 border-violet-500/15 ${className}`}
         animate={{
             y: [0, -20, 0],
             rotate: [0, 45, 0],
@@ -22,11 +22,11 @@ const FloatingDecoration = ({ className }: { className?: string }) => (
 const ScarcityMechanics = () => {
     return (
         <section className="relative py-32 overflow-hidden">
-            {/* Enhanced background elements */}
+            {/* Enhanced background elements with violet tones */}
             <div className="absolute inset-0">
-                <div className="absolute inset-0 bg-gradient-to-b from-gray-50/80 to-white" />
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] bg-primary/5 rounded-full blur-[120px] opacity-30" />
-                <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-accent/5 rounded-full blur-[100px] opacity-20" />
+                <div className="absolute inset-0 bg-gradient-to-b from-gray-50/80 via-violet-50/30 to-white"></div>
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] bg-gradient-to-br from-primary/5 via-violet-500/10 to-transparent rounded-full blur-[120px] opacity-30"></div>
+                <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-gradient-to-tr from-violet-500/10 to-accent/5 rounded-full blur-[100px] opacity-20"></div>
             </div>
 
             {/* Add floating decorations */}
@@ -37,7 +37,7 @@ const ScarcityMechanics = () => {
 
             {/* Add accent squares */}
             <motion.div
-                className="absolute top-1/4 right-[22%] w-8 h-8 rounded-lg border-2 border-accent/20"
+                className="absolute top-1/4 right-[22%] w-8 h-8 rounded-lg border-2 border-violet-500/20"
                 animate={{
                     y: [0, -15, 0],
                     rotate: [0, -45, 0],
@@ -50,7 +50,7 @@ const ScarcityMechanics = () => {
                 }}
             />
             <motion.div
-                className="absolute bottom-1/3 left-[18%] w-10 h-10 rounded-lg border-2 border-accent/20"
+                className="absolute bottom-1/3 left-[18%] w-10 h-10 rounded-lg border-2 border-violet-500/20"
                 animate={{
                     y: [0, 15, 0],
                     rotate: [0, 45, 0],
@@ -73,11 +73,11 @@ const ScarcityMechanics = () => {
                 >
                     <h2 className="text-5xl font-bold mb-6">
                         <span className="relative">
-                            <span className="relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-primary-700">
+                            <span className="relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-primary via-violet-600 to-primary-700">
                                 Ultra Rare
                             </span>
                             <motion.span
-                                className="absolute inset-x-0 bottom-0 h-3 bg-accent/10 -rotate-1"
+                                className="absolute inset-x-0 bottom-0 h-3 bg-violet-500/10 -rotate-1"
                                 initial={{ scaleX: 0 }}
                                 whileInView={{ scaleX: 1 }}
                                 viewport={{ once: true }}
@@ -99,9 +99,9 @@ const ScarcityMechanics = () => {
                     transition={{ duration: 0.5, delay: 0.2 }}
                 >
                     <Card className="group hover:shadow-xl transition-all duration-500 relative overflow-hidden">
-                        {/* Card gradient hover effect */}
+                        {/* Card gradient hover effect with violet tones */}
                         <div
-                            className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 opacity-0 group-hover:opacity-100 transition-all duration-500"
+                            className="absolute inset-0 bg-gradient-to-r from-primary/20 to-violet-500/30 opacity-0 group-hover:opacity-100 transition-all duration-500"
                             style={{ padding: '1px' }}
                         >
                             <div className="absolute inset-0 bg-white" />
@@ -110,7 +110,7 @@ const ScarcityMechanics = () => {
                         <CardContent className="p-8 relative">
                             <div className="space-y-6">
                                 <motion.div
-                                    className="p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent w-fit"
+                                    className="p-4 rounded-2xl bg-gradient-to-br from-violet-500/10 to-transparent w-fit"
                                     whileHover={{ scale: 1.05 }}
                                     initial={{ rotateY: 0 }}
                                     whileInView={{
@@ -122,10 +122,10 @@ const ScarcityMechanics = () => {
                                     }}
                                     viewport={{ once: true }}
                                 >
-                                    <Timer className="w-10 h-10 text-primary" />
+                                    <Timer className="w-10 h-10 text-violet-600" />
                                 </motion.div>
 
-                                <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
+                                <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-violet-600">
                                     Weekly Burns
                                 </h3>
 
@@ -141,7 +141,7 @@ const ScarcityMechanics = () => {
                                             whileHover={{ x: 5 }}
                                             transition={{ duration: 0.2 }}
                                         >
-                                            <Minus className="w-5 h-5 text-primary/60" />
+                                            <Minus className="w-5 h-5 text-violet-500/60" />
                                             <span>
                                                 Mathematically guaranteed
                                                 reduction
@@ -152,7 +152,7 @@ const ScarcityMechanics = () => {
                                             whileHover={{ x: 5 }}
                                             transition={{ duration: 0.2 }}
                                         >
-                                            <Minus className="w-5 h-5 text-primary/60" />
+                                            <Minus className="w-5 h-5 text-violet-500/60" />
                                             <span>
                                                 Cannot exceed 77M total supply
                                             </span>
@@ -162,7 +162,7 @@ const ScarcityMechanics = () => {
                                             whileHover={{ x: 5 }}
                                             transition={{ duration: 0.2 }}
                                         >
-                                            <Minus className="w-5 h-5 text-primary/60" />
+                                            <Minus className="w-5 h-5 text-violet-500/60" />
                                             <span>
                                                 Supply floor of 21M tokens
                                             </span>
@@ -174,9 +174,9 @@ const ScarcityMechanics = () => {
                     </Card>
 
                     <Card className="group hover:shadow-xl transition-all duration-500 relative overflow-hidden">
-                        {/* Card gradient hover effect */}
+                        {/* Card gradient hover effect with violet tones */}
                         <div
-                            className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 opacity-0 group-hover:opacity-100 transition-all duration-500"
+                            className="absolute inset-0 bg-gradient-to-r from-primary/20 to-violet-500/30 opacity-0 group-hover:opacity-100 transition-all duration-500"
                             style={{ padding: '1px' }}
                         >
                             <div className="absolute inset-0 bg-white" />
@@ -185,7 +185,7 @@ const ScarcityMechanics = () => {
                         <CardContent className="p-8 relative">
                             <div className="space-y-6">
                                 <motion.div
-                                    className="p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent w-fit"
+                                    className="p-4 rounded-2xl bg-gradient-to-br from-violet-500/10 to-transparent w-fit"
                                     whileHover={{ scale: 1.05 }}
                                     initial={{ rotateY: 0 }}
                                     whileInView={{
@@ -197,10 +197,10 @@ const ScarcityMechanics = () => {
                                     }}
                                     viewport={{ once: true }}
                                 >
-                                    <Lock className="w-10 h-10 text-primary" />
+                                    <Lock className="w-10 h-10 text-violet-600" />
                                 </motion.div>
 
-                                <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
+                                <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-violet-600">
                                     Permanent Staking
                                 </h3>
 
@@ -216,7 +216,7 @@ const ScarcityMechanics = () => {
                                             whileHover={{ x: 5 }}
                                             transition={{ duration: 0.2 }}
                                         >
-                                            <Minus className="w-5 h-5 text-primary/60" />
+                                            <Minus className="w-5 h-5 text-violet-500/60" />
                                             <span>
                                                 Tokens never re-enter
                                                 circulation
@@ -227,7 +227,7 @@ const ScarcityMechanics = () => {
                                             whileHover={{ x: 5 }}
                                             transition={{ duration: 0.2 }}
                                         >
-                                            <Minus className="w-5 h-5 text-primary/60" />
+                                            <Minus className="w-5 h-5 text-violet-500/60" />
                                             <span>
                                                 Protected from weekly burns
                                             </span>
@@ -237,7 +237,7 @@ const ScarcityMechanics = () => {
                                             whileHover={{ x: 5 }}
                                             transition={{ duration: 0.2 }}
                                         >
-                                            <Minus className="w-5 h-5 text-primary/60" />
+                                            <Minus className="w-5 h-5 text-violet-500/60" />
                                             <span>
                                                 Continuous NAB generation
                                             </span>
@@ -256,9 +256,9 @@ const ScarcityMechanics = () => {
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: 0.4 }}
                 >
-                    <Card className="border-2 border-primary/10 hover:shadow-xl transition-all duration-500">
+                    <Card className="border-2 border-violet-500/10 hover:shadow-xl transition-all duration-500">
                         <CardContent className="p-8">
-                            <h4 className="text-xl font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
+                            <h4 className="text-xl font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-violet-600">
                                 Double Scarcity Effect
                             </h4>
                             <p className="text-gray-600 leading-relaxed">
