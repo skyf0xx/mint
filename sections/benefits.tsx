@@ -1,224 +1,403 @@
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { ChevronRight, InfinityIcon, BarChart3, Users } from 'lucide-react';
-import { LucideIcon } from 'lucide-react';
-import { motion } from 'framer-motion';
-import LearnMoreDialog from '@/components/ui/learn-more';
-import { useRef, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import BenefitCard from './benefits/BenefitCard';
+import ComparisonContent from './benefits/ComparisonContent';
+import ImpermanentLossEducation from './benefits/ImpermanentLossEducation';
+import benefitsData from './benefits/benefitsData';
 
-interface BenefitCardProps {
-    icon: LucideIcon;
-    title: string;
-    description: string;
-    index: number;
-    content: string[];
-}
-
-// Enhanced BenefitCard with new animations and visual improvements
-const BenefitCard = ({
-    icon: Icon,
-    title,
-    description,
-    index,
-    content,
-}: BenefitCardProps) => {
-    const [isDialogOpen, setDialogOpen] = useState(false);
-    const buttonRef = useRef<HTMLButtonElement>(null);
-
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            viewport={{ once: true }}
-            whileHover={{ y: -5 }}
-            className="h-full" // Ensure the motion div takes full height
-        >
-            <Card className="group relative hover:shadow-xl transition-all duration-500 overflow-hidden h-full flex flex-col">
-                {/* Animated gradient border */}
-                <div
-                    className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 opacity-0 group-hover:opacity-100 transition-all duration-500"
-                    style={{ padding: '1px' }}
-                >
-                    <div className="absolute inset-0 bg-white" />
-                </div>
-
-                <CardHeader className="relative overflow-hidden pb-4 flex-shrink-0">
-                    {/* Enhanced background effects */}
-                    <div className="absolute inset-0">
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
-                        <div className="absolute bottom-0 right-0 w-32 h-32 bg-accent/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-all duration-500" />
-                    </div>
-
-                    <div className="relative z-10 flex flex-col items-start">
-                        {/* Enlarged icon with animations */}
-                        <motion.div
-                            className="p-4 rounded-xl bg-primary/5 group-hover:bg-primary/10 transition-all duration-500"
-                            whileHover={{ scale: 1.1 }}
-                            transition={{ duration: 6, repeat: Infinity }}
-                        >
-                            <Icon className="w-12 h-12 text-primary transition-all duration-500 group-hover:text-primary-600" />
-                        </motion.div>
-
-                        {/* Enhanced title with gradient */}
-                        <CardTitle className="text-2xl mt-4 bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-primary-700">
-                            {title}
-                        </CardTitle>
-                    </div>
-                </CardHeader>
-
-                <CardContent className="relative flex-grow flex flex-col justify-between">
-                    {/* Description with improved typography */}
-                    <p className="text-gray-600 leading-relaxed mb-6 text-lg">
-                        {description}
-                    </p>
-
-                    <LearnMoreDialog
-                        isOpen={isDialogOpen}
-                        onClose={() => setDialogOpen(false)}
-                        title={title}
-                        content={content}
-                    />
-
-                    {/* Enhanced button with animations */}
-                    <div className="mt-auto pt-4">
-                        <Button
-                            ref={buttonRef}
-                            onClick={() => setDialogOpen(true)}
-                            variant="ghost"
-                            className="group/button relative overflow-hidden hover:text-primary transition-all duration-300"
-                        >
-                            <span className="relative z-10 flex items-center">
-                                Learn more
-                                <motion.div
-                                    animate={{ x: [0, 5, 0] }}
-                                    transition={{
-                                        duration: 1.5,
-                                        repeat: Infinity,
-                                    }}
-                                >
-                                    <ChevronRight className="ml-2" />
-                                </motion.div>
-                            </span>
-                            <span className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 group-hover/button:opacity-100 transition-all duration-300" />
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-        </motion.div>
-    );
+// Helper function to replace missing imports
+const useAnimationPreferences = () => {
+    return { isAnimationEnabled: true };
 };
 
 const Benefits = () => {
-    const benefitsData = [
-        {
-            icon: InfinityIcon,
-            title: 'Endless NAB Rewards',
-            description:
-                'Stake your MINT tokens once and enjoy lifetime NAB rewards with zero hassle.',
-            content: [
-                'Your staked MINT tokens are permanently locked, shielding them from the weekly burn mechanism, ensuring consistent rewards.',
-                'Direct staking offers the highest NAB reward rate, optimizing your earnings compared to LP staking.',
-                'The staking process is simple - stake once and earn perpetually, with no need for constant adjustments or complex strategies.',
-            ],
-            index: 0,
+    const [activeTab, setActiveTab] = useState('benefits');
+    const [previousTab, setPreviousTab] = useState('');
+    const [isInView, setIsInView] = useState(false);
+    const shouldReduceMotion = useReducedMotion();
+    const { isAnimationEnabled } = useAnimationPreferences();
+
+    // Handle tab change with animation direction tracking
+    const handleTabChange = (value: string) => {
+        setPreviousTab(activeTab);
+        setActiveTab(value);
+    };
+
+    // Use IntersectionObserver to trigger animations when section comes into view
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    setIsInView(true);
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        const element = document.getElementById('benefits');
+        if (element) observer.observe(element);
+
+        return () => {
+            if (element) observer.unobserve(element);
+        };
+    }, []);
+
+    // Determine animation direction based on tab order
+    const getAnimationDirection = (tab: string) => {
+        if (shouldReduceMotion) {
+            return { enter: { opacity: 0 }, exit: { opacity: 0 } };
+        }
+
+        const tabOrder = ['benefits', 'comparison', 'education'];
+
+        if (!previousTab)
+            return {
+                enter: { x: 50, opacity: 0 },
+                exit: { x: -50, opacity: 0 },
+            };
+
+        const currentIndex = tabOrder.indexOf(tab);
+        const previousIndex = tabOrder.indexOf(previousTab);
+
+        if (currentIndex > previousIndex) {
+            return {
+                enter: { x: 50, opacity: 0 },
+                exit: { x: -50, opacity: 0 },
+            };
+        } else {
+            return {
+                enter: { x: -50, opacity: 0 },
+                exit: { x: 50, opacity: 0 },
+            };
+        }
+    };
+
+    // Transition shared between all tabs
+    const tabTransition = {
+        duration: shouldReduceMotion ? 0.2 : 0.4,
+        ease: 'easeInOut',
+    };
+
+    // Header animation variants
+    const headerVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.6,
+                ease: 'easeOut',
+            },
         },
-        {
-            icon: BarChart3,
-            title: 'Deflationary By Design',
-            description:
-                "Watch your stake grow stronger as MINT's supply decreases through our guaranteed weekly burn rate.",
-            content: [
-                'MINT features an automatic burn mechanism, reducing unstaked supply by 0.25% every week.',
-                'Starting with a 77M MINT supply, it will progressively decrease to a floor of 21M MINT.',
-                'This deflationary model is fully automated and mathematically secured, eliminating the need for manual intervention.',
-            ],
-            index: 1,
+    };
+
+    // Floating decoration variants
+    const floatingDecorationVariants = {
+        hidden: { opacity: 0, scale: 0.8 },
+        visible: {
+            opacity: isAnimationEnabled ? 0.7 : 0.5,
+            scale: 1,
+            transition: { duration: 0.8, ease: 'easeOut' },
         },
-        {
-            icon: Users,
-            title: 'Empowered Governance',
-            description:
-                'Gain influence in the NAB ecosystem and help steer its future as MINT’s supply diminishes.',
-            content: [
-                'Staked MINT tokens grant proportional voting power, enabling active participation in NAB governance.',
-                'As supply decreases, your staked position becomes more influential, amplifying your governance role.',
-                'Governance rights allow you to shape key ecosystem decisions and future initiatives.',
-                'Early stakers benefit from enhanced governance power as their relative share increases with supply contraction.',
-            ],
-            index: 2,
-        },
-    ];
+    };
+
+    const getFloatingAnimation = (duration: number) => {
+        if (isAnimationEnabled && !shouldReduceMotion) {
+            return {
+                y: [0, -20, 0],
+                rotate: [0, 45, 0],
+                transition: { duration, repeat: Infinity },
+            };
+        }
+        return {};
+    };
 
     return (
         <section id="benefits" className="relative py-24 overflow-hidden">
-            {/* Enhanced background elements */}
+            {/* Enhanced background elements with animations */}
             <div className="absolute inset-0 bg-gradient-to-b from-gray-50/80 to-white" />
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl opacity-30" />
-            <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-accent/5 rounded-full blur-2xl opacity-20" />
 
             <motion.div
-                className="absolute top-1/3 right-[22%] w-8 h-8 rounded-lg border-2 border-accent/20"
-                animate={{
-                    y: [0, -15, 0],
-                    rotate: [0, -45, 0],
-                    scale: [1, 1.2, 1],
-                }}
-                transition={{
-                    duration: 6,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                }}
+                className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: isInView ? 0.3 : 0 }}
+                transition={{ duration: 1 }}
             />
 
-            {/* Floating geometric shapes */}
-            <div className="absolute inset-0 overflow-hidden">
+            <motion.div
+                className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-accent/5 rounded-full blur-2xl"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: isInView ? 0.2 : 0 }}
+                transition={{ duration: 1, delay: 0.3 }}
+            />
+
+            {/* Animated decorative elements */}
+            <motion.div
+                className="absolute top-1/3 right-[22%] w-8 h-8 rounded-lg border-2 border-accent/20 hidden sm:block"
+                variants={floatingDecorationVariants}
+                initial="hidden"
+                animate={isInView ? 'visible' : 'hidden'}
+                whileInView={
+                    isAnimationEnabled && !shouldReduceMotion
+                        ? {
+                              y: [0, -15, 0],
+                              rotate: [0, -45, 0],
+                              transition: {
+                                  duration: 6,
+                                  repeat: Infinity,
+                                  ease: 'easeInOut',
+                              },
+                          }
+                        : undefined
+                }
+            />
+
+            {/* Floating geometric shapes with staggered animation */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <motion.div
-                    className="absolute top-20 left-20 w-16 h-16 border-2 border-primary/10 rounded-lg"
-                    animate={{
-                        y: [0, -20, 0],
-                        rotate: [0, 45, 0],
-                    }}
-                    transition={{ duration: 8, repeat: Infinity }}
+                    className="absolute top-20 left-20 w-16 h-16 border-2 border-primary/10 rounded-lg hidden md:block"
+                    variants={floatingDecorationVariants}
+                    initial="hidden"
+                    animate={isInView ? 'visible' : 'hidden'}
+                    whileInView={getFloatingAnimation(8)}
                 />
+
                 <motion.div
-                    className="absolute bottom-40 right-20 w-20 h-20 border-2 border-accent/10 rounded-full"
-                    animate={{
-                        y: [0, 20, 0],
-                        scale: [1, 1.1, 1],
-                    }}
-                    transition={{ duration: 6, repeat: Infinity }}
+                    className="absolute bottom-40 right-20 w-20 h-20 border-2 border-accent/10 rounded-full hidden md:block"
+                    variants={floatingDecorationVariants}
+                    initial="hidden"
+                    animate={isInView ? 'visible' : 'hidden'}
+                    whileInView={
+                        isAnimationEnabled && !shouldReduceMotion
+                            ? {
+                                  y: [0, 20, 0],
+                                  scale: [1, 1.1, 1],
+                                  transition: { duration: 6, repeat: Infinity },
+                              }
+                            : undefined
+                    }
+                />
+
+                <motion.div
+                    className="absolute top-1/2 left-[15%] w-12 h-12 border border-primary/20 rounded-lg hidden lg:block"
+                    variants={floatingDecorationVariants}
+                    initial="hidden"
+                    animate={isInView ? 'visible' : 'hidden'}
+                    whileInView={
+                        isAnimationEnabled && !shouldReduceMotion
+                            ? {
+                                  x: [0, 15, 0],
+                                  y: [0, -10, 0],
+                                  rotate: [0, -15, 0],
+                                  transition: { duration: 7, repeat: Infinity },
+                              }
+                            : undefined
+                    }
                 />
             </div>
 
             <div className="container mx-auto px-4 relative">
+                {/* Section header with animations */}
                 <motion.div
-                    className="max-w-3xl mx-auto text-center mb-16"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5 }}
+                    className="max-w-3xl mx-auto text-center mb-10"
+                    variants={headerVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: '-50px' }}
                 >
+                    {/* Enhanced title with gradient */}
                     <h2 className="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-600 to-primary-700">
                         Core Benefits
                     </h2>
-                    <p className="text-gray-600 text-xl leading-relaxed">
-                        Discover how MINT token creates lasting value through
-                        innovative tokenomics and sustainable rewards.
-                    </p>
+
+                    {/* Subtitle with animated underline */}
+                    <div className="relative">
+                        <p className="text-gray-600 text-xl leading-relaxed">
+                            Discover how MINT simplifies liquidity provision
+                            while protecting your returns.
+                        </p>
+
+                        <motion.div
+                            className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 h-0.5 bg-primary/20 rounded-full"
+                            initial={{ width: 0 }}
+                            whileInView={{ width: '100px' }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.5, duration: 0.8 }}
+                        />
+                    </div>
                 </motion.div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                    {benefitsData.map((benefit) => (
-                        <BenefitCard
-                            key={benefit.index}
-                            icon={benefit.icon}
-                            title={benefit.title}
-                            description={benefit.description}
-                            content={benefit.content}
-                            index={benefit.index}
-                        />
-                    ))}
+                {/* Tab navigation system with enhanced animations */}
+                <div className="max-w-6xl mx-auto mb-10">
+                    <Tabs
+                        value={activeTab}
+                        onValueChange={handleTabChange}
+                        className="w-full"
+                    >
+                        {/* Tab buttons with enhanced hover and active states */}
+                        <TabsList className="grid w-full grid-cols-3 h-14 md:h-12 bg-primary/5 rounded-lg">
+                            <TabsTrigger
+                                value="benefits"
+                                className="rounded-md data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-600 data-[state=active]:text-white relative transition-all duration-300"
+                            >
+                                <motion.span className="hidden sm:inline-block">
+                                    Core
+                                </motion.span>{' '}
+                                Benefits
+                                {activeTab === 'benefits' && (
+                                    <motion.div
+                                        layoutId="tabHighlight"
+                                        className="absolute inset-0 rounded-md z-[-1]"
+                                        transition={{
+                                            type: 'spring',
+                                            bounce: 0.2,
+                                            duration: 0.6,
+                                        }}
+                                    />
+                                )}
+                            </TabsTrigger>
+
+                            <TabsTrigger
+                                value="comparison"
+                                className="rounded-md data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-600 data-[state=active]:text-white relative transition-all duration-300"
+                            >
+                                LP Comparison
+                                {activeTab === 'comparison' && (
+                                    <motion.div
+                                        layoutId="tabHighlight"
+                                        className="absolute inset-0 rounded-md z-[-1]"
+                                        transition={{
+                                            type: 'spring',
+                                            bounce: 0.2,
+                                            duration: 0.6,
+                                        }}
+                                    />
+                                )}
+                            </TabsTrigger>
+
+                            <TabsTrigger
+                                value="education"
+                                className="rounded-md data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-600 data-[state=active]:text-white relative transition-all duration-300"
+                            >
+                                <motion.span className="hidden sm:inline-block">
+                                    What is
+                                </motion.span>{' '}
+                                Impermanent Loss
+                                {activeTab === 'education' && (
+                                    <motion.div
+                                        layoutId="tabHighlight"
+                                        className="absolute inset-0 rounded-md z-[-1]"
+                                        transition={{
+                                            type: 'spring',
+                                            bounce: 0.2,
+                                            duration: 0.6,
+                                        }}
+                                    />
+                                )}
+                            </TabsTrigger>
+                        </TabsList>
+
+                        {/* Animated tab indicator */}
+                        <motion.div
+                            className="border-b border-primary/10 my-4 relative"
+                            initial={{ scaleX: 0 }}
+                            animate={{ scaleX: 1 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <motion.div
+                                className="absolute h-0.5 bg-primary rounded-full -bottom-0"
+                                animate={{
+                                    left:
+                                        activeTab === 'benefits'
+                                            ? '0%'
+                                            : activeTab === 'comparison'
+                                            ? '33.33%'
+                                            : '66.66%',
+                                    width: '33.33%',
+                                }}
+                                transition={{
+                                    type: 'spring',
+                                    bounce: 0.2,
+                                    duration: 0.6,
+                                }}
+                            />
+                        </motion.div>
+
+                        {/* Animated tab content with transitions */}
+                        <div className="relative overflow-hidden mt-8">
+                            <AnimatePresence mode="wait">
+                                {activeTab === 'benefits' && (
+                                    <motion.div
+                                        key="benefits-tab"
+                                        initial={
+                                            getAnimationDirection('benefits')
+                                                .enter
+                                        }
+                                        animate={{ x: 0, opacity: 1 }}
+                                        exit={
+                                            getAnimationDirection('benefits')
+                                                .exit
+                                        }
+                                        transition={tabTransition}
+                                        className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto"
+                                    >
+                                        {benefitsData.map((benefit) => (
+                                            <BenefitCard
+                                                key={benefit.index}
+                                                icon={benefit.icon}
+                                                title={benefit.title}
+                                                description={
+                                                    benefit.description
+                                                }
+                                                content={benefit.content}
+                                                index={benefit.index}
+                                                isHighlighted={
+                                                    benefit.isHighlighted
+                                                }
+                                            />
+                                        ))}
+                                    </motion.div>
+                                )}
+
+                                {activeTab === 'comparison' && (
+                                    <motion.div
+                                        key="comparison-tab"
+                                        initial={
+                                            getAnimationDirection('comparison')
+                                                .enter
+                                        }
+                                        animate={{ x: 0, opacity: 1 }}
+                                        exit={
+                                            getAnimationDirection('comparison')
+                                                .exit
+                                        }
+                                        transition={tabTransition}
+                                    >
+                                        <ComparisonContent />
+                                    </motion.div>
+                                )}
+
+                                {activeTab === 'education' && (
+                                    <motion.div
+                                        key="education-tab"
+                                        initial={
+                                            getAnimationDirection('education')
+                                                .enter
+                                        }
+                                        animate={{ x: 0, opacity: 1 }}
+                                        exit={
+                                            getAnimationDirection('education')
+                                                .exit
+                                        }
+                                        transition={tabTransition}
+                                    >
+                                        <ImpermanentLossEducation />
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    </Tabs>
                 </div>
             </div>
         </section>

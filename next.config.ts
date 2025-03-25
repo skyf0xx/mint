@@ -1,12 +1,8 @@
 /** @type {import('next').NextConfig} */
-const isProduction = process.env.NODE_ENV === 'production';
 
 const nextConfig = {
-    assetPrefix: isProduction
-        ? 'https://mithril-mint-token.ar.io'
-        : 'http://localhost:3000',
+    assetPrefix: './',
     output: 'export',
-    trailingSlash: true,
     basePath: '',
     images: {
         unoptimized: true,
@@ -15,10 +11,6 @@ const nextConfig = {
     async exportPathMap(defaultPathMap: Record<string, { page: string }>) {
         return {
             ...defaultPathMap,
-            '/get-started': { page: '/get-started' },
-            '/privacy': { page: '/privacy' },
-            '/tos': { page: '/tos' },
-            '/referral': { page: '/referral' },
         };
     },
 };
