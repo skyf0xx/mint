@@ -306,9 +306,12 @@ const ILProtectionModal = ({ isOpen, onClose }: ILProtectionModalProps) => {
                                             Single-Sided Convenience
                                         </h4>
                                         <p className="text-blue-600 text-sm mt-1">
-                                            Provide liquidity with just one
-                                            token - no need to split your
-                                            holdings
+                                            Provide{' '}
+                                            <span className="font-bold">
+                                                liquidity on Botega
+                                            </span>{' '}
+                                            with just one token - no need to
+                                            split your holdings
                                         </p>
                                     </div>
                                     <div className="bg-purple-50 p-4 rounded-lg">

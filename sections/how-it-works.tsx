@@ -184,8 +184,9 @@ const HowItWorks = () => {
                         </span>
                     </h2>
                     <p className="text-xl text-gray-600 leading-relaxed">
-                        Providing liquidity with just one token, simplified and
-                        protected
+                        Providing{' '}
+                        <span className="font-bold">liquidity on Botega</span>{' '}
+                        with just one token, simplified and protected
                     </p>
                 </motion.div>
 
