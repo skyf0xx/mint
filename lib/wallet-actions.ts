@@ -10,6 +10,7 @@ import {
 
 export const MINT_PROCESS = 'lNtrei6YLQiWS8cyFFHDrOBvRzICQPTvrjZBP8fz-ZI';
 export const MINT_TOKEN = 'SWQx44W-1iMwGFBSHlC3lStCq3Z7O2WZrx9quLeZOu0';
+const MAINTENANCE_CONTRACT = 'ZT37FSfc486FCWTrO8dQ6E24iX0IhRlTy88OvsO-NM4';
 
 interface StakedBalance {
     address: never;
@@ -180,5 +181,30 @@ export async function getTokenDenomination(token: string): Promise<number> {
         });
     } catch (error) {
         return handleError(error, 'getting token denomination', 8);
+    }
+}
+
+export async function checkMaintenance(): Promise<boolean> {
+    const tags = [{ name: 'Action', value: 'Check-Maintenance' }];
+
+    try {
+        const result = await sendAndGetResult(
+            MAINTENANCE_CONTRACT,
+            tags,
+            false,
+            false
+        );
+        if (!result.Messages?.[0]?.Data) {
+            throw new Error('No maintenance status in response');
+        }
+
+        if (result.Messages[0].Data === 'false') {
+            return false;
+        } else {
+            return true;
+        }
+    } catch (error) {
+        console.error(error);
+        return true;
     }
 }
