@@ -13,6 +13,7 @@ import LoadingState from '@/components/app/shared/loading-state';
 import { useStakingStore, useStakingInit } from '@/store/staking-store';
 import { StakingPosition } from '@/types/staking';
 import ILProtectionModal from '@/components/app/education/il-protection-modal';
+import MaintenanceMessage from '@/components/app/shared/maintenance-message';
 
 const App = () => {
     // Initialize wallet
@@ -31,6 +32,8 @@ const App = () => {
         isLoading,
         stakeToken,
         unstakePosition,
+        isInMaintenance,
+        checkMaintenanceStatus,
     } = useStakingStore();
 
     useEffect(() => {
@@ -47,7 +50,12 @@ const App = () => {
 
     // Event handlers
     const handleStartStaking = () => {
-        setView('staking');
+        // First check maintenance status before allowing staking
+        checkMaintenanceStatus().then((isInMaintenance) => {
+            if (!isInMaintenance) {
+                setView('staking');
+            }
+        });
     };
 
     const handleViewPosition = (id: string) => {
@@ -56,10 +64,20 @@ const App = () => {
     };
 
     const handleStakeSubmit = async (tokenAddress: string, amount: string) => {
+        // Check maintenance status before submitting
+        const maintenanceActive = await checkMaintenanceStatus();
+        if (maintenanceActive) {
+            return false;
+        }
         return await stakeToken(tokenAddress, amount);
     };
 
     const handleUnstakeSubmit = async (positionId: string) => {
+        // Check maintenance status before submitting
+        const maintenanceActive = await checkMaintenanceStatus();
+        if (maintenanceActive) {
+            return false;
+        }
         return await unstakePosition(positionId);
     };
 
@@ -80,6 +98,14 @@ const App = () => {
 
         if (isLoading && currentView !== 'dashboard') {
             return <LoadingState message="Loading your staking data..." />;
+        }
+
+        // Show maintenance message for staking/unstaking views when in maintenance mode
+        if (
+            isInMaintenance &&
+            (currentView === 'staking' || currentView === 'unstaking')
+        ) {
+            return <MaintenanceMessage />;
         }
 
         switch (currentView) {
@@ -116,9 +142,15 @@ const App = () => {
                         position={selectedPosition as StakingPosition}
                         onBack={() => setView('dashboard')}
                         onUnstake={() => {
-                            setView('unstaking');
+                            // Check maintenance status before allowing unstaking
+                            checkMaintenanceStatus().then((isInMaintenance) => {
+                                if (!isInMaintenance) {
+                                    setView('unstaking');
+                                }
+                            });
                         }}
                         onShowILInfo={handleShowILInfo}
+                        isInMaintenance={isInMaintenance}
                     />
                 );
             case 'dashboard':
@@ -130,10 +162,16 @@ const App = () => {
                         onStartStaking={handleStartStaking}
                         onViewPosition={handleViewPosition}
                         onUnstake={(id) => {
-                            selectPosition(id);
-                            setView('unstaking');
+                            // Check maintenance status before allowing unstaking
+                            checkMaintenanceStatus().then((isInMaintenance) => {
+                                if (!isInMaintenance) {
+                                    selectPosition(id);
+                                    setView('unstaking');
+                                }
+                            });
                         }}
                         isLoading={isLoading}
+                        isInMaintenance={isInMaintenance}
                     />
                 );
         }

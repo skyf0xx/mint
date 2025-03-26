@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { AlertTriangle, PlusCircle } from 'lucide-react';
 import DashboardHeader from './header';
 import EmptyState from './empty-state';
 import PositionsList from './positions-list';
@@ -11,6 +11,7 @@ import LoadingState from '@/components/app/shared/loading-state';
 import { StakingPosition } from '@/types/staking';
 import { useStakingStore } from '@/store/staking-store';
 import PendingOperations from './pending-operations';
+import MaintenanceMessage from '../shared/maintenance-message';
 
 interface DashboardProps {
     address: string | null;
@@ -19,6 +20,7 @@ interface DashboardProps {
     onViewPosition: (id: string) => void;
     onUnstake: (id: string) => void;
     isLoading: boolean;
+    isInMaintenance?: boolean;
 }
 
 const Dashboard = ({
@@ -28,6 +30,7 @@ const Dashboard = ({
     onViewPosition,
     onUnstake,
     isLoading,
+    isInMaintenance = false,
 }: DashboardProps) => {
     const hasPositions = positions.length > 0;
     const { availableTokens } = useStakingStore();
@@ -67,6 +70,9 @@ const Dashboard = ({
                 )}
             </AnimatePresence>
 
+            {/* Add maintenance banner if in maintenance mode */}
+            {isInMaintenance && <MaintenanceMessage />}
+
             <Card className="border-2 border-primary/10 shadow-lg">
                 <CardHeader className="border-b border-gray-100">
                     <DashboardHeader title="Your Staking Dashboard" />
@@ -79,10 +85,20 @@ const Dashboard = ({
                         {hasPositions && (
                             <Button
                                 onClick={onStartStaking}
+                                disabled={isInMaintenance}
                                 className="bg-gradient-to-r from-primary to-primary-600 hover:to-primary transition-all duration-300 flex items-center"
                             >
-                                <PlusCircle className="h-4 w-4 mr-1" />
-                                New Position
+                                {isInMaintenance ? (
+                                    <>
+                                        <AlertTriangle className="h-4 w-4 mr-2" />
+                                        Maintenance Mode
+                                    </>
+                                ) : (
+                                    <>
+                                        <PlusCircle className="h-4 w-4 mr-1" />
+                                        New Position
+                                    </>
+                                )}
                             </Button>
                         )}
                     </div>
@@ -94,9 +110,13 @@ const Dashboard = ({
                             positions={positions}
                             onViewPosition={onViewPosition}
                             onUnstake={onUnstake}
+                            isInMaintenance={isInMaintenance}
                         />
                     ) : (
-                        <EmptyState onStartStaking={onStartStaking} />
+                        <EmptyState
+                            onStartStaking={onStartStaking}
+                            isInMaintenance={isInMaintenance}
+                        />
                     )}
                 </CardContent>
             </Card>
