@@ -1,6 +1,6 @@
 // components/app/dashboard/positions-list.tsx
 import React from 'react';
-import { MinusCircle, Loader2, Clock } from 'lucide-react';
+import { MinusCircle, Loader2, Clock, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import TokenBadge from '@/components/app/shared/token-badge';
 import { StakingPosition } from '@/types/staking';
@@ -16,12 +16,14 @@ interface PositionsListProps {
     positions: StakingPosition[];
     onViewPosition: (id: string) => void;
     onUnstake: (id: string) => void;
+    isInMaintenance?: boolean;
 }
 
 const PositionsList = ({
     positions,
     onViewPosition,
     onUnstake,
+    isInMaintenance,
 }: PositionsListProps) => {
     // Group positions by token
     const groupedPositions: Record<string, StakingPosition[]> = {};
@@ -202,11 +204,26 @@ const PositionsList = ({
                                                         e.stopPropagation();
                                                         onUnstake(position.id);
                                                     }}
+                                                    disabled={
+                                                        unstaking ||
+                                                        isInMaintenance
+                                                    }
                                                 >
-                                                    <MinusCircle className="h-4 w-4 mr-1" />
-                                                    <span className="hidden sm:inline">
-                                                        Unstake
-                                                    </span>
+                                                    {isInMaintenance ? (
+                                                        <>
+                                                            <AlertTriangle className="h-4 w-4 mr-1" />
+                                                            <span className="hidden sm:inline">
+                                                                Maintenance
+                                                            </span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <MinusCircle className="h-4 w-4 mr-1" />
+                                                            <span className="hidden sm:inline">
+                                                                Unstake
+                                                            </span>
+                                                        </>
+                                                    )}
                                                 </Button>
                                             )}
                                             <Button

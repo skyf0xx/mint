@@ -18,6 +18,7 @@ import {
     checkSufficientBalance,
     deleteUserPositionsCache,
 } from '@/services/staking-service';
+import { checkMaintenance } from '@/lib/wallet-actions';
 import { useEffect } from 'react';
 
 interface StakingState {
@@ -32,6 +33,8 @@ interface StakingState {
     isStaking: boolean;
     isUnstaking: boolean;
     currentView: AppView;
+    isInMaintenance: boolean;
+    checkingMaintenance: boolean;
 
     pollingInterval: NodeJS.Timeout | null;
 
@@ -46,7 +49,10 @@ interface StakingState {
         positionId?: string;
     }[];
 
-    // Actions
+    // Maintenance mode actions
+    checkMaintenanceStatus: () => Promise<boolean>;
+
+    // Other actions
     getPendingOperations: (userAddress: string) => void;
     triggerManualCheck: (userAddress: string) => Promise<void>;
     startPolling: (userAddress: string) => void;
@@ -96,11 +102,27 @@ export const useStakingStore = create<StakingState>()(
             isStaking: false,
             isUnstaking: false,
             currentView: 'dashboard',
+            isInMaintenance: false,
+            checkingMaintenance: false,
 
             pollingInterval: null,
 
             pollingNextTime: null,
             pendingOperations: [],
+
+            // Maintenance mode check
+            checkMaintenanceStatus: async () => {
+                try {
+                    set({ checkingMaintenance: true });
+                    const isInMaintenance = await checkMaintenance();
+                    set({ isInMaintenance, checkingMaintenance: false });
+                    return isInMaintenance;
+                } catch (error) {
+                    console.error('Error checking maintenance status:', error);
+                    set({ isInMaintenance: false, checkingMaintenance: false });
+                    return false;
+                }
+            },
 
             startPolling: (userAddress: string) => {
                 deleteUserPositionsCache(userAddress);
@@ -157,6 +179,9 @@ export const useStakingStore = create<StakingState>()(
             // Allow UI to trigger an immediate check
             triggerManualCheck: async (userAddress: string) => {
                 try {
+                    // Check maintenance status as well
+                    await get().checkMaintenanceStatus();
+
                     // Reset timer
                     set({ pollingNextTime: Date.now() + 30000 });
 
@@ -386,6 +411,19 @@ export const useStakingStore = create<StakingState>()(
             // Operation actions
             stakeToken: async (tokenAddress: string, amount: string) => {
                 try {
+                    // Check for maintenance mode first
+                    const isInMaintenance =
+                        await get().checkMaintenanceStatus();
+                    if (isInMaintenance) {
+                        toast.warning(
+                            'Staking is temporarily unavailable during maintenance.',
+                            {
+                                autoClose: 5000,
+                            }
+                        );
+                        return false;
+                    }
+
                     set({ isStaking: true });
 
                     // Check balance first
@@ -469,6 +507,19 @@ export const useStakingStore = create<StakingState>()(
 
             unstakePosition: async (positionId: string) => {
                 try {
+                    // Check for maintenance mode first
+                    const isInMaintenance =
+                        await get().checkMaintenanceStatus();
+                    if (isInMaintenance) {
+                        toast.warning(
+                            'Unstaking is temporarily unavailable during maintenance.',
+                            {
+                                autoClose: 5000,
+                            }
+                        );
+                        return false;
+                    }
+
                     set({ isUnstaking: true });
 
                     // Find the position
@@ -479,7 +530,7 @@ export const useStakingStore = create<StakingState>()(
                         throw new Error('Position not found');
                     }
 
-                    // Perform unstaking (removed duplicate call)
+                    // Perform unstaking
                     await unstakeTokens(position.tokenAddress);
 
                     // Store pending unstake in localStorage
@@ -567,10 +618,18 @@ export const useStakingStore = create<StakingState>()(
 
 // Hook for initializing and auto-refreshing staking data
 export const useStakingInit = (userAddress: string | null) => {
-    const { fetchTokens, fetchPositions, fetchDashboardMetrics, startPolling } =
-        useStakingStore();
+    const {
+        fetchTokens,
+        fetchPositions,
+        fetchDashboardMetrics,
+        startPolling,
+        checkMaintenanceStatus,
+    } = useStakingStore();
 
     useEffect(() => {
+        // Check maintenance status first
+        checkMaintenanceStatus();
+
         // Load data when wallet is connected
         if (userAddress) {
             fetchTokens();
@@ -591,5 +650,6 @@ export const useStakingInit = (userAddress: string | null) => {
         fetchPositions,
         fetchDashboardMetrics,
         startPolling,
+        checkMaintenanceStatus,
     ]);
 };
