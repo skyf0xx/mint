@@ -635,6 +635,9 @@ export async function getUserOperations(
             elapsedTime: op.elapsedTime,
             clientOperationId: op.clientOperationId,
             mintToken: op.mintToken,
+            failureReason: op.failureReason,
+            failedAt: op.failedAt,
+            formattedFailureTime: op.formattedFailureTime,
         }));
     } catch (error) {
         console.error('Error fetching user operations:', error);
