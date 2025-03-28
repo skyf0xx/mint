@@ -527,3 +527,70 @@ export async function checkSufficientBalance(
         return false;
     }
 }
+
+/**
+ * Retrieves all operations for a user
+ * @param userAddress User's wallet address
+ * @param statusFilter Optional filter by status (pending, completed, failed)
+ * @param tokenFilter Optional filter by token address
+ * @param typeFilter Optional filter by operation type (stake, unstake)
+ * @returns Array of user operations
+ */
+export async function getUserOperations(
+    userAddress: string,
+    statusFilter?: string,
+    tokenFilter?: string,
+    typeFilter?: string
+): Promise<StakingOperation[]> {
+    try {
+        const tags = [
+            { name: 'Action', value: 'Get-User-Operations' },
+            { name: 'User', value: userAddress },
+        ];
+
+        // Add optional filters if provided
+        if (statusFilter) {
+            tags.push({ name: 'Status', value: statusFilter });
+        }
+        if (tokenFilter) {
+            tags.push({ name: 'Token', value: tokenFilter });
+        }
+        if (typeFilter) {
+            tags.push({ name: 'Type', value: typeFilter });
+        }
+
+        const response = await sendAndGetResult(
+            MINT_PROCESS,
+            tags,
+            false,
+            CACHE_EXPIRY.MINUTE * 5,
+            userAddress
+        );
+
+        if (!response?.Messages?.[0]?.Data) {
+            return []; // No operations or invalid response
+        }
+
+        const operationsData = JSON.parse(response.Messages[0].Data);
+
+        // Transform the raw data into our typed operations array
+        return operationsData.map((op: RawStakingOperation) => ({
+            id: op.id,
+            type: op.type,
+            status: op.status,
+            tokenAddress: op.token,
+            tokenName: extractName(op.tokenName || ''),
+            tokenSymbol: symbolFromName(op.tokenName || ''),
+            amount: op.amount,
+            formattedAmount: op.formattedAmount,
+            timestamp: op.timestamp,
+            formattedTime: op.formattedTime,
+            elapsedTime: op.elapsedTime,
+            clientOperationId: op.clientOperationId,
+            mintToken: op.mintToken,
+        }));
+    } catch (error) {
+        console.error('Error fetching user operations:', error);
+        return [];
+    }
+}
