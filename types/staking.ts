@@ -263,3 +263,34 @@ export interface WalletConnectionOptions {
     /** JWK key for signing transactions */
     jwk?: JWK;
 }
+
+export interface StakingOperation {
+    id: string;
+    type: string;
+    status: string;
+    tokenAddress: string;
+    tokenName: string;
+    tokenSymbol: string;
+    amount: string;
+    formattedAmount: string;
+    timestamp: number;
+    formattedTime: string;
+    elapsedTime: string;
+    clientOperationId?: string;
+    mintToken?: string;
+}
+
+export interface RawStakingOperation {
+    id: string;
+    type: string;
+    token: string;
+    tokenName: string;
+    status: string;
+    amount: string;
+    formattedAmount: string;
+    timestamp: number;
+    formattedTime: string;
+    elapsedTime: string;
+    mintToken?: string;
+    clientOperationId?: string;
+}

@@ -1,6 +1,12 @@
 // services/staking-service.ts
 
-import { StakingPosition, TokenInfo, ILProtectionInfo } from '@/types/staking';
+import {
+    StakingPosition,
+    TokenInfo,
+    ILProtectionInfo,
+    StakingOperation,
+    RawStakingOperation,
+} from '@/types/staking';
 import { withRetry } from '@/lib/utils';
 import { CACHE_EXPIRY, deleteFromCache, generateCacheKey } from '@/lib/cache';
 import {
@@ -286,6 +292,9 @@ export async function stakeTokens(
 
         const formattedAmount = convertForBlockchain(amount, decimals);
 
+        // Generate a high entropy random string for operation ID
+        const operationId = generateOperationId();
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const signer = createDataItemSigner((globalThis as any).arweaveWallet);
         const result = await sendAndGetResult(
@@ -293,6 +302,7 @@ export async function stakeTokens(
             [
                 { name: 'Action', value: 'Transfer' },
                 { name: 'X-User-Request', value: 'Stake' },
+                { name: 'X-Client-Operation-ID', value: operationId },
                 { name: 'Quantity', value: formattedAmount },
                 { name: 'Recipient', value: MINT_PROCESS },
             ],
@@ -321,6 +331,41 @@ export async function stakeTokens(
         console.error('Error staking tokens:', error);
         throw error;
     }
+}
+
+/**
+ * Generates a high entropy random string to use as operation ID
+ * @returns Random string with high entropy
+ */
+function generateOperationId(): string {
+    // Generate a UUID v4
+    const uuid = crypto.randomUUID ? crypto.randomUUID() : generateFallbackId();
+
+    // Add timestamp for additional uniqueness
+    const timestamp = Date.now().toString(36);
+
+    // Combine UUID and timestamp for high entropy
+    return `${uuid}-${timestamp}`;
+}
+
+/**
+ * Fallback random ID generator if crypto.randomUUID is not available
+ * @returns Random string
+ */
+function generateFallbackId(): string {
+    const characters =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const timestamp = Date.now().toString(36);
+    let result = '';
+
+    // Generate 20 random characters
+    const array = new Uint8Array(20);
+    crypto.getRandomValues(array);
+    for (let i = 0; i < array.length; i++) {
+        result += characters.charAt(array[i] % characters.length);
+    }
+
+    return `${result}-${timestamp}`;
 }
 
 /**
