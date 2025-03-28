@@ -6,6 +6,8 @@ import {
     ILProtectionInfo,
     StakingOperation,
     RawStakingOperation,
+    OperationType,
+    OperationStatus,
 } from '@/types/staking';
 import { withRetry } from '@/lib/utils';
 import { CACHE_EXPIRY, deleteFromCache, generateCacheKey } from '@/lib/cache';
@@ -621,8 +623,8 @@ export async function getUserOperations(
         // Transform the raw data into our typed operations array
         return operationsData.map((op: RawStakingOperation) => ({
             id: op.id,
-            type: op.type,
-            status: op.status,
+            type: op.type as OperationType, // Cast to enum
+            status: op.status as OperationStatus, // Cast to enum
             tokenAddress: op.token,
             tokenName: extractName(op.tokenName || ''),
             tokenSymbol: symbolFromName(op.tokenName || ''),

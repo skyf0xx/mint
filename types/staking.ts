@@ -264,10 +264,24 @@ export interface WalletConnectionOptions {
     jwk?: JWK;
 }
 
+// Define operation statuses as an enum
+export enum OperationStatus {
+    PENDING = 'pending',
+    COMPLETED = 'completed',
+    FAILED = 'failed',
+}
+
+// Define operation types as an enum
+export enum OperationType {
+    STAKE = 'stake',
+    UNSTAKE = 'unstake',
+}
+
+// Update the interfaces with the more specific types
 export interface StakingOperation {
     id: string;
-    type: string;
-    status: string;
+    type: OperationType;
+    status: OperationStatus;
     tokenAddress: string;
     tokenName: string;
     tokenSymbol: string;
