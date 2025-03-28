@@ -21,6 +21,10 @@ import {
 } from '@/services/staking-service';
 import { checkMaintenance } from '@/lib/wallet-actions';
 import { useEffect } from 'react';
+import {
+    Transaction,
+    TransactionStage,
+} from '@/components/app/dashboard/transaction/transaction-status';
 
 interface StakingState {
     // Data states
@@ -40,6 +44,14 @@ interface StakingState {
     pollingInterval: NodeJS.Timeout | null;
 
     pollingNextTime: number | null;
+
+    transactions: Transaction[];
+    getTransactions: (userAddress: string) => Transaction[];
+    updateTransactionStage: (id: string, stage: TransactionStage) => void;
+    removeTransaction: (id: string) => void;
+    removeCompletedTransactions: () => void;
+    checkTransactionStatus: (id: string) => Promise<void>;
+
     pendingOperations: {
         id: string;
         type: 'stake' | 'unstake';
@@ -124,6 +136,183 @@ export const useStakingStore = create<StakingState>()(
                     console.error('Error checking maintenance status:', error);
                     set({ isInMaintenance: false, checkingMaintenance: false });
                     return false;
+                }
+            },
+
+            // Initialize transactions array
+            transactions: [],
+
+            // Get transactions for a user
+            getTransactions: (userAddress: string) => {
+                return get().transactions.filter(
+                    (tx) => tx.userAddress === userAddress
+                );
+            },
+
+            // Update transaction stage
+            updateTransactionStage: (id: string, stage: TransactionStage) => {
+                const transactions = [...get().transactions];
+                const index = transactions.findIndex((tx) => tx.id === id);
+
+                if (index >= 0) {
+                    transactions[index] = {
+                        ...transactions[index],
+                        stage,
+                        // Add timestamp for completed or failed stages
+                        ...(stage === 'completed' || stage === 'failed'
+                            ? { completedAt: Date.now() }
+                            : {}),
+                    };
+
+                    set({ transactions });
+
+                    // Create a custom event to notify UI components
+                    const event = new CustomEvent('transactionUpdated', {
+                        detail: { id, stage },
+                    });
+                    window.dispatchEvent(event);
+
+                    // Show appropriate notifications
+                    if (stage === 'completed') {
+                        const tx = transactions[index];
+                        toast.success(
+                            `${tx.type === 'stake' ? 'Staking' : 'Unstaking'} ${
+                                tx.amount
+                            } ${tx.tokenSymbol} completed successfully!`,
+                            { autoClose: 5000 }
+                        );
+                    } else if (stage === 'failed') {
+                        const tx = transactions[index];
+                        toast.error(
+                            `${
+                                tx.type === 'stake' ? 'Staking' : 'Unstaking'
+                            } transaction failed. ${tx.failureReason || ''}`,
+                            { autoClose: 7000 }
+                        );
+                    }
+                }
+            },
+
+            // Remove a transaction
+            removeTransaction: (id: string) => {
+                const transactions = get().transactions.filter(
+                    (tx) => tx.id !== id
+                );
+                set({ transactions });
+            },
+
+            // Remove all completed transactions
+            removeCompletedTransactions: () => {
+                const transactions = get().transactions.filter(
+                    (tx) => tx.stage !== 'completed' && tx.stage !== 'failed'
+                );
+                set({ transactions });
+            },
+
+            // Check status of a specific transaction
+            checkTransactionStatus: async (id: string) => {
+                const transaction = get().transactions.find(
+                    (tx) => tx.id === id
+                );
+                if (!transaction) return;
+
+                try {
+                    // For stake operations
+                    if (transaction.type === 'stake') {
+                        // Check if the position exists now
+                        const positions = await get().fetchPositions(
+                            transaction.userAddress
+                        );
+                        const matchingPosition = positions.find((position) => {
+                            const fetchedAmount = parseFloat(
+                                position.formattedTokenAmount
+                            );
+                            const txAmount = parseFloat(transaction.amount);
+
+                            return (
+                                position.tokenAddress ===
+                                    transaction.tokenAddress &&
+                                (Math.abs(fetchedAmount - txAmount) / txAmount <
+                                    0.01 ||
+                                    fetchedAmount - txAmount >= 0)
+                            );
+                        });
+
+                        if (matchingPosition) {
+                            // Position found - transaction completed
+                            get().updateTransactionStage(id, 'completed');
+                        } else {
+                            // Check for failure on blockchain
+                            const operations = await getUserOperations(
+                                transaction.userAddress,
+                                'failed'
+                            );
+                            const failedOp = operations.find(
+                                (op) => op.clientOperationId === id
+                            );
+
+                            if (failedOp) {
+                                get().updateTransactionStage(id, 'failed');
+                                // Update failure details
+                                const transactions = [...get().transactions];
+                                const index = transactions.findIndex(
+                                    (tx) => tx.id === id
+                                );
+                                if (index >= 0) {
+                                    transactions[index].failureReason =
+                                        failedOp.failureReason;
+                                    transactions[index].failedAt =
+                                        failedOp.failedAt;
+                                    set({ transactions });
+                                }
+                            }
+                            // If not matched and not failed, transaction is still pending
+                        }
+                    }
+                    // For unstake operations
+                    else if (transaction.type === 'unstake') {
+                        // Check if position still exists
+                        const positions = await get().fetchPositions(
+                            transaction.userAddress
+                        );
+                        const positionStillExists = positions.some(
+                            (p) => p.id === transaction.positionId
+                        );
+
+                        if (!positionStillExists) {
+                            // Position no longer exists - unstake completed
+                            get().updateTransactionStage(id, 'completed');
+                        } else {
+                            // Check for failure on blockchain
+                            const operations = await getUserOperations(
+                                transaction.userAddress,
+                                'failed'
+                            );
+                            const failedOp = operations.find(
+                                (op) => op.clientOperationId === id
+                            );
+
+                            if (failedOp) {
+                                get().updateTransactionStage(id, 'failed');
+                                // Update failure details
+                                const transactions = [...get().transactions];
+                                const index = transactions.findIndex(
+                                    (tx) => tx.id === id
+                                );
+                                if (index >= 0) {
+                                    transactions[index].failureReason =
+                                        failedOp.failureReason;
+                                    transactions[index].failedAt =
+                                        failedOp.failedAt;
+                                    set({ transactions });
+                                }
+                            }
+                            // If position still exists and no failure, transaction is still pending
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking transaction status:', error);
+                    // Don't update status on error - just continue trying
                 }
             },
 
@@ -217,123 +406,27 @@ export const useStakingStore = create<StakingState>()(
             },
 
             checkPendingStakes: async (userAddress: string) => {
-                // Get pending stakes from localStorage
-                const pendingItems = JSON.parse(
-                    localStorage.getItem('pendingStakes') || '[]'
+                // Process all active transactions
+                const transactions = get().transactions.filter(
+                    (tx) =>
+                        tx.stage !== 'completed' &&
+                        tx.stage !== 'failed' &&
+                        tx.userAddress === userAddress
                 );
 
-                // If no pending items, stop polling
-                if (pendingItems.length === 0) {
+                if (transactions.length === 0) {
                     get().stopPolling(userAddress);
                     return;
                 }
 
-                // Get current positions
-                const positions = get().userPositions;
-
-                // Get user operations to check for failed operations
-                const operations = await getUserOperations(
-                    userAddress,
-                    'failed'
-                );
-
-                // The current time to check for stale operations
-                const currentTime = Date.now();
-                const maxAgeMs = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
-                // Filter out completed items, stale items, and record failure reasons
-                const updatedPendingItems = pendingItems.filter(
-                    (item: {
-                        type: string;
-                        positionId: string;
-                        tokenAddress: string;
-                        amount: string;
-                        timestamp: number;
-                        userAddress: string;
-                        id: string;
-                        failureReason?: string;
-                        failedAt?: number;
-                    }) => {
-                        // First, check if this operation is marked as failed in the blockchain
-                        const failedOperation = operations.find(
-                            (op) =>
-                                op.clientOperationId === item.id ||
-                                op.id === item.id
-                        );
-
-                        if (failedOperation && failedOperation.failureReason) {
-                            // Record the failure reason and time
-                            item.failureReason = failedOperation.failureReason;
-                            item.failedAt = failedOperation.failedAt;
-
-                            // Show a notification to the user
-                            toast.error(
-                                `Operation failed: ${failedOperation.failureReason}`,
-                                {
-                                    autoClose: 7000,
-                                }
-                            );
-
-                            // Remove failed operations from pending list
-                            return false;
-                        }
-
-                        // Check if item is stale (older than 24 hours)
-                        if (currentTime - item.timestamp > maxAgeMs) {
-                            return false;
-                        }
-
-                        // Only process items for the current user
-                        if (item.userAddress !== userAddress) {
-                            return true; // Keep items for other users
-                        }
-
-                        if (item.type === 'unstake') {
-                            // For unstakes, check if the position with that ID is no longer in the list
-                            return positions.some(
-                                (position) => position.id === item.positionId
-                            );
-                        } else {
-                            // For stakes, check if there's a matching position with the same token address
-                            const matchingPosition = positions.find(
-                                (position) => {
-                                    const fetchedPosition = parseFloat(
-                                        position.formattedTokenAmount
-                                    );
-                                    const localPosition = parseFloat(
-                                        item.amount
-                                    );
-
-                                    return (
-                                        position.tokenAddress ===
-                                            item.tokenAddress && //same token
-                                        // Approximate amount matching (within 1% tolerance)
-                                        (Math.abs(
-                                            fetchedPosition - localPosition
-                                        ) /
-                                            localPosition <
-                                            0.01 ||
-                                            fetchedPosition - localPosition >= //staked amount is greater than the original local (when user adds to stake)
-                                                0)
-                                    );
-                                }
-                            );
-
-                            return !matchingPosition;
-                        }
-                    }
-                );
-
-                // Update localStorage with remaining pending items
-                localStorage.setItem(
-                    'pendingStakes',
-                    JSON.stringify(updatedPendingItems)
-                );
-
-                // If all items are processed, stop polling
-                if (updatedPendingItems.length === 0) {
-                    get().stopPolling(userAddress);
+                // Check status for each transaction
+                for (const transaction of transactions) {
+                    await get().checkTransactionStatus(transaction.id);
                 }
+
+                // Refresh positions and metrics
+                await get().fetchPositions(userAddress);
+                await get().fetchDashboardMetrics(userAddress);
             },
 
             // Data fetching actions
@@ -453,9 +546,7 @@ export const useStakingStore = create<StakingState>()(
                     if (isInMaintenance) {
                         toast.warning(
                             'Staking is temporarily unavailable during maintenance.',
-                            {
-                                autoClose: 5000,
-                            }
+                            { autoClose: 5000 }
                         );
                         return false;
                     }
@@ -474,66 +565,55 @@ export const useStakingStore = create<StakingState>()(
                     if (!hasBalance) {
                         toast.error(
                             'You do not have enough tokens to complete this transaction',
-                            {
-                                autoClose: 5000,
-                            }
+                            { autoClose: 5000 }
                         );
                         return false;
                     }
 
-                    // Proceed with staking
-                    await stakeTokens(tokenAddress, amount);
+                    // Generate transaction ID
+                    const transactionId = `stake-${tokenAddress}-${userAddress}-${Date.now()}`;
 
-                    // Store pending stake in localStorage
+                    // Get token details
                     const token = get().availableTokens.find(
                         (t) => t.address === tokenAddress
                     );
-                    const pendingStake = {
-                        id: `stake-${tokenAddress}-${userAddress}-${Date.now()}`,
+
+                    // Create transaction object with initial 'pending' stage
+                    const transaction: Transaction = {
+                        id: transactionId,
                         type: 'stake',
                         tokenAddress,
+                        tokenSymbol: token?.symbol || 'Unknown',
                         amount,
                         timestamp: Date.now(),
                         userAddress: userAddress as string,
-                        tokenSymbol: token?.symbol || 'Unknown Token',
+                        stage: 'pending',
+                        estimatedTimeMinutes: 5,
                     };
 
-                    // Get existing pending stakes
-                    const existingPendingStakes = JSON.parse(
-                        localStorage.getItem('pendingStakes') || '[]'
-                    );
+                    // Add to transactions list
+                    set({ transactions: [...get().transactions, transaction] });
 
-                    // Add new pending stake
-                    existingPendingStakes.push(pendingStake);
-
-                    // Save back to localStorage
-                    localStorage.setItem(
-                        'pendingStakes',
-                        JSON.stringify(existingPendingStakes)
-                    );
+                    // Proceed with staking
+                    await stakeTokens(tokenAddress, amount, transactionId);
 
                     toast.success(
-                        'Your tokens are being staked. This may take a few minutes to complete.',
-                        {
-                            autoClose: 5000,
-                        }
+                        'Your staking transaction has been submitted. You can track its progress above.',
+                        { autoClose: 5000 }
                     );
 
+                    // Start polling
                     get().startPolling(userAddress as string);
 
                     // Return to dashboard
                     set({ currentView: 'dashboard' });
 
-                    const event = new CustomEvent('pendingOperationsUpdated');
-                    window.dispatchEvent(event);
                     return true;
                 } catch (error) {
                     console.error('Staking error:', error);
                     toast.error(
                         'There was an error processing your staking transaction',
-                        {
-                            autoClose: 5000,
-                        }
+                        { autoClose: 5000 }
                     );
                     return false;
                 } finally {
@@ -549,9 +629,7 @@ export const useStakingStore = create<StakingState>()(
                     if (isInMaintenance) {
                         toast.warning(
                             'Unstaking is temporarily unavailable during maintenance.',
-                            {
-                                autoClose: 5000,
-                            }
+                            { autoClose: 5000 }
                         );
                         return false;
                     }
@@ -566,44 +644,40 @@ export const useStakingStore = create<StakingState>()(
                         throw new Error('Position not found');
                     }
 
-                    // Perform unstaking
-                    await unstakeTokens(position.tokenAddress);
-
-                    // Store pending unstake in localStorage
+                    // Get user address
                     const userAddress =
                         await window.arweaveWallet?.getActiveAddress();
-                    const pendingUnstake = {
-                        id: `unstake-${positionId}-${Date.now()}`,
+
+                    // Generate transaction ID
+                    const transactionId = `unstake-${positionId}-${Date.now()}`;
+
+                    // Create transaction object with initial 'pending' stage
+                    const transaction: Transaction = {
+                        id: transactionId,
                         type: 'unstake',
-                        positionId,
                         tokenAddress: position.tokenAddress,
+                        tokenSymbol: position.tokenSymbol,
+                        amount: position.formattedTokenAmount,
                         timestamp: Date.now(),
                         userAddress: userAddress as string,
+                        positionId,
+                        stage: 'pending',
+                        estimatedTimeMinutes: 5,
                     };
 
-                    // Get existing pending items
-                    const existingPendingItems = JSON.parse(
-                        localStorage.getItem('pendingStakes') || '[]'
-                    );
+                    // Add to transactions list
+                    set({ transactions: [...get().transactions, transaction] });
 
-                    // Add new pending unstake
-                    existingPendingItems.push(pendingUnstake);
-
-                    // Save back to localStorage
-                    localStorage.setItem(
-                        'pendingStakes',
-                        JSON.stringify(existingPendingItems)
-                    );
-
-                    // Start polling for completion
-                    get().startPolling(userAddress as string);
+                    // Perform unstaking
+                    await unstakeTokens(position.tokenAddress, transactionId);
 
                     toast.success(
-                        'Your tokens are being unstaked. This may take a few minutes to complete.',
-                        {
-                            autoClose: 5000,
-                        }
+                        'Your unstaking transaction has been submitted. You can track its progress above.',
+                        { autoClose: 5000 }
                     );
+
+                    // Start polling
+                    get().startPolling(userAddress as string);
 
                     // Return to dashboard
                     set({ currentView: 'dashboard' });
@@ -612,9 +686,7 @@ export const useStakingStore = create<StakingState>()(
                     console.error('Unstaking error:', error);
                     toast.error(
                         'There was an error processing your unstaking transaction',
-                        {
-                            autoClose: 5000,
-                        }
+                        { autoClose: 5000 }
                     );
                     return false;
                 } finally {

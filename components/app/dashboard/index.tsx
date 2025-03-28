@@ -10,8 +10,8 @@ import PositionsList from './positions-list';
 import LoadingState from '@/components/app/shared/loading-state';
 import { StakingPosition } from '@/types/staking';
 import { useStakingStore } from '@/store/staking-store';
-import PendingOperations from './pending-operations';
 import MaintenanceMessage from '../shared/maintenance-message';
+import TransactionStatusManager from './transaction/transaction-status-manager';
 
 interface DashboardProps {
     address: string | null;
@@ -33,18 +33,22 @@ const Dashboard = ({
     isInMaintenance = false,
 }: DashboardProps) => {
     const hasPositions = positions.length > 0;
-    const { availableTokens } = useStakingStore();
 
-    // Check if there are any pending operations
-    const hasPendingOperations = () => {
+    const {
+        transactions,
+        checkTransactionStatus,
+        removeCompletedTransactions,
+    } = useStakingStore();
+
+    // Check if there are any transactions for the current user
+    const hasTransactions = () => {
         if (!address) return false;
 
-        const pendingItems = JSON.parse(
-            localStorage.getItem('pendingStakes') || '[]'
-        );
-        return pendingItems.some(
-            (item: { userAddress: string }) => item.userAddress === address
-        );
+        return transactions.some((tx) => tx.userAddress === address);
+    };
+
+    const handleCheckNow = async (transactionId: string) => {
+        await checkTransactionStatus(transactionId);
     };
 
     return (
@@ -55,16 +59,20 @@ const Dashboard = ({
         >
             {/* Add the pending operations component with animation */}
             <AnimatePresence>
-                {address && hasPendingOperations() && (
+                {address && hasTransactions() && (
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.3 }}
                     >
-                        <PendingOperations
+                        <TransactionStatusManager
                             userAddress={address}
-                            tokens={availableTokens}
+                            transactions={transactions.filter(
+                                (tx) => tx.userAddress === address
+                            )}
+                            onCheckNow={handleCheckNow}
+                            onDismissCompleted={removeCompletedTransactions}
                         />
                     </motion.div>
                 )}
