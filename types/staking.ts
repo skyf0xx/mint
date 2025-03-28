@@ -277,7 +277,6 @@ export enum OperationType {
     UNSTAKE = 'unstake',
 }
 
-// Update the interfaces with the more specific types
 export interface StakingOperation {
     id: string;
     type: OperationType;
@@ -292,6 +291,9 @@ export interface StakingOperation {
     elapsedTime: string;
     clientOperationId?: string;
     mintToken?: string;
+    failureReason?: string;
+    failedAt?: number;
+    formattedFailureTime?: string;
 }
 
 export interface RawStakingOperation {
@@ -307,4 +309,7 @@ export interface RawStakingOperation {
     elapsedTime: string;
     mintToken?: string;
     clientOperationId?: string;
+    failureReason?: string;
+    failedAt?: number;
+    formattedFailureTime?: string;
 }

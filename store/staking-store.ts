@@ -17,6 +17,7 @@ import {
     getTokenBalance,
     checkSufficientBalance,
     deleteUserPositionsCache,
+    getUserOperations,
 } from '@/services/staking-service';
 import { checkMaintenance } from '@/lib/wallet-actions';
 import { useEffect } from 'react';
@@ -47,6 +48,8 @@ interface StakingState {
         timestamp: number;
         userAddress: string;
         positionId?: string;
+        failureReason?: string;
+        failedAt?: number;
     }[];
 
     // Maintenance mode actions
@@ -228,11 +231,17 @@ export const useStakingStore = create<StakingState>()(
                 // Get current positions
                 const positions = get().userPositions;
 
+                // Get user operations to check for failed operations
+                const operations = await getUserOperations(
+                    userAddress,
+                    'failed'
+                );
+
                 // The current time to check for stale operations
                 const currentTime = Date.now();
                 const maxAgeMs = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
-                // Filter out completed items and stale items
+                // Filter out completed items, stale items, and record failure reasons
                 const updatedPendingItems = pendingItems.filter(
                     (item: {
                         type: string;
@@ -241,7 +250,34 @@ export const useStakingStore = create<StakingState>()(
                         amount: string;
                         timestamp: number;
                         userAddress: string;
+                        id: string;
+                        failureReason?: string;
+                        failedAt?: number;
                     }) => {
+                        // First, check if this operation is marked as failed in the blockchain
+                        const failedOperation = operations.find(
+                            (op) =>
+                                op.clientOperationId === item.id ||
+                                op.id === item.id
+                        );
+
+                        if (failedOperation && failedOperation.failureReason) {
+                            // Record the failure reason and time
+                            item.failureReason = failedOperation.failureReason;
+                            item.failedAt = failedOperation.failedAt;
+
+                            // Show a notification to the user
+                            toast.error(
+                                `Operation failed: ${failedOperation.failureReason}`,
+                                {
+                                    autoClose: 7000,
+                                }
+                            );
+
+                            // Remove failed operations from pending list
+                            return false;
+                        }
+
                         // Check if item is stale (older than 24 hours)
                         if (currentTime - item.timestamp > maxAgeMs) {
                             return false;
