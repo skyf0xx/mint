@@ -185,6 +185,7 @@ export async function getTokenDenomination(token: string): Promise<number> {
 }
 
 export async function checkMaintenance(): Promise<boolean> {
+    return false;
     const tags = [{ name: 'Action', value: 'Check-Maintenance' }];
 
     try {

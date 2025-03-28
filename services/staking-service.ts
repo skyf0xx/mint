@@ -267,11 +267,13 @@ function calculateStakedDate(timeStaked: string): Date {
  * Stakes tokens into the protocol
  * @param tokenAddress Address of the token to stake
  * @param amount Amount to stake
- * @returns Transaction ID if successful
+ * @param transactionId Client-side transaction ID for tracking
+ * @returns Boolean indicating if the operation was successful
  */
 export async function stakeTokens(
     tokenAddress: string,
-    amount: string
+    amount: string,
+    transactionId?: string
 ): Promise<boolean> {
     try {
         // First, verify the token is supported
@@ -294,8 +296,8 @@ export async function stakeTokens(
 
         const formattedAmount = convertForBlockchain(amount, decimals);
 
-        // Generate a high entropy random string for operation ID
-        const operationId = generateOperationId();
+        // Use provided transaction ID or generate a new operation ID
+        const operationId = transactionId || generateOperationId();
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const signer = createDataItemSigner((globalThis as any).arweaveWallet);
@@ -373,9 +375,13 @@ function generateFallbackId(): string {
 /**
  * Unstakes tokens from a position
  * @param tokenAddress Address of the token being unstaked
- * @returns Transaction ID if successful
+ * @param transactionId Client-side transaction ID for tracking
+ * @returns Boolean indicating if the operation was successful
  */
-export async function unstakeTokens(tokenAddress: string): Promise<boolean> {
+export async function unstakeTokens(
+    tokenAddress: string,
+    transactionId?: string
+): Promise<boolean> {
     try {
         // Format the amount according to token decimals
         const allowedTokens = await getAllowedTokens();
@@ -389,13 +395,21 @@ export async function unstakeTokens(tokenAddress: string): Promise<boolean> {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const signer = createDataItemSigner((globalThis as any).arweaveWallet);
 
+        // Build tags, including transaction ID if provided
+        const tags = [
+            { name: 'Action', value: 'Unstake' },
+            { name: 'Token', value: tokenAddress },
+        ];
+
+        // Add the client operation ID if provided
+        if (transactionId) {
+            tags.push({ name: 'X-Client-Operation-ID', value: transactionId });
+        }
+
         // Send unstaking transaction with proper signer
         const result = await sendAndGetResult(
             MINT_PROCESS,
-            [
-                { name: 'Action', value: 'Unstake' },
-                { name: 'Token', value: tokenAddress },
-            ],
+            tags,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             signer as any,
             false
