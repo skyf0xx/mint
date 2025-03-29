@@ -6,7 +6,6 @@ import {
     XCircle,
     Clock,
     AlertTriangle,
-    RefreshCw,
     HelpCircle,
     ExternalLink,
 } from 'lucide-react';
@@ -65,8 +64,6 @@ const DiscordButton = () => {
 
 const TransactionStatusCard: React.FC<TransactionStatusCardProps> = ({
     transaction,
-    onCheckNow,
-    isCheckingNow,
     lastChecked,
     nextCheckTime,
 }) => {
@@ -181,20 +178,6 @@ const TransactionStatusCard: React.FC<TransactionStatusCardProps> = ({
                                 <span className="mx-2 text-gray-400">|</span>
                                 <span>Last: {lastChecked}</span>
                             </div>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className={`h-7 text-xs border-gray-300 ${stageInfo.color} hover:${stageInfo.bgColor}`}
-                                onClick={onCheckNow}
-                                disabled={isCheckingNow}
-                            >
-                                <RefreshCw
-                                    className={`h-3 w-3 mr-1 ${
-                                        isCheckingNow ? 'animate-spin' : ''
-                                    }`}
-                                />
-                                Check Now
-                            </Button>
                         </div>
                     )}
 
