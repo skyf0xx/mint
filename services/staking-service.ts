@@ -617,7 +617,7 @@ export async function getUserOperations(
             tags.push({ name: 'Token', value: tokenFilter });
         }
         if (typeFilter) {
-            tags.push({ name: 'Type', value: typeFilter });
+            tags.push({ name: 'OP-Type', value: typeFilter });
         }
 
         const response = await sendAndGetResult(
