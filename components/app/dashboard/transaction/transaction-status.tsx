@@ -49,6 +49,20 @@ interface TransactionStatusCardProps {
     nextCheckTime: number;
 }
 
+const DiscordButton = () => {
+    return (
+        <a
+            href="https://discord.gg/T55faTyzkc"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        >
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Get Help on Discord
+        </a>
+    );
+};
+
 const TransactionStatusCard: React.FC<TransactionStatusCardProps> = ({
     transaction,
     onCheckNow,
@@ -295,14 +309,7 @@ const TransactionStatusCard: React.FC<TransactionStatusCardProps> = ({
                                     {transaction.failureReason ||
                                         'Transaction failed to complete.'}
                                 </span>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="h-7 text-xs border-red-200 text-red-600"
-                                >
-                                    <RefreshCw className="h-3 w-3 mr-1" />
-                                    Retry
-                                </Button>
+                                <DiscordButton />
                             </div>
                         )}
                     </div>
