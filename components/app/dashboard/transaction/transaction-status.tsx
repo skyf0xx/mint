@@ -137,9 +137,7 @@ const TransactionStatusCard: React.FC<TransactionStatusCardProps> = ({
             case 'failed':
                 return {
                     title: 'Transaction Failed',
-                    description:
-                        transaction.failureReason ||
-                        'Your transaction failed to complete.',
+                    description: 'Your transaction failed to complete.',
                     icon: <XCircle className="h-5 w-5 text-red-500" />,
                     color: 'text-red-600',
                     bgColor: 'bg-red-50',
