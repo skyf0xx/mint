@@ -192,7 +192,7 @@ export async function checkMaintenance(): Promise<boolean> {
             MAINTENANCE_CONTRACT,
             tags,
             false,
-            false
+            CACHE_EXPIRY.MINUTE * 10
         );
         if (!result.Messages?.[0]?.Data) {
             throw new Error('No maintenance status in response');
