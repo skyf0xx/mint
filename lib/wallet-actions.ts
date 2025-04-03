@@ -64,8 +64,7 @@ export async function sendAndGetResult(
     let cacheKey = '';
 
     if (cacheExpiry) {
-        cacheKey =
-            generateCacheKey(target, tags) + (userKey ? '-' + userKey : '');
+        cacheKey = generateCacheKey(target, tags, userKey);
         cached = await getFromCache(cacheKey);
     }
 
