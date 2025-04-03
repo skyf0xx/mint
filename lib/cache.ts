@@ -23,10 +23,12 @@ export const CACHE_EXPIRY = {
 // Generate cache key from target and tags
 export function generateCacheKey(
     target: string,
-    tags: { name: string; value: string }[]
+    tags: { name: string; value: string }[],
+    userKey: string = ''
 ): string {
     const tagString = tags.map((t) => `${t.name}:${t.value}`).join('|');
-    return `${CACHE_PREFIX}${target}:${tagString}`;
+    const baseKey = `${CACHE_PREFIX}${target}:${tagString}`;
+    return userKey ? `${baseKey}-${userKey}` : baseKey;
 }
 
 export async function getFromCache(key: string): Promise<MessageResult | null> {
