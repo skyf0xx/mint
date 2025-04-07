@@ -177,9 +177,7 @@ function getPostionTags(userAddress: string) {
 
 export async function deleteUserPositionsCache(userAddress: string) {
     const tags = getPostionTags(userAddress);
-    const cacheKey =
-        generateCacheKey(MINT_PROCESS, tags) +
-        (userAddress ? '-' + userAddress : '');
+    const cacheKey = generateCacheKey(MINT_PROCESS, tags, userAddress);
     deleteFromCache(cacheKey);
 }
 
