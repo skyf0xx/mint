@@ -20,7 +20,7 @@ const RewardsSummary: React.FC = () => {
         <Card className="border-2 border-primary/10 shadow-lg mb-6">
             <CardHeader className="border-b border-gray-100 flex flex-row items-center justify-between">
                 <CardTitle className="text-xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
-                    Your Liquidity Mining Rewards
+                    Your MINT Liquidity Mining Rewards
                 </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
