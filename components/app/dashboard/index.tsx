@@ -7,6 +7,7 @@ import { AlertTriangle, PlusCircle } from 'lucide-react';
 import DashboardHeader from './header';
 import EmptyState from './empty-state';
 import PositionsList from './positions-list';
+import RewardsSummary from './rewards-summary';
 import LoadingState from '@/components/app/shared/loading-state';
 import { StakingPosition } from '@/types/staking';
 import { useStakingStore } from '@/store/staking-store';
@@ -80,6 +81,9 @@ const Dashboard = ({
 
             {/* Add maintenance banner if in maintenance mode */}
             {isInMaintenance && <MaintenanceMessage />}
+
+            {/* Add Rewards Summary component */}
+            {address && hasPositions && <RewardsSummary />}
 
             <Card className="border-2 border-primary/10 shadow-lg">
                 <CardHeader className="border-b border-gray-100">

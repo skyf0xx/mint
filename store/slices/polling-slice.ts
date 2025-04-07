@@ -28,6 +28,9 @@ export const createPollingSlice = (set: any, get: () => StakingState) => ({
                 await get().fetchPositions(userAddress);
                 await get().fetchDashboardMetrics(userAddress);
 
+                // Also fetch rewards data
+                await get().fetchUserRewards(userAddress);
+
                 // Then check if any pending stakes are complete
                 await get().checkPendingStakes(userAddress);
 
@@ -68,6 +71,7 @@ export const createPollingSlice = (set: any, get: () => StakingState) => ({
             // Run all the checks
             await get().fetchPositions(userAddress);
             await get().fetchDashboardMetrics(userAddress);
+            await get().fetchUserRewards(userAddress);
             await get().checkPendingStakes(userAddress);
             get().getPendingOperations(userAddress);
 
@@ -115,5 +119,6 @@ export const createPollingSlice = (set: any, get: () => StakingState) => ({
         // Refresh positions and metrics
         await get().fetchPositions(userAddress);
         await get().fetchDashboardMetrics(userAddress);
+        await get().fetchUserRewards(userAddress);
     },
 });
