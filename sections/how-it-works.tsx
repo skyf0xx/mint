@@ -8,6 +8,12 @@ import {
     Shield,
     Wallet,
     LucideIcon,
+    TrendingUp,
+    Clock,
+    BarChart3,
+    ArrowUpRight,
+    PieChart,
+    CheckCircle2,
 } from 'lucide-react';
 
 interface FloatingDecorationProps {
@@ -20,6 +26,8 @@ interface StepProps {
     description: string;
     delay: number;
     index: number;
+    isHighlighted?: boolean;
+    benefits?: Array<{ icon: LucideIcon; text: string }>;
 }
 
 const containerVariants = {
@@ -62,12 +70,31 @@ const Step: React.FC<StepProps> = ({
     description,
     delay,
     index,
+    isHighlighted = false,
+    benefits,
 }) => (
     <motion.div variants={itemVariants} custom={delay} className="relative">
-        <div className="flex items-start gap-6">
+        <div
+            className={`flex items-start gap-6 ${
+                isHighlighted ? 'relative' : ''
+            }`}
+        >
+            {isHighlighted && (
+                <motion.div
+                    className="absolute -inset-4 bg-primary/5 rounded-2xl"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                />
+            )}
+
             {/* Enhanced icon container with gradient and animation */}
             <motion.div
-                className="p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent flex-shrink-0"
+                className={`p-4 rounded-2xl ${
+                    isHighlighted
+                        ? 'bg-gradient-to-br from-primary/20 to-primary/5'
+                        : 'bg-gradient-to-br from-primary/10 to-transparent'
+                } flex-shrink-0 relative z-10`}
                 whileHover={{ scale: 1.05 }}
                 initial={{ rotateY: 0 }}
                 whileInView={{
@@ -80,18 +107,53 @@ const Step: React.FC<StepProps> = ({
                 }}
                 viewport={{ once: true }}
             >
-                <Icon className="w-8 h-8 text-primary" />
+                <Icon
+                    className={`w-8 h-8 ${
+                        isHighlighted ? 'text-primary-600' : 'text-primary'
+                    }`}
+                />
             </motion.div>
 
-            <div>
+            <div className="relative z-10">
                 {/* Enhanced title with gradient text */}
-                <h3 className="text-xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600">
+                <h3
+                    className={`text-xl font-bold mb-2 ${
+                        isHighlighted
+                            ? 'bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-accent'
+                            : 'bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-600'
+                    }`}
+                >
                     {title}
                 </h3>
                 {/* Enhanced description with better typography */}
                 <p className="text-gray-600 text-lg leading-relaxed">
                     {description}
                 </p>
+
+                {/* Benefits list for highlighted steps */}
+                {benefits && benefits.length > 0 && (
+                    <motion.ul
+                        className="mt-4 space-y-3"
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        transition={{ delay: 0.5, staggerChildren: 0.2 }}
+                        viewport={{ once: true }}
+                    >
+                        {benefits.map((benefit, i) => (
+                            <motion.li
+                                key={i}
+                                className="flex items-center gap-2 text-gray-700"
+                                initial={{ opacity: 0, x: -10 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.5 + i * 0.2 }}
+                                viewport={{ once: true }}
+                            >
+                                <benefit.icon className="w-5 h-5 text-primary-600 flex-shrink-0" />
+                                <span>{benefit.text}</span>
+                            </motion.li>
+                        ))}
+                    </motion.ul>
+                )}
             </div>
         </div>
     </motion.div>
@@ -113,6 +175,98 @@ const ArrowConnector = ({ delay }: { delay: number }) => (
         >
             <ArrowDownUp className="w-8 h-8 text-primary/50" />
         </motion.div>
+    </motion.div>
+);
+
+const RewardHighlight = ({ delay = 0 }: { delay?: number }) => (
+    <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ delay: delay }}
+        viewport={{ once: true }}
+        className="my-16 max-w-4xl mx-auto"
+    >
+        <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl p-8 border border-primary/20 relative overflow-hidden">
+            {/* Background decorative elements */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/5 rounded-full blur-3xl" />
+
+            <h3 className="text-2xl font-bold mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-accent">
+                Double Reward Advantage
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <motion.div
+                    className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border border-primary/10"
+                    whileHover={{ y: -5 }}
+                    transition={{ type: 'spring', stiffness: 300 }}
+                >
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="p-3 rounded-xl bg-primary/10 flex-shrink-0">
+                            <BarChart3 className="w-6 h-6 text-primary-600" />
+                        </div>
+                        <h4 className="text-xl font-bold text-gray-800">
+                            99% Botega Fees
+                        </h4>
+                    </div>
+                    <p className="text-gray-600">
+                        Nearly all trading fees from Botega liquidity pools are
+                        passed directly to you instead of the standard 0.3%
+                        fee-sharing model.
+                    </p>
+                    <ul className="mt-4 space-y-2">
+                        <li className="flex items-center gap-2 text-gray-700">
+                            <CheckCircle2 className="w-4 h-4 text-primary-600" />
+                            <span>
+                                Higher yield compared to traditional LP
+                                positions
+                            </span>
+                        </li>
+                        <li className="flex items-center gap-2 text-gray-700">
+                            <CheckCircle2 className="w-4 h-4 text-primary-600" />
+                            <span>
+                                Automatic fee collection—no manual claiming
+                            </span>
+                        </li>
+                    </ul>
+                </motion.div>
+
+                <motion.div
+                    className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border border-primary/10"
+                    whileHover={{ y: -5 }}
+                    transition={{ type: 'spring', stiffness: 300 }}
+                >
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="p-3 rounded-xl bg-accent/10 flex-shrink-0">
+                            <Clock className="w-6 h-6 text-accent" />
+                        </div>
+                        <h4 className="text-xl font-bold text-gray-800">
+                            5-Minute Rewards
+                        </h4>
+                    </div>
+                    <p className="text-gray-600">
+                        Liquidity mining MINT rewards are distributed
+                        automatically every 5 minutes, providing continuous
+                        passive income.
+                    </p>
+                    <ul className="mt-4 space-y-2">
+                        <li className="flex items-center gap-2 text-gray-700">
+                            <CheckCircle2 className="w-4 h-4 text-accent" />
+                            <span>
+                                Frequent distribution instead of weekly/monthly
+                            </span>
+                        </li>
+                        <li className="flex items-center gap-2 text-gray-700">
+                            <CheckCircle2 className="w-4 h-4 text-accent" />
+                            <span>
+                                Compounds faster than traditional mining
+                                programs
+                            </span>
+                        </li>
+                    </ul>
+                </motion.div>
+            </div>
+        </div>
     </motion.div>
 );
 
@@ -184,9 +338,15 @@ const HowItWorks = () => {
                         </span>
                     </h2>
                     <p className="text-xl text-gray-600 leading-relaxed">
-                        Providing{' '}
+                        Provide{' '}
                         <span className="font-bold">liquidity on Botega</span>{' '}
-                        with just one token, simplified and protected
+                        with just one token and{' '}
+                        <span className="relative inline-flex font-semibold">
+                            <span className="relative z-10">
+                                earn double rewards every 5 minutes
+                            </span>
+                            <span className="absolute bottom-0 left-0 w-full h-2 bg-primary/20"></span>
+                        </span>
                     </p>
                 </motion.div>
 
@@ -231,19 +391,47 @@ const HowItWorks = () => {
                             <ArrowConnector delay={0.6} />
 
                             <Step
-                                icon={Shield}
-                                title="Unstake with protection"
-                                description="When you unstake, you receive your original tokens back plus any profits earned and IL compensation. We keep the MINT tokens from our side."
+                                icon={TrendingUp}
+                                title="Start earning premium rewards"
+                                description="Maximize your earnings with our industry-leading dual reward structure, designed to generate higher returns than traditional liquidity provision."
                                 delay={0.7}
                                 index={3}
+                                isHighlighted={true}
+                                benefits={[
+                                    {
+                                        icon: PieChart,
+                                        text: 'Earn 99% of Botega trading fees',
+                                    },
+                                    {
+                                        icon: Clock,
+                                        text: 'Receive $MINT liquidity mining rewards every 5 minutes',
+                                    },
+                                    {
+                                        icon: ArrowUpRight,
+                                        text: 'No claiming required—all rewards are automatically distributed',
+                                    },
+                                ]}
+                            />
+
+                            <ArrowConnector delay={0.8} />
+
+                            <Step
+                                icon={Shield}
+                                title="Unstake with protection"
+                                description="When you unstake, you receive your original tokens back plus trading fees, mining rewards, and IL compensation. We keep the MINT tokens from our side."
+                                delay={0.9}
+                                index={4}
                             />
                         </motion.div>
                     </CardContent>
                 </Card>
 
+                {/* New rewards highlight section */}
+                <RewardHighlight delay={0.6} />
+
                 {/* Enhanced benefit callout with better styling */}
                 <motion.div
-                    className="max-w-2xl mx-auto mt-12 bg-primary/5 rounded-2xl p-6 border border-primary/10"
+                    className="max-w-2xl mx-auto mt-12 bg-gradient-to-r from-primary/5 to-accent/5 rounded-2xl p-6 border border-primary/10"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -254,8 +442,18 @@ const HowItWorks = () => {
                             <Coins className="w-6 h-6 text-primary" />
                         </div>
                         <p className="text-lg text-gray-700">
-                            While your position is active, you&apos;re earning
-                            trading fees from the Botega pool and building up to
+                            <span className="font-semibold text-primary-600">
+                                Triple rewards system:{' '}
+                            </span>
+                            earn{' '}
+                            <span className="font-bold text-primary-600">
+                                99% of Botega trading fees
+                            </span>
+                            , receive{' '}
+                            <span className="font-bold text-accent">
+                                liquidity mining rewards every 5 minutes
+                            </span>
+                            , and build up to
                             <span className="font-bold text-primary">
                                 {' '}
                                 50% protection{' '}
