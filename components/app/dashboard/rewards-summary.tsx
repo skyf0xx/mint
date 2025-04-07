@@ -11,7 +11,7 @@ const RewardsSummary: React.FC = () => {
 
     const formatTimestamp = (timestamp: number): string => {
         if (!timestamp) return 'Never';
-        return formatDistanceToNow(new Date(timestamp * 1000), {
+        return formatDistanceToNow(new Date(timestamp), {
             addSuffix: true,
         });
     };
