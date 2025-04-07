@@ -1,7 +1,7 @@
 // services/rewards-service.ts
 import { REWARDS_PROCESS, sendAndGetResult } from '@/lib/wallet-actions';
 import { CACHE_EXPIRY } from '@/lib/cache';
-import { formatNumber, withRetry } from '@/lib/utils';
+import { shortNumberFormat, withRetry } from '@/lib/utils';
 
 export interface UserRewards {
     total: string;
@@ -50,8 +50,8 @@ export async function getUserRewards(
 
             return {
                 ...data,
-                formattedTotal: formatNumber(data.total),
-                formattedLastReceived: formatNumber(data.lastReceived),
+                formattedTotal: shortNumberFormat(data.total),
+                formattedLastReceived: shortNumberFormat(data.lastReceived),
             };
         });
     } catch (error) {
