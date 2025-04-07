@@ -108,3 +108,50 @@ export const formatNumber = (
         maximumFractionDigits: decimals,
     });
 };
+
+export const shortNumberFormat = (amount: string, maxLength: number = 4) => {
+    // Parse the amount to a number
+    const numAmount = parseFloat(amount);
+
+    // Use Intl.NumberFormat to format the number
+    const formatter = new Intl.NumberFormat('en-US', {
+        notation: 'compact',
+        compactDisplay: 'short',
+    });
+
+    const formattedNumber = formatter.format(numAmount);
+
+    // If the number part (excluding suffix) is longer than maxLength
+    const match = formattedNumber.match(/^([\d,.]+)([A-Za-z]*)$/);
+
+    if (match) {
+        const [, numberPart, suffix] = match;
+        const digitsOnly = numberPart.replace(/[,.]/g, '');
+
+        if (digitsOnly.length > maxLength) {
+            // Keep the most significant digits and add ellipsis
+            const significantDigits = digitsOnly.substring(0, maxLength);
+
+            // Reinsert decimal point if needed (for proper scale representation)
+            let truncatedNumber;
+            if (numberPart.includes('.')) {
+                // Handle decimal points - keep decimal position relative to original
+                const decimalPos = numberPart.indexOf('.');
+                if (decimalPos < maxLength) {
+                    truncatedNumber =
+                        significantDigits.substring(0, decimalPos) +
+                        '.' +
+                        significantDigits.substring(decimalPos);
+                } else {
+                    truncatedNumber = significantDigits;
+                }
+            } else {
+                truncatedNumber = significantDigits;
+            }
+
+            return `${truncatedNumber}..${suffix}`;
+        }
+    }
+
+    return formattedNumber;
+};
