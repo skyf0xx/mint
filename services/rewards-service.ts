@@ -47,11 +47,15 @@ export async function getUserRewards(
             }
 
             const data = JSON.parse(response.Messages[0].Data) as UserRewards;
-
+            const denomination = 100_000_000;
             return {
                 ...data,
-                formattedTotal: shortNumberFormat(data.total),
-                formattedLastReceived: shortNumberFormat(data.lastReceived),
+                formattedTotal: shortNumberFormat(
+                    (Number(data.total) / denomination).toString()
+                ),
+                formattedLastReceived: shortNumberFormat(
+                    (Number(data.lastReceived) / denomination).toString()
+                ),
             };
         });
     } catch (error) {
