@@ -19,6 +19,11 @@ export interface RewardsSummary {
     formattedTotalDistributed?: string;
 }
 
+const formatMintAmount = (amount: string): string => {
+    const denomination = 100_000_000;
+    return shortNumberFormat((Number(amount) / denomination).toString());
+};
+
 /**
  * Fetches accumulated rewards for a specific user address
  * @param address User's wallet address
@@ -47,15 +52,10 @@ export async function getUserRewards(
             }
 
             const data = JSON.parse(response.Messages[0].Data) as UserRewards;
-            const denomination = 100_000_000;
             return {
                 ...data,
-                formattedTotal: shortNumberFormat(
-                    (Number(data.total) / denomination).toString()
-                ),
-                formattedLastReceived: shortNumberFormat(
-                    (Number(data.lastReceived) / denomination).toString()
-                ),
+                formattedTotal: formatMintAmount(data.total),
+                formattedLastReceived: formatMintAmount(data.lastReceived),
             };
         });
     } catch (error) {
@@ -88,19 +88,11 @@ export async function getRewardsSummary(): Promise<RewardsSummary | null> {
                 response.Messages[0].Data
             ) as RewardsSummary;
 
-            // Format total distributed for display
-            const formatAmount = (amount: string): string => {
-                const num = parseFloat(amount);
-                if (isNaN(num)) return '0';
-                return num.toLocaleString(undefined, {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
-                });
-            };
-
             return {
                 ...data,
-                formattedTotalDistributed: formatAmount(data.totalDistributed),
+                formattedTotalDistributed: formatMintAmount(
+                    data.totalDistributed
+                ),
             };
         });
     } catch (error) {
