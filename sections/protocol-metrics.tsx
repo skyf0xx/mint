@@ -332,9 +332,8 @@ const ProtocolMetrics = () => {
                                         </span>
                                     </div>
                                     <p className="text-sm text-gray-500 mt-2 max-w-xl mx-auto">
-                                        MINT tokens reserved for single sided
-                                        staking &amp; impermanent loss
-                                        protection
+                                        MINT tokens reserved for impermanent
+                                        loss protection
                                     </p>
                                 </div>
                             )}
