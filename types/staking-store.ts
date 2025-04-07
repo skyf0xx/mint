@@ -9,6 +9,7 @@ import {
     TokenInfo,
     AppView,
 } from '@/types/staking';
+import { UserRewards, RewardsSummary } from '@/services/rewards-service';
 
 export interface StakingState {
     // Data states
@@ -16,6 +17,14 @@ export interface StakingState {
     userPositions: StakingPosition[];
     selectedPositionId: string | null;
     dashboardMetrics: DashboardMetrics;
+
+    //Rewards
+    userRewards: UserRewards | null;
+    rewardsSummary: RewardsSummary | null;
+    isLoadingRewards: boolean;
+    fetchUserRewards: (userAddress: string) => Promise<UserRewards | null>;
+    fetchRewardsSummary: () => Promise<RewardsSummary | null>;
+    clearRewardsData: () => void;
 
     // UI states
     isLoading: boolean;

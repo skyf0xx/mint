@@ -11,6 +11,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { shortNumberFormat } from '@/lib/utils';
 
 interface PositionsListProps {
     positions: StakingPosition[];
@@ -128,9 +129,24 @@ const PositionsList = ({
                                             <div className="text-xs text-gray-500">
                                                 Amount
                                             </div>
-                                            <div className="font-medium">
-                                                {initialAmount} {token}
-                                            </div>
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div className="font-medium truncate max-w-[120px]">
+                                                            {shortNumberFormat(
+                                                                initialAmount
+                                                            )}{' '}
+                                                            {token}
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p className="text-xs">
+                                                            {initialAmount}{' '}
+                                                            {token}
+                                                        </p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
                                         </div>
 
                                         <div>

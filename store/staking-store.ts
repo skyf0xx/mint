@@ -8,6 +8,7 @@ import { createUISlice } from './slices/ui-slice';
 import { createOperationsSlice } from './slices/operations-slice';
 import { createTransactionSlice } from './slices/transaction-slice';
 import { createPollingSlice } from './slices/polling-slice';
+import { createRewardsSlice } from './slices/rewards-slice';
 
 // Create the store with all slices combined
 export const useStakingStore = create<StakingState>()(
@@ -18,6 +19,7 @@ export const useStakingStore = create<StakingState>()(
             ...createOperationsSlice(set, get),
             ...createTransactionSlice(set, get),
             ...createPollingSlice(set, get),
+            ...createRewardsSlice(set, get),
         }),
         { name: 'staking-store' }
     )
@@ -29,6 +31,8 @@ export const useStakingInit = (userAddress: string | null) => {
         fetchTokens,
         fetchPositions,
         fetchDashboardMetrics,
+        fetchUserRewards,
+        fetchRewardsSummary,
         startPolling,
         checkMaintenanceStatus,
     } = useStakingStore();
@@ -42,6 +46,8 @@ export const useStakingInit = (userAddress: string | null) => {
             fetchTokens();
             fetchPositions(userAddress);
             fetchDashboardMetrics(userAddress);
+            fetchUserRewards(userAddress);
+            fetchRewardsSummary();
 
             // Check for pending stakes and start polling if needed
             const pendingStakes = JSON.parse(
@@ -56,6 +62,8 @@ export const useStakingInit = (userAddress: string | null) => {
         fetchTokens,
         fetchPositions,
         fetchDashboardMetrics,
+        fetchUserRewards,
+        fetchRewardsSummary,
         startPolling,
         checkMaintenanceStatus,
     ]);
