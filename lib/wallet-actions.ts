@@ -10,6 +10,7 @@ import {
 
 export const MINT_PROCESS = 'lNtrei6YLQiWS8cyFFHDrOBvRzICQPTvrjZBP8fz-ZI';
 export const MINT_TOKEN = 'SWQx44W-1iMwGFBSHlC3lStCq3Z7O2WZrx9quLeZOu0';
+export const REWARDS_PROCESS = 'ugh5LqeSZBKFJ0P_Q5wMpKNusG0jlATrihpcTxh5TKo';
 const MAINTENANCE_CONTRACT = 'ZT37FSfc486FCWTrO8dQ6E24iX0IhRlTy88OvsO-NM4';
 
 interface StakedBalance {
