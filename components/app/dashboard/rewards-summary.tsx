@@ -1,13 +1,14 @@
 // components/app/dashboard/rewards-summary.tsx
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Coins, Clock, ArrowUpRight, BarChart3 } from 'lucide-react';
+import { Coins, Clock, ArrowUpRight, BarChart3, PieChart } from 'lucide-react'; // Add PieChart
 import { useStakingStore } from '@/store/staking-store';
 import { formatDistanceToNow } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const RewardsSummary: React.FC = () => {
-    const { userRewards, rewardsSummary, isLoadingRewards } = useStakingStore();
+    const { userRewards, rewardsSummary, stakeOwnership, isLoadingRewards } =
+        useStakingStore();
 
     const formatTimestamp = (timestamp: number): string => {
         if (!timestamp) return 'Never';
@@ -24,7 +25,7 @@ const RewardsSummary: React.FC = () => {
                 </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {/* Total Rewards */}
                     <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg p-4">
                         <div className="flex items-center mb-2">
@@ -104,6 +105,32 @@ const RewardsSummary: React.FC = () => {
                                         Next distribution in approximately 5
                                         minutes
                                     </span>
+                                </div>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Stake Ownership - New Card */}
+                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4">
+                        <div className="flex items-center mb-2">
+                            <div className="p-2 rounded-full bg-blue-200 mr-3">
+                                <PieChart className="h-5 w-5 text-blue-500" />
+                            </div>
+                            <div className="text-sm text-gray-600">
+                                Your Pool Share
+                            </div>
+                        </div>
+                        {isLoadingRewards ? (
+                            <Skeleton className="h-9 w-32" />
+                        ) : (
+                            <>
+                                <div className="text-2xl font-semibold">
+                                    {stakeOwnership?.formattedPercentage ||
+                                        '0.000000'}
+                                    %
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1">
+                                    of total staking pool
                                 </div>
                             </>
                         )}

@@ -33,6 +33,7 @@ export const useStakingInit = (userAddress: string | null) => {
         fetchDashboardMetrics,
         fetchUserRewards,
         fetchRewardsSummary,
+        fetchStakeOwnership,
         startPolling,
         checkMaintenanceStatus,
     } = useStakingStore();
@@ -48,6 +49,7 @@ export const useStakingInit = (userAddress: string | null) => {
             fetchDashboardMetrics(userAddress);
             fetchUserRewards(userAddress);
             fetchRewardsSummary();
+            fetchStakeOwnership(userAddress); // Call the function
 
             // Check for pending stakes and start polling if needed
             const pendingStakes = JSON.parse(
@@ -64,6 +66,7 @@ export const useStakingInit = (userAddress: string | null) => {
         fetchDashboardMetrics,
         fetchUserRewards,
         fetchRewardsSummary,
+        fetchStakeOwnership, // Add dependency
         startPolling,
         checkMaintenanceStatus,
     ]);
