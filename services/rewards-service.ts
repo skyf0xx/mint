@@ -23,11 +23,18 @@ export interface RewardsSummary {
     formattedTotalDistributed?: string;
 }
 
+interface TokenWeightInfo {
+    address: string;
+    name: string;
+    weight: string;
+}
+
 export interface StakeOwnershipData {
     percentage: string;
     stakerWeight: string;
     totalWeight: string;
     formattedPercentage?: string;
+    tokenWeights: TokenWeightInfo[];
 }
 
 const formatMintAmount = (amount: string): string => {

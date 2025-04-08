@@ -8,6 +8,7 @@ import {
     BarChart3,
     PieChart,
     Info,
+    ExternalLink,
 } from 'lucide-react';
 import { useStakingStore } from '@/store/staking-store';
 import { formatDistanceToNow } from 'date-fns';
@@ -18,6 +19,12 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from '@/components/ui/accordion';
 
 const RewardsSummary: React.FC = () => {
     const { userRewards, rewardsSummary, stakeOwnership, isLoadingRewards } =
@@ -270,6 +277,117 @@ const RewardsSummary: React.FC = () => {
                     </div>
                 </div>
 
+                {/* Token Weights Accordion */}
+                {stakeOwnership?.tokenWeights &&
+                    stakeOwnership.tokenWeights.length > 0 && (
+                        <div className="mt-6">
+                            <Accordion
+                                type="single"
+                                collapsible
+                                className="w-full"
+                            >
+                                <AccordionItem
+                                    value="token-weights"
+                                    className="border rounded-lg bg-gray-50"
+                                >
+                                    <AccordionTrigger className="px-4 py-3 hover:bg-gray-100 rounded-t-lg">
+                                        <div className="flex items-center text-gray-800">
+                                            <div className="p-2 rounded-full bg-blue-100 mr-3">
+                                                <PieChart className="h-5 w-5 text-blue-600" />
+                                            </div>
+                                            <span className="font-medium">
+                                                Your Token Weights
+                                            </span>
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Info className="h-4 w-4 ml-2 text-gray-400 inline cursor-help" />
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>
+                                                            The tokens you can
+                                                            contribute to
+                                                            liquidity pools and
+                                                            their relative
+                                                            weights
+                                                        </p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        </div>
+                                    </AccordionTrigger>
+                                    <AccordionContent className="px-4 pb-4">
+                                        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                            <table className="min-w-full divide-y divide-gray-200">
+                                                <thead className="bg-gray-50">
+                                                    <tr>
+                                                        <th
+                                                            scope="col"
+                                                            className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                                        >
+                                                            Token
+                                                        </th>
+                                                        <th
+                                                            scope="col"
+                                                            className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                                        >
+                                                            Weight
+                                                        </th>
+                                                        <th
+                                                            scope="col"
+                                                            className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                                        >
+                                                            Link
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="bg-white divide-y divide-gray-200">
+                                                    {stakeOwnership.tokenWeights.map(
+                                                        (token, index) => (
+                                                            <tr
+                                                                key={index}
+                                                                className={
+                                                                    index %
+                                                                        2 ===
+                                                                    0
+                                                                        ? 'bg-white'
+                                                                        : 'bg-gray-50'
+                                                                }
+                                                            >
+                                                                <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                    {token.name}
+                                                                </td>
+                                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                                                    {
+                                                                        token.weight
+                                                                    }
+                                                                </td>
+                                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-right">
+                                                                    <a
+                                                                        href={`https://dexi.ar.io/#/token/${token.address}`}
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        className="inline-flex items-center text-blue-600 hover:text-blue-800"
+                                                                    >
+                                                                        <span className="mr-1">
+                                                                            View
+                                                                            Token
+                                                                        </span>
+                                                                        <ExternalLink className="h-4 w-4" />
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        )
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
+                        </div>
+                    )}
+
                 {rewardsSummary && (
                     <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm text-gray-600">
                         <div className="flex items-center">
@@ -285,9 +403,11 @@ const RewardsSummary: React.FC = () => {
                                 distributed to{' '}
                                 <strong>{rewardsSummary.totalAddresses}</strong>{' '}
                                 stakers. Last global distribution{' '}
-                                {formatTimestamp(
-                                    rewardsSummary.lastDistributionTime
-                                )}
+                                {userRewards
+                                    ? formatTimestamp(
+                                          userRewards.lastDistributionTime
+                                      )
+                                    : 'Never'}
                                 .
                             </span>
                             <TooltipProvider>
