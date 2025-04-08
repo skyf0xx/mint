@@ -7,6 +7,15 @@ import {
     getFromCache,
     setCache,
 } from './cache';
+import Bottleneck from 'bottleneck';
+
+// Create a limiter for API requests
+const limiter = new Bottleneck({
+    maxConcurrent: 5, // Maximum number of requests running at the same time
+    minTime: 2000, // Minimum time between requests (ms)
+    highWater: 50, // Maximum size of the queue
+    strategy: Bottleneck.strategy.LEAK, // Strategy for when the queue is full
+});
 
 export const MINT_PROCESS = 'lNtrei6YLQiWS8cyFFHDrOBvRzICQPTvrjZBP8fz-ZI';
 export const MINT_TOKEN = 'SWQx44W-1iMwGFBSHlC3lStCq3Z7O2WZrx9quLeZOu0';
@@ -53,6 +62,44 @@ export interface MessageResult {
     }>;
 }
 
+// Map to track in-flight requests
+const inFlightRequests = new Map<string, Promise<MessageResult>>();
+
+// Generate a unique key for a request
+function generateRequestKey(
+    target: string,
+    tags: { name: string; value: string }[],
+    userKey = ''
+): string {
+    const tagsStr = tags.map((tag) => `${tag.name}:${tag.value}`).join(',');
+    return `${target}|${tagsStr}|${userKey}`;
+}
+
+// The core API call function, now with deduplication
+async function makeThrottledRequest(
+    requestFn: () => Promise<MessageResult>,
+    requestKey: string
+): Promise<MessageResult> {
+    // Check if an identical request is already in flight
+    if (inFlightRequests.has(requestKey)) {
+        console.log(
+            `Duplicate request detected: ${requestKey}. Reusing in-flight request.`
+        );
+        return inFlightRequests.get(requestKey)!;
+    }
+
+    // Create a new request and add it to the in-flight map
+    const requestPromise = limiter.schedule(requestFn);
+    inFlightRequests.set(requestKey, requestPromise);
+
+    // Clean up the in-flight map when the request completes
+    requestPromise.finally(() => {
+        inFlightRequests.delete(requestKey);
+    });
+
+    return requestPromise;
+}
+
 export async function sendAndGetResult(
     target: string,
     tags: { name: string; value: string }[],
@@ -60,7 +107,6 @@ export async function sendAndGetResult(
     cacheExpiry: number | false,
     userKey = ''
 ): Promise<MessageResult> {
-    let response;
     let cached;
     let cacheKey = '';
 
@@ -73,22 +119,28 @@ export async function sendAndGetResult(
         return cached;
     }
 
-    if (signer === false) {
-        response = await dryrun({
-            process: target,
-            tags,
-        });
-    } else {
-        const messageId = await sendMessage(target, tags, signer);
-        if (!messageId) {
-            throw new Error('Failed to send message');
-        }
+    // Generate a unique key for this request to detect duplicates
+    const requestKey = generateRequestKey(target, tags, userKey);
 
-        response = await result({
-            message: messageId,
-            process: target,
-        });
-    }
+    // Use the throttled and deduplicated request function
+    const response = await makeThrottledRequest(async () => {
+        if (signer === false) {
+            return await dryrun({
+                process: target,
+                tags,
+            });
+        } else {
+            const messageId = await sendMessage(target, tags, signer);
+            if (!messageId) {
+                throw new Error('Failed to send message');
+            }
+
+            return await result({
+                message: messageId,
+                process: target,
+            });
+        }
+    }, requestKey);
 
     if (cacheExpiry) {
         setCache(cacheKey, response, cacheExpiry);
@@ -208,3 +260,17 @@ export async function checkMaintenance(): Promise<boolean> {
         return true;
     }
 }
+
+// Add some monitoring events for debugging if needed
+limiter.on('failed', (error, jobInfo) => {
+    console.warn(`Request failed (attempt ${jobInfo.retryCount})`, error);
+});
+
+limiter.on('depleted', (empty) => {
+    if (empty) {
+        console.log('Queue is empty and all workers are idle');
+    }
+});
+
+// Export the limiter for advanced configuration elsewhere if needed
+export const requestLimiter = limiter;
