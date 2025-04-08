@@ -1,5 +1,9 @@
 // services/rewards-service.ts
-import { REWARDS_PROCESS, sendAndGetResult } from '@/lib/wallet-actions';
+import {
+    MINT_PROCESS,
+    REWARDS_PROCESS,
+    sendAndGetResult,
+} from '@/lib/wallet-actions';
 import { CACHE_EXPIRY } from '@/lib/cache';
 import { shortNumberFormat, withRetry } from '@/lib/utils';
 
@@ -124,7 +128,7 @@ export async function getStakeOwnership(
 
         return await withRetry(async () => {
             const response = await sendAndGetResult(
-                REWARDS_PROCESS,
+                MINT_PROCESS,
                 tags,
                 false,
                 CACHE_EXPIRY.MINUTE * 5,
@@ -138,7 +142,6 @@ export async function getStakeOwnership(
             const data = JSON.parse(
                 response.Messages[0].Data
             ) as StakeOwnershipData;
-
             return {
                 ...data,
                 formattedPercentage: data.percentage, // Already formatted to 6 decimal places from contract
