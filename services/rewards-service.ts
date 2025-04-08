@@ -19,6 +19,13 @@ export interface RewardsSummary {
     formattedTotalDistributed?: string;
 }
 
+export interface StakeOwnershipData {
+    percentage: string;
+    stakerWeight: string;
+    totalWeight: string;
+    formattedPercentage?: string;
+}
+
 const formatMintAmount = (amount: string): string => {
     const denomination = 100_000_000;
     return shortNumberFormat((Number(amount) / denomination).toString());
@@ -97,6 +104,48 @@ export async function getRewardsSummary(): Promise<RewardsSummary | null> {
         });
     } catch (error) {
         console.error('Error fetching rewards summary:', error);
+        return null;
+    }
+}
+
+/**
+ * Fetches stake ownership percentage for a specific user
+ * @param address User's wallet address
+ * @returns Stake ownership data
+ */
+export async function getStakeOwnership(
+    address: string
+): Promise<StakeOwnershipData | null> {
+    try {
+        const tags = [
+            { name: 'Action', value: 'Get-Stake-Ownership' },
+            { name: 'Staker', value: address },
+        ];
+
+        return await withRetry(async () => {
+            const response = await sendAndGetResult(
+                REWARDS_PROCESS,
+                tags,
+                false,
+                CACHE_EXPIRY.MINUTE * 5,
+                address
+            );
+
+            if (!response?.Messages?.[0]?.Data) {
+                return null;
+            }
+
+            const data = JSON.parse(
+                response.Messages[0].Data
+            ) as StakeOwnershipData;
+
+            return {
+                ...data,
+                formattedPercentage: data.percentage, // Already formatted to 6 decimal places from contract
+            };
+        });
+    } catch (error) {
+        console.error('Error fetching stake ownership:', error);
         return null;
     }
 }

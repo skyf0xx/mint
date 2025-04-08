@@ -3,6 +3,7 @@ import { StakingState } from '@/types/staking-store';
 import {
     getUserRewards,
     getRewardsSummary,
+    getStakeOwnership,
     UserRewards,
     RewardsSummary,
 } from '@/services/rewards-service';
@@ -51,6 +52,26 @@ export const createRewardsSlice = (set: any, get: () => StakingState) => ({
             return summary;
         } catch (error) {
             console.error('Error fetching rewards summary:', error);
+            return null;
+        }
+    },
+    /**
+     * Fetches stake ownership percentage for the current user
+     * @param userAddress User's wallet address
+     */
+    fetchStakeOwnership: async (userAddress: string) => {
+        if (!userAddress) return;
+
+        try {
+            const ownership = await getStakeOwnership(userAddress);
+
+            if (ownership) {
+                set({ stakeOwnership: ownership });
+            }
+
+            return ownership;
+        } catch (error) {
+            console.error('Error fetching stake ownership:', error);
             return null;
         }
     },
