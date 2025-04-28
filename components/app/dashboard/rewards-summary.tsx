@@ -37,6 +37,23 @@ const RewardsSummary: React.FC = () => {
         });
     };
 
+    // Format full amount with commas and 6 decimal places
+    const formatFullAmount = (amount?: string): string => {
+        if (!amount) return '0.000000';
+
+        // Convert to number and format with commas and 6 decimal places
+        const denomination = 100_000_000;
+        const value = Number(amount) / denomination;
+
+        // Format with commas for thousands and fixed decimal places
+        return (
+            value.toLocaleString('en-US', {
+                minimumFractionDigits: 6,
+                maximumFractionDigits: 6,
+            }) + ' MINT'
+        );
+    };
+
     // Calculate average reward per distribution
     const avgRewardPerDistribution = React.useMemo(() => {
         if (
@@ -178,12 +195,25 @@ const RewardsSummary: React.FC = () => {
                         {isLoadingRewards ? (
                             <Skeleton className="h-9 w-32" />
                         ) : (
-                            <div className="text-2xl font-semibold">
-                                {userRewards?.formattedTotal || '0'}{' '}
-                                <span className="text-sm text-gray-500">
-                                    MINT
-                                </span>
-                            </div>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="text-2xl font-semibold cursor-help">
+                                            {userRewards?.formattedTotal || '0'}{' '}
+                                            <span className="text-sm text-gray-500">
+                                                MINT
+                                            </span>
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p className="font-medium">
+                                            {formatFullAmount(
+                                                userRewards?.total
+                                            )}
+                                        </p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
                         )}
                     </div>
 
@@ -214,12 +244,26 @@ const RewardsSummary: React.FC = () => {
                             <Skeleton className="h-9 w-32" />
                         ) : (
                             <>
-                                <div className="text-2xl font-semibold">
-                                    {userRewards?.formattedLastReceived || '0'}{' '}
-                                    <span className="text-sm text-gray-500">
-                                        MINT
-                                    </span>
-                                </div>
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <div className="text-2xl font-semibold cursor-help">
+                                                {userRewards?.formattedLastReceived ||
+                                                    '0'}{' '}
+                                                <span className="text-sm text-gray-500">
+                                                    MINT
+                                                </span>
+                                            </div>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p className="font-medium">
+                                                {formatFullAmount(
+                                                    userRewards?.lastReceived
+                                                )}
+                                            </p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
                                 <div className="text-xs text-gray-500 mt-1">
                                     {userRewards
                                         ? formatTimestamp(
