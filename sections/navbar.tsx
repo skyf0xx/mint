@@ -35,6 +35,10 @@ const Navbar = ({ progress, scrollToSection }: NavbarProps) => {
         });
     }, [scrollToSection]);
 
+    useEffect(() => {
+        scrollToSection('stake');
+    }, [connected]);
+
     // Handle scroll effect
     useEffect(() => {
         const handleScroll = () => {
