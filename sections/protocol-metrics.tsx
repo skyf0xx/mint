@@ -216,6 +216,7 @@ const ProtocolMetrics = () => {
         MINT: './images/currencies/mint.png',
         TTT: './images/currencies/ttt.svg',
         MATRIX: './images/currencies/matrix.png',
+        GAME: './images/currencies/game.png',
     };
 
     function getIconFromAddress(tokenAddress: string) {
@@ -234,6 +235,8 @@ const ProtocolMetrics = () => {
                 return tokenIcons['TTT'];
             case 'XQhUXernOkcwzrNq5U1KlAhHsqLnT3kA4ccAxfQR7XM':
                 return tokenIcons['MATRIX'];
+            case 's6jcB3ctSbiDNwR-paJgy5iOAhahXahLul8exSLHbGE':
+                return tokenIcons['GAME'];
             default:
                 return '';
         }
@@ -255,6 +258,8 @@ const ProtocolMetrics = () => {
                 return 'TTT';
             case 'XQhUXernOkcwzrNq5U1KlAhHsqLnT3kA4ccAxfQR7XM':
                 return 'MATRIX';
+            case 's6jcB3ctSbiDNwR-paJgy5iOAhahXahLul8exSLHbGE':
+                return 'GAME';
             default:
                 return '';
         }
