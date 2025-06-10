@@ -51,7 +51,7 @@ const ILFaq = () => {
                         <AccordionContent>
                             <p className="text-gray-700">
                                 With our single-sided staking, you only need to
-                                provide one token (e.g., qAR, wAR, NAB, etc.).
+                                provide one token (e.g., GAME, wAR, NAB, etc.).
                                 The protocol automatically provides matching
                                 MINT tokens as the other side of the liquidity
                                 pair. This creates a complete LP position

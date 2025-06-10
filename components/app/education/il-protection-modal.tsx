@@ -65,9 +65,9 @@ const ILProtectionModal = ({ isOpen, onClose }: ILProtectionModalProps) => {
                                     <div className="bg-amber-50 p-4 rounded-lg mt-2">
                                         <p className="text-amber-800">
                                             <strong>Example:</strong> If you
-                                            deposit 100 qAR when 1 qAR = 0.5
+                                            deposit 100 GAME when 1 GAME = 0.5
                                             MINT, and later the price changes to
-                                            1 qAR = 0.8 MINT, your position
+                                            1 GAME = 0.8 MINT, your position
                                             would be worth less than if you had
                                             simply held the tokens outside the
                                             pool.
@@ -202,24 +202,24 @@ const ILProtectionModal = ({ isOpen, onClose }: ILProtectionModalProps) => {
                                                 Example 1: 15 Days Staked
                                             </h4>
                                             <p className="text-gray-600 mt-1">
-                                                You stake 100 qAR and after 15
+                                                You stake 100 GAME and after 15
                                                 days your position is worth 90
-                                                qAR:
+                                                GAME:
                                             </p>
                                             <ul className="list-disc pl-5 mt-1 text-gray-600">
                                                 <li>
-                                                    Impermanent loss: 10 qAR
+                                                    Impermanent loss: 10 GAME
                                                 </li>
                                                 <li>
                                                     Protection coverage: 25%
                                                     (15/30 days × 50%)
                                                 </li>
                                                 <li>
-                                                    Compensation: 2.5 qAR
+                                                    Compensation: 2.5 GAME
                                                     equivalent in MINT tokens
                                                 </li>
                                                 <li>
-                                                    You receive: 90 qAR + MINT
+                                                    You receive: 90 GAME + MINT
                                                     compensation
                                                 </li>
                                             </ul>
@@ -229,24 +229,24 @@ const ILProtectionModal = ({ isOpen, onClose }: ILProtectionModalProps) => {
                                                 Example 2: 30 Days Staked
                                             </h4>
                                             <p className="text-gray-600 mt-1">
-                                                You stake 100 qAR and after 30
+                                                You stake 100 GAME and after 30
                                                 days your position is worth 85
-                                                qAR:
+                                                GAME:
                                             </p>
                                             <ul className="list-disc pl-5 mt-1 text-gray-600">
                                                 <li>
-                                                    Impermanent loss: 15 qAR
+                                                    Impermanent loss: 15 GAME
                                                 </li>
                                                 <li>
                                                     Protection coverage: 50%
                                                     (maximum)
                                                 </li>
                                                 <li>
-                                                    Compensation: 7.5 qAR
+                                                    Compensation: 7.5 GAME
                                                     equivalent in MINT tokens
                                                 </li>
                                                 <li>
-                                                    You receive: 85 qAR + MINT
+                                                    You receive: 85 GAME + MINT
                                                     compensation
                                                 </li>
                                             </ul>
