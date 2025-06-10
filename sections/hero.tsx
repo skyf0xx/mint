@@ -109,8 +109,8 @@ const Hero = () => {
                                             Simplified Staking
                                         </h3>
                                         <p className="text-gray-600">
-                                            Stake single tokens like AO or USDC
-                                            — no token pairing required
+                                            Stake single tokens like AO, GAME or
+                                            USDC — no token pairing required
                                         </p>
                                     </div>
                                     <div className="flex-1 bg-white/50 p-4 rounded-lg border border-primary/10">

@@ -138,6 +138,11 @@ const tokenInfo = [
         symbol: 'MATRIX',
         decimals: 18,
     },
+    {
+        tokenAddress: 's6jcB3ctSbiDNwR-paJgy5iOAhahXahLul8exSLHbGE',
+        symbol: 'GAME',
+        decimals: 18,
+    },
 ];
 
 export async function getTokenBalance(

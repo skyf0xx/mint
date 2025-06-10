@@ -363,7 +363,7 @@ const HowItWorks = () => {
                             <Step
                                 icon={Wallet}
                                 title="You provide your token"
-                                description="Select and deposit any supported token (qAR, wAR, NAB, AO, USDC). You only need to provide one side of the pair."
+                                description="Select and deposit any supported token (GAME, wAR, NAB, AO, USDC). You only need to provide one side of the pair."
                                 delay={0.1}
                                 index={0}
                             />

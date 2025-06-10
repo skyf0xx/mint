@@ -7,7 +7,7 @@ import {
     CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Info, Loader2 } from 'lucide-react';
+import { Info, Loader2, ExternalLink, AlertTriangle } from 'lucide-react';
 import TokenSelector from './token-selector';
 import AmountInput from './amount-input';
 import PositionSummary from './position-summary';
@@ -195,6 +195,30 @@ const StakingForm = ({
                     onSelectToken={setSelectedToken}
                 />
 
+                {/* Important Notice - Shows after token selection */}
+                {selectedToken && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                        <div className="flex items-start space-x-3">
+                            <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                            <div className="text-sm">
+                                <span className="font-medium text-amber-800 mb-2">
+                                    Before staking, make sure you understand
+                                    impermanent loss.{' '}
+                                </span>
+                                <a
+                                    href="https://www.youtube.com/watch?v=8XJ1MSTEuU0"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center text-amber-700 hover:text-amber-900 font-medium transition-colors"
+                                >
+                                    Watch explanation video
+                                    <ExternalLink className="h-3 w-3 ml-1" />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <AmountInput
                     value={amount}
                     onChange={setAmount}
@@ -220,10 +244,39 @@ const StakingForm = ({
                 )}
 
                 {amount && parseFloat(amount) > 0 && (
-                    <PositionSummary
-                        tokenAmount={amount}
-                        tokenSymbol={selectedToken}
-                    />
+                    <>
+                        <PositionSummary
+                            tokenAmount={amount}
+                            tokenSymbol={selectedToken}
+                        />
+
+                        {/* Impermanent Loss Educational Note */}
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
+                            <div className="flex items-start space-x-2">
+                                <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                                <div className="text-sm text-blue-800">
+                                    <p className="font-medium mb-1">
+                                        Understanding Price Fluctuations
+                                    </p>
+                                    <p className="text-blue-700 leading-relaxed">
+                                        When providing liquidity, your token
+                                        values may fluctuate relative to simply
+                                        holding them. This is a natural part of
+                                        automated market making.
+                                    </p>
+                                    <a
+                                        href="https://www.youtube.com/watch?v=8XJ1MSTEuU0"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center mt-2 text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors"
+                                    >
+                                        Learn more about how this works
+                                        <ExternalLink className="h-3 w-3 ml-1" />
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </>
                 )}
 
                 {parseFloat(amount) > parseFloat(balance) && (

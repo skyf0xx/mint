@@ -85,7 +85,7 @@ const Dashboard = ({
             {/* Add Rewards Summary component */}
             {address && hasPositions && <RewardsSummary />}
 
-            <Card className="border-2 border-primary/10 shadow-lg">
+            <Card className="border-2 border-primary/10 shadow-lg" id="stake">
                 <CardHeader className="border-b border-gray-100">
                     <DashboardHeader title="Your Staking Dashboard" />
                 </CardHeader>

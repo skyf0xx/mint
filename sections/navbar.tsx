@@ -35,6 +35,10 @@ const Navbar = ({ progress, scrollToSection }: NavbarProps) => {
         });
     }, [scrollToSection]);
 
+    useEffect(() => {
+        scrollToSection('stake');
+    }, [connected]);
+
     // Handle scroll effect
     useEffect(() => {
         const handleScroll = () => {
@@ -184,7 +188,7 @@ const Navbar = ({ progress, scrollToSection }: NavbarProps) => {
                                 onClick={handleLaunchAppClick}
                                 className="px-4 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary-600 transition-colors"
                             >
-                                Launch App
+                                Connect
                             </button>
                         )}
                     </div>
@@ -255,7 +259,7 @@ const Navbar = ({ progress, scrollToSection }: NavbarProps) => {
                                     onClick={handleLaunchAppClick}
                                     className="w-full px-4 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary-600 transition-colors"
                                 >
-                                    Launch App
+                                    Connect
                                 </button>
                             )}
                         </div>
