@@ -8,7 +8,7 @@ import { JWK } from '@/lib/wallet-actions';
 export interface StakingPosition {
     /** Unique identifier for the position */
     id: string;
-    /** Token symbol (e.g., qAR, wAR, NAB) */
+    /** Token symbol (e.g., GAME, wAR, NAB) */
     tokenSymbol: string;
     /** Contract address of the token */
     tokenAddress: string;
@@ -46,7 +46,7 @@ export interface TokenInfo {
     /** Full name of the token */
     name: string;
 
-    /** Symbol of the token (e.g., qAR) */
+    /** Symbol of the token (e.g., GAME) */
     symbol: string;
 
     /** Number of decimal places for the token */

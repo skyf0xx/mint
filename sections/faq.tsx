@@ -23,7 +23,7 @@ const faqItems = [
     },
     {
         question: 'What tokens can I use for single-sided staking?',
-        answer: 'The protocol supports staking various tokens including qAR, wAR, NAB, AO, and USDC. You can provide any of these tokens, and the protocol will automatically match it with the appropriate amount of MINT tokens to create a complete LP position.',
+        answer: 'The protocol supports staking various tokens including GAME, wAR, NAB, AO, GAME, and USDC. You can provide any of these tokens, and the protocol will automatically match it with the appropriate amount of MINT tokens to create a complete LP position.',
     },
     {
         question: 'What is MINT token?',
